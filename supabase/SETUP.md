@@ -12,6 +12,10 @@ This powers the live guestbook and the real visitor counter. Supabase's free tie
 
 The anon/publishable key is designed to sit in public website code. The rules in `setup.sql` only let visitors read notes, add notes, and add one to the counter. Nobody can edit or delete anything through it.
 
+## If you set this up before 17 October (evening)
+
+`setup.sql` was tightened so visitors can only send a name and a message; the database sets each wish's time itself, so nobody can date a wish in the future to keep it pinned on top. To apply it, paste the whole of `setup.sql` into **SQL Editor** again and click **Run**. It's safe to run twice: it keeps your wishes and your visitor count.
+
 ## Before you submit: clear test data
 
 While building, Claude pinned one test wish (from "Snorbit") and test visits bumped the counter. To start fresh, run this in **SQL Editor**:

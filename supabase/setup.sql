@@ -26,7 +26,11 @@ create policy "Anyone can sign the guestbook"
     and char_length(trim(message)) between 1 and 140
   );
 
-grant select, insert on public.guestbook to anon;
+-- Visitors may only fill in the name and the message. The id and the time are
+-- set by the database, so nobody can date a wish in the future to keep it on top.
+grant select on public.guestbook to anon;
+revoke insert on public.guestbook from anon;
+grant insert (name, message) on public.guestbook to anon;
 
 -- Visitor counter ------------------------------------------------------------
 

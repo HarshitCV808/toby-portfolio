@@ -218,10 +218,9 @@
   var themeSwitch = document.getElementById('theme-switch');
   var themeLabel = themeSwitch.querySelector('.theme-label');
 
+  // The label names what the button does next, so it isn't marked as pressed
   function renderTheme() {
-    var night = root.dataset.theme === 'night';
-    themeSwitch.setAttribute('aria-pressed', String(night));
-    themeLabel.textContent = night ? 'Lights on' : 'Lights off';
+    themeLabel.textContent = root.dataset.theme === 'night' ? 'Lights on' : 'Lights off';
   }
 
   themeSwitch.addEventListener('click', function () {
@@ -1346,6 +1345,8 @@
   }
   document.addEventListener('toby:page', resizeGameIfShown);
   document.addEventListener('toby:project', resizeGameIfShown);
+  document.addEventListener('toby:project', function (event) { if (event.detail.id !== 'star-catcher') pauseGame(); });
+  document.addEventListener('toby:page', function (event) { if (event.detail.id !== 'work') pauseGame(); });
 
   /* ------------------------------------------------------------------------
      Project: Dream Delivery Routes
@@ -2315,13 +2316,13 @@
     [/lights? on|turn on the light/, ['Too bright! But okay.'], null, function () { if (root.dataset.theme === 'night') themeSwitch.click(); }],
     [/are you (real|an? ai|a bot|a robot|human)|chat ?gpt|\bbot\b|robot/, ['I’m a skull baby, not a robot. I’m made of soft bones and a bit of code, like a music box made of words.']],
     [/how are (you|u)|how’?s it going|you ok/, ['Sleepy, cosy and slightly sticky from warm milk. Thanks for asking!']],
-    [/joke|funny|make me laugh/, ['Why didn’t the skeleton go to the party? He had no BODY to go with. (I do, though. It’s in pyjamas.)', 'What does a baby skeleton drink before bed? Warm MILK. Calcium! Get it?', 'Why are skeletons so calm? Nothing gets under their skin.']],
+    [/joke|funny|make me laugh|humou?r/, ['Why didn’t the skeleton go to the party? He had no BODY to go with. (I do, though. It’s in pyjamas.)', 'What does a baby skeleton drink before bed? Warm MILK. Calcium! Get it?', 'Why are skeletons so calm? Nothing gets under their skin.']],
     [/secret|easter|\begg|hint|cheat|hidden|surprise/, SECRET_HINTS],
     [/snorbit|dragon|sidekick|\bpet\b/, ['Snorbit is my pocket-sized dragon. He has been asleep since we met, and he snores in tune. He keeps my head warm.', 'Snorbit sleeps on my hat, my music box and my lantern. Not at the same time. Probably.']],
     [/skull|skeleton|bones?|scary|spooky|creepy|ghost|halloween/, ['I’m a skull baby, but not a scary one! My bones are soft and my fangs are only for biting cookies.']],
     [/who are you|your name|what are you|about you|yourself/, ['I’m Toby: a skull baby with two stars where my eyes should be. I’m the Lullaby Tinkerer at the Cloud Cradle Workshop.'], { href: '#who', label: 'Read my character sheet' }],
     [/how old|\bage\b|birthday/, ['Nearly one! I was born on the softest night of the year.']],
-    [/music ?box|lullab|song|sing|\bhum|tune|melody/, ['My music box plays three lullabies. Wind it up and it slows down as the spring runs out, just like a real one.'], { href: '#music-box', label: 'Wind up the Toby Box' }],
+    [/music ?box|lullab|song|sing|\bhum(s|med|ming)?\b|tune|melody/, ['My music box plays three lullabies. Wind it up and it slows down as the spring runs out, just like a real one.'], { href: '#music-box', label: 'Wind up the Toby Box' }],
     [/lantern|night ?light|glow|projector/, ['The Moonbell Lantern glows in any colour you like. It can even project stars all over the website.'], { href: '#lantern', label: 'Visit the lantern' }],
     [/block|spell|\bword|rattle/, ['My rattle blocks hide four secret words. Each one does something different. One of them is my name!'], { href: '#rattle-blocks', label: 'Play with the blocks' }],
     [/game|star catcher|catch|\bplay\b/, ['Star Catcher! Catch falling stars in my dream jar, but dodge the alarm clocks or Snorbit wakes up.'], { href: '#star-catcher', label: 'Play Star Catcher' }],
@@ -2551,7 +2552,9 @@
   }
 
   function showPage(fromClick) {
-    var found = findPage(decodeURIComponent(location.hash.slice(1)));
+    var id = location.hash.slice(1);
+    try { id = decodeURIComponent(id); } catch (e) { /* a broken address: use it as typed */ }
+    var found = findPage(id);
     if (!found) return;
     var page = found.page;
     var project = page === workPage && found.target ? found.target.closest('.project') : null;

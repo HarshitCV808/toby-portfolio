@@ -32,7 +32,7 @@ The site has five pages (Home, Who, Work, Story, Guestbook). Each opens on its o
 - **Star Catcher**: a canvas mini-game. Catch stars in the dream jar and dodge alarm clocks.
 - **Dream Delivery Routes**: an SVG map of Hushbury. Snorbit flies the route you choose while the trail draws in behind him.
 - **Toby's Growth Chart**: skills measured in pencil on the nursery wall, each with a note.
-- **Snorbit's Storybook**: a 3D page-turning flipbook with a "Read it to me" button that uses the browser's own voice.
+- **Snorbit's Storybook**: a 3D page-turning flipbook. **Read it to me** has Cori, an AI voice, read each page and turn it, with a quiet lullaby underneath.
 
 **Story.** Toby's origin in four scenes. The sky darkens, the moon rises and Snorbit flies across as you scroll.
 
@@ -88,7 +88,8 @@ The site is plain **HTML, CSS and JavaScript**, with no framework and no build s
 ### How the main features work
 
 - **Pages:** a small router reads the address-bar hash (`#who`, `#music-box`…) and shows one section at a time. Links, bookmarks and the back button all work.
-- **Sound:** everything is synthesised with the Web Audio API, so there are no audio files. The music box schedules notes slightly ahead on the audio clock to keep timing steady.
+- **Sound:** every effect and tune is synthesised with the Web Audio API, so there are no music files. The music box schedules notes slightly ahead on the audio clock to keep timing steady.
+- **Storybook narration:** recorded ahead of time, so every visitor hears the same voice and no AI service runs on the live site. `tools/make_story_audio.py` reads the storybook text from `index.html` and has [Piper](https://github.com/OHF-Voice/piper1-gpl), a free open-source AI voice, read it in the Cori voice (`en_GB-cori-high`). The script then saves one small AAC file per page in `assets/story/`. Re-run it if the story text changes.
 - **Eyes:** star-shaped overlays sit exactly on the painted eye sockets (positions measured from the artwork) and move towards the pointer.
 - **Pixel-art Toby:** generated in the browser from the painting. It's shrunk to 104px wide, each pixel is matched to a 16-colour pastel palette with Bayer dithering, then scaled up with crisp pixels.
 - **Guestbook and counter:** read and written through Supabase's REST API with the public "anon" key. Row-level security lets visitors read and add wishes and add one to the counter. Nobody can edit or delete through the site. Wishes are rendered with `textContent`, so no HTML can be injected.
@@ -117,6 +118,7 @@ To use your own guestbook, follow [`supabase/SETUP.md`](supabase/SETUP.md) and p
 
 - **Toby artwork:** generated with Google Gemini, art-directed by Toby's Night Shift. The pixel-art version is generated from it in the browser.
 - **Code:** written by Toby's Night Shift with help from Claude by Anthropic.
+- **Storybook narration:** an AI voice generated with [Piper](https://github.com/OHF-Voice/piper1-gpl), using the *Cori* voice (trained on public-domain LibriVox recordings).
 - **Libraries:** [Three.js](https://threejs.org), [canvas-confetti](https://github.com/catdad/canvas-confetti), [Supabase](https://supabase.com).
 - **Fonts:** Fredoka, Nunito and VT323 from Google Fonts.
 - **Lullabies:** "Twinkle, Twinkle, Little Star" is a traditional tune in the public domain; "Toby's Theme" and the Dream Machine are original.

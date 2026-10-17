@@ -1481,6 +1481,7 @@
     }
     face.className += ' ' + source.className;
     face.innerHTML = source.innerHTML;
+    face.dataset.page = pageSources.indexOf(source); // which recording reads this page
     if (number) {
       var num = document.createElement('p');
       num.className = 'page-number';
@@ -1603,60 +1604,26 @@
   if (spreadQuery.addEventListener) spreadQuery.addEventListener('change', buildBook);
   buildBook();
 
-  // "Read it to me": the browser's own voice reads the pages and turns them.
+  // "Read it to me": Cori, an AI voice made with Piper, reads each open page
+  // from a recording (assets/story/page-N.m4a, made by tools/make_story_audio.py),
+  // then turns the page. Every visitor hears the same cosy voice.
   var readButton = document.getElementById('book-read');
   var bookStatus = document.getElementById('book-status');
-  var speech = window.speechSynthesis;
+  var narration = new Audio(); // one element, reused, so browsers allow each page to play
+  narration.preload = 'none';
   var reading = false;
   var readTimer = 0;
   readButton.setAttribute('data-sound', 'own');
-  if (!speech || typeof SpeechSynthesisUtterance === 'undefined') readButton.hidden = true;
 
   // The last open page is one leaf before the end (the back cover, or The End on phones)
   function atLastPage() { return book.turned >= book.leaves.length - 1; }
 
-  // The words on the pages that are open right now (not the page numbers)
-  function openPageText() {
-    var faces = book.stage.querySelectorAll('.face[aria-hidden="false"]');
-    var words = [];
-    Array.prototype.forEach.call(faces, function (face) {
-      Array.prototype.forEach.call(face.querySelectorAll('h3, p:not(.page-number):not(.page-zzz)'), function (el) {
-        var text = el.textContent.trim();
-        // a full stop after titles and bylines, so the voice pauses there
-        words.push(/[.!?\u2026)\u201d"]$/.test(text) ? text : text + '.');
-      });
-    });
-    return words.join(' ');
+  // Page numbers (0 = cover) of the pages open right now, left page first
+  function openPageNumbers() {
+    var faces = book.stage.querySelectorAll('.face[aria-hidden="false"][data-page]');
+    return Array.prototype.map.call(faces, function (face) { return Number(face.dataset.page); })
+      .sort(function (x, y) { return x - y; });
   }
-
-  // Choose the cosiest voice this device has. Voice lists differ on every
-  // browser and system, so score them: natural/premium voices first, then
-  // known warm ones, and never the novelty voices.
-  // warm voices, cosiest first
-  var WARM_VOICES = ['sonia', 'libby', 'maisie', 'ava', 'zoe', 'serena', 'moira', 'samantha', 'fiona', 'kate', 'karen', 'tessa', 'aria', 'jenny', 'allison', 'susan', 'emma', 'google uk english female', 'google us english'];
-  var SILLY_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|ralph|grandpa|grandma|rocko|eddy|flo|reed|sandy|shelley/i;
-  var cosyVoice = null;
-  var currentLine = null;
-
-  function pickVoice() {
-    if (cosyVoice) return cosyVoice;
-    var best = null;
-    var bestScore = -Infinity;
-    speech.getVoices().forEach(function (voice) {
-      if (!/^en/i.test(voice.lang) || SILLY_VOICES.test(voice.name)) return;
-      var score = 0;
-      if (/natural|neural/i.test(voice.name)) score += 50;
-      if (/premium|enhanced/i.test(voice.name)) score += 40;
-      var name = voice.name.toLowerCase();
-      var rank = WARM_VOICES.findIndex(function (warm) { return name.indexOf(warm) !== -1; });
-      if (rank !== -1) score += 20 + (WARM_VOICES.length - rank);
-      if (/en[-_](gb|ie|au)/i.test(voice.lang)) score += 5; // softer-sounding accents for a bedtime story
-      if (score > bestScore) { bestScore = score; best = voice; }
-    });
-    cosyVoice = best;
-    return best;
-  }
-  if (speech && speech.addEventListener) speech.addEventListener('voiceschanged', function () { cosyVoice = null; });
 
   // A very quiet, slow Toby's Theme on the music box underneath the reading
   var storyBed = { timer: 0, gain: null, loop: null, index: 0, time: 0, beat: 0 };
@@ -1704,43 +1671,24 @@
     setTimeout(function () { fading.disconnect(); }, 1400);
   }
 
-  // Read the open pages one sentence at a time, with little bedtime pauses
+  // Play the recording for each open page, then turn the page and carry on
   function readOpenPages() {
     if (!reading) return;
-    var sentences = openPageText().match(/[^.!?…]+[.!?…)]*["”]?\s*/g) || [];
-    var voice = pickVoice();
+    var queue = openPageNumbers();
 
-    function readNext() {
+    function playNext() {
       if (!reading) return;
-      var sentence = sentences.shift();
-      if (!sentence) { finishedPages(); return; }
-      var line = new SpeechSynthesisUtterance(sentence.trim());
-      var started = false;
-      var done = false;
-      if (voice) line.voice = voice;
-      line.rate = 0.82;
-      line.pitch = 1.02;
-      line.volume = 0.9;
-      currentLine = line; // keep a reference: Chrome can drop lines it isn't holding, and never finish them
-
-      function next() {
-        if (done) return;
-        done = true;
-        clearTimeout(speechWatch);
-        readTimer = setTimeout(readNext, 380); // a little bedtime pause between sentences
+      var page = queue.shift();
+      if (page === undefined) { finishedPages(); return; }
+      narration.src = 'assets/story/page-' + page + '.m4a';
+      narration.onended = function () { readTimer = setTimeout(playNext, 500); };
+      narration.onerror = function () { stopReading('The story recording didn\u2019t load. Check your connection and try again.'); };
+      var playing = narration.play();
+      if (playing && playing.catch) {
+        playing.catch(function (error) {
+          if (reading && error.name !== 'AbortError') stopReading('Your browser paused the story. Press Read it to me again.');
+        });
       }
-      line.onstart = function () { started = true; };
-      line.onend = next;
-      line.onerror = next;
-
-      // Safety net: some browsers never start speaking, or never say they finished
-      var words = sentence.split(/\s+/).length;
-      var speechWatch = setTimeout(function () {
-        if (!reading || done) return;
-        if (!started) { stopReading('This browser can\u2019t read aloud right now. Try Chrome, Edge or Safari.'); return; }
-        speechWatch = setTimeout(function () { if (reading && !done) { speech.cancel(); next(); } }, words * 700 + 4000);
-      }, 4000);
-      speech.speak(line);
     }
 
     function finishedPages() {
@@ -1752,13 +1700,13 @@
       }, 800);
     }
 
-    readNext();
+    playNext();
   }
 
   function stopReading(message) {
     reading = false;
     clearTimeout(readTimer);
-    if (speech) speech.cancel();
+    narration.pause();
     stopStoryBed();
     readButton.setAttribute('aria-pressed', 'false');
     readButton.textContent = 'Read it to me';
@@ -1777,7 +1725,6 @@
     readButton.setAttribute('aria-pressed', 'true');
     readButton.textContent = 'Stop reading';
     bookStatus.textContent = 'Snuggle in\u2026 reading quietly.';
-    speech.cancel();
     if (atLastPage()) {
       book.turned = 0; // start again from the cover
       renderBook(true);

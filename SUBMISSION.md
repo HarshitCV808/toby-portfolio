@@ -9,7 +9,7 @@ _A starting point for the haX.baby submission form. Edit it into your own words 
 We wanted the site to feel like a real cosy place on the early web rather than a modern landing page with a cute skin. His toys really work:
 - **Music box:** winds down like a real spring, with notes synthesised live in the browser.
 - **Lantern:** turns your cursor into a nightlight.
-- **Storybook:** turns its pages in 3D and can read itself aloud.
+- **Storybook:** turns its pages in 3D, and a cosy AI voice can read it aloud over a quiet lullaby.
 - **Dream Delivery Routes:** sends Snorbit flying over a map of Hushbury.
 - **Rattle blocks and growth chart:** a block game with secret words, and a growth chart of Toby's skills.
 
@@ -17,4 +17,4 @@ For full 1999 energy there's a marquee, a real visitor odometer, a live guestboo
 
 Toby is also a character you can talk to. TobyChat 99 lets him answer questions in his own voice, he remembers returning visitors, and the site is full of secrets: a Konami code, a midnight visitor surprise, secret words, a nap if you sit still, and a note in the developer console. It's built with plain HTML, CSS and JavaScript with no build step. The 3D model uses Three.js, loaded only when you ask for it. The guestbook and visitor counter run on Supabase with read-and-add-only security rules. Every page passes axe accessibility checks in day, night and chaos modes, works by keyboard, respects reduced motion, and keeps sound behind a visible mute switch.
 
-**Honesty note:** Toby's artwork was generated with Google Gemini under our art direction, and we built the code with help from Claude by Anthropic. Both are credited in the site footer and the README.
+**Honesty note:** Toby's artwork was generated with Google Gemini under our art direction, the storybook narration is an AI voice made with the open-source Piper, and we built the code with help from Claude by Anthropic. All three are credited in the site footer and the README.

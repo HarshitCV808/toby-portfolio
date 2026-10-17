@@ -756,6 +756,71 @@ main { overflow-x: clip; }
 .blocks-status { min-height: 1.6em; font-family: var(--font-display); font-weight: 600; color: var(--link); }
 
 /* --------------------------------------------------------------------------
+   Dream Delivery Routes: an SVG map; Snorbit flies the chosen route
+   -------------------------------------------------------------------------- */
+
+.shelf-art-routes {
+  background:
+    radial-gradient(circle at 78% 26%, #fff3c4 0 13%, transparent 14%),
+    radial-gradient(ellipse 60% 30% at 30% 105%, #2a2358 0 98%, transparent 100%),
+    radial-gradient(ellipse 70% 32% at 85% 108%, #221c4a 0 98%, transparent 100%),
+    radial-gradient(circle at 22% 30%, #e4d8f8 0 9%, transparent 10%),
+    linear-gradient(#14103a, #3b2f73);
+}
+
+.routes {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+}
+.routes-map {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+.routes-map svg { display: block; width: 100%; height: auto; }
+.routes-map .home { cursor: pointer; }
+.home-light { fill: #3a2f6e; transition: fill 0.6s ease, filter 0.6s ease; }
+.moon-face { fill: #e9e2c4; }
+.home.is-dreaming .home-light { fill: #ffd36e; filter: drop-shadow(0 0 4px #ffd36e); }
+.home.is-dreaming .moon-face { fill: #fff3c4; filter: drop-shadow(0 0 14px #fff3c4); }
+.home-z { opacity: 0; font: 700 18px var(--font-display); fill: #fff8f1; transition: opacity 0.6s ease; }
+.home.is-dreaming .home-z { opacity: 0.9; }
+.map-label { font: 600 14px var(--font-display); fill: #fff8f1; opacity: 0.85; pointer-events: none; }
+.route { fill: none; stroke: #ffd36e; stroke-width: 4; stroke-linecap: round; stroke-dasharray: 0.1 12; }
+.routes-flyer {
+  position: absolute;
+  left: 18.75%;
+  top: 29.5%;
+  width: 12%;
+  pointer-events: none;
+  transform: translate(-50%, -62%);
+  filter: drop-shadow(0 0 6px rgba(255, 211, 110, 0.6));
+}
+.routes-label { margin: 0; font-family: var(--font-display); font-weight: 600; }
+.routes-panel .chip-row { margin-top: 0.75rem; }
+.route-chip::before {
+  content: "";
+  width: 0;
+  height: 1rem;
+  background: var(--butter);
+  clip-path: polygon(50% 2%, 63% 34%, 98% 36%, 71% 58%, 80% 94%, 50% 74%, 20% 94%, 29% 58%, 2% 36%, 37% 34%);
+  transition: width 0.3s ease;
+}
+.route-chip.is-done::before { width: 1rem; }
+.route-chip[aria-disabled="true"] { opacity: 0.55; cursor: progress; }
+.routes-dream { min-height: 4.5em; margin: 1.25rem 0 0.5rem; font-family: var(--font-display); font-weight: 600; color: var(--link); }
+.routes-count { margin: 0; font-family: var(--font-retro); font-size: 1.4rem; }
+:root[data-chaos="on"] .routes-map { border: 5px ridge #ff66b2; border-radius: 0; }
+
+@media (max-width: 900px) {
+  .routes { grid-template-columns: minmax(0, 1fr); }
+  .routes-dream { min-height: 3em; }
+}
+
+/* --------------------------------------------------------------------------
    Star Catcher mini-game
    -------------------------------------------------------------------------- */
 

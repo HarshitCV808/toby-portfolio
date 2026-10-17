@@ -13,6 +13,27 @@
     return !!(event.target && event.target.closest && event.target.closest('input, textarea'));
   }
 
+  // Snorbit in profile, facing right: bat wing, back spikes, snout, spade-tipped tail
+  var LINE = ' stroke="#4a3530" stroke-width="2" stroke-linejoin="round"';
+  var SNORBIT_SVG =
+    '<svg viewBox="0 0 130 90" aria-hidden="true">' +
+    '<path class="wing" d="M52 42C46 18 64 6 82 8c-4 5-2 9-6 13-4 0-4 6-8 8-4 0-4 6-8 9z" fill="#a8e2cf"' + LINE + '/>' +
+    '<path d="M30 58C18 60 10 54 9 45" fill="none" stroke="#4a3530" stroke-width="9" stroke-linecap="round"/>' +
+    '<path d="M30 58C18 60 10 54 9 45" fill="none" stroke="#b9a3e3" stroke-width="5" stroke-linecap="round"/>' +
+    '<path d="M9 46l-7-6 10-4 3 9z" fill="#a8e2cf"' + LINE + '/>' +
+    '<ellipse cx="47" cy="73" rx="5.5" ry="4" fill="#b9a3e3"' + LINE + '/>' +
+    '<ellipse cx="64" cy="73" rx="5.5" ry="4" fill="#b9a3e3"' + LINE + '/>' +
+    '<path d="M38 43l4-9 5 8zM50 40l4-9 5 8zM62 41l4-8 4 8z" fill="#a8e2cf"' + LINE + '/>' +
+    '<ellipse cx="56" cy="57" rx="29" ry="17" fill="#b9a3e3"' + LINE + '/>' +
+    '<ellipse cx="59" cy="63" rx="17" ry="8" fill="#d9f3ea"/>' +
+    '<path d="M80 33l-8-9 11 2zM89 30l-3-11 8 8z" fill="#a8e2cf"' + LINE + '/>' +
+    '<circle cx="89" cy="45" r="15" fill="#b9a3e3"' + LINE + '/>' +
+    '<ellipse cx="104" cy="50" rx="9" ry="7" fill="#b9a3e3"' + LINE + '/>' +
+    '<circle cx="108" cy="48" r="1.3" fill="#4a3530"/>' +
+    '<path d="M86 44q4 4 8 0" fill="none" stroke="#4a3530" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<circle cx="95" cy="52" r="3" fill="#f5b5c6"/>' +
+    '</svg>';
+
   /* ------------------------------------------------------------------------
      Sound: Web Audio, no files. Nothing plays until the visitor clicks,
      and the mute switch silences everything.
@@ -1069,6 +1090,98 @@
   document.addEventListener('toby:project', resizeGameIfShown);
 
   /* ------------------------------------------------------------------------
+     Project: Dream Delivery Routes
+     Snorbit flies along the chosen SVG route (getPointAtLength), while the
+     route's mask draws the dotted trail in behind him.
+     ------------------------------------------------------------------------ */
+
+  var routesMap = document.getElementById('routes-map');
+  var flyer = document.getElementById('routes-flyer');
+  var routesDream = document.getElementById('routes-dream');
+  var routesCount = document.getElementById('routes-count');
+  var routeChips = Array.prototype.slice.call(document.querySelectorAll('.route-chip'));
+  var HOMES = {
+    owl: { place: "the owl's tree", who: 'Professor Hoot', dream: 'a library where every book is a pillow' },
+    mouse: { place: 'the mouse house', who: 'The Nibble family', dream: 'a cheese moon, close enough to nibble' },
+    bunny: { place: 'the bunny burrow', who: 'Clover the bunny', dream: 'a carrot rocket with extra-soft landings' },
+    frog: { place: 'the frog pond', who: 'Lily the frog', dream: 'singing lead in the firefly choir' },
+    moon: { place: 'the moon', who: 'The Moon herself', dream: 'a full night’s sleep, for once' }
+  };
+  var dreaming = {};
+  var dreamingCount = 0;
+  var routeFlying = false;
+  flyer.innerHTML = SNORBIT_SVG;
+
+  function setRouteChipsBusy(busy) {
+    routeChips.forEach(function (chip) { chip.setAttribute('aria-disabled', String(busy)); });
+  }
+
+  function deliverDream(home) {
+    if (routeFlying || !HOMES[home]) return;
+    var route = routesMap.querySelector('.route[data-route="' + home + '"]');
+    var reveal = routesMap.querySelector('.route-reveal[data-route="' + home + '"]');
+    var length = route.getTotalLength();
+    var duration = reduceMotion.matches ? 0 : 2400;
+    var started = performance.now();
+    var lastSparkle = 0;
+
+    routeFlying = true;
+    setRouteChipsBusy(true);
+    routesDream.textContent = 'Snorbit is flying to ' + HOMES[home].place + '…';
+    swish();
+
+    function step(now) {
+      var t = duration ? Math.min(1, (now - started) / duration) : 1;
+      var eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      var point = route.getPointAtLength(length * eased);
+      var ahead = route.getPointAtLength(Math.min(length, length * eased + 3));
+      flyer.style.left = (point.x / 800 * 100) + '%';
+      flyer.style.top = (point.y / 480 * 100) + '%';
+      flyer.style.transform = 'translate(-50%, -62%) scaleX(' + (ahead.x < point.x - 0.1 ? -1 : 1) + ')';
+      reveal.style.strokeDashoffset = String(1 - eased);
+      if (now - lastSparkle > 90 && t < 1) {
+        lastSparkle = now;
+        var box = flyer.getBoundingClientRect();
+        sparkleAt(box.left + box.width / 2, box.top + box.height / 2);
+      }
+      if (t < 1) requestAnimationFrame(step);
+      else arriveWithDream(home);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function arriveWithDream(home) {
+    var info = HOMES[home];
+    routeFlying = false;
+    setRouteChipsBusy(false);
+    routesMap.querySelector('.home[data-home="' + home + '"]').classList.add('is-dreaming');
+    routeChips.forEach(function (chip) { if (chip.dataset.home === home) chip.classList.add('is-done'); });
+    [783.99, 1046.5, 1318.5].forEach(function (f, i) { ping(f, { delay: i * 0.1, duration: 0.8, volume: 0.13 }); });
+
+    var message = info.who + ' is dreaming of ' + info.dream + '.';
+    if (!dreaming[home]) {
+      dreaming[home] = true;
+      dreamingCount++;
+      if (dreamingCount === 5) {
+        message += ' That’s every home in Hushbury. Night shift complete!';
+        var box = routesMap.getBoundingClientRect();
+        celebrate({ x: (box.left + box.width / 2) / window.innerWidth, y: (box.top + box.height / 3) / window.innerHeight });
+      }
+    }
+    routesDream.textContent = message;
+    routesCount.textContent = dreamingCount + ' of 5 homes dreaming';
+  }
+
+  routeChips.forEach(function (chip) {
+    chip.addEventListener('click', function () { deliverDream(chip.dataset.home); });
+  });
+  // Pointer users can also click the homes on the map (the buttons cover keyboard users)
+  routesMap.addEventListener('click', function (event) {
+    var home = event.target.closest && event.target.closest('.home');
+    if (home) deliverDream(home.dataset.home);
+  });
+
+  /* ------------------------------------------------------------------------
      Project 5: Snorbit's storybook, a flipbook
      The readable list of pages in the HTML is rebuilt into leaves: two pages
      per leaf (a spread) on wide screens, one page per leaf on narrow ones.
@@ -1619,26 +1732,6 @@
   // 2. Konami code: Snorbit sleep-flies loop-the-loops across the screen.
   var KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
   var konamiStep = 0;
-  // Snorbit in profile, facing right: bat wing, back spikes, snout, spade-tipped tail
-  var LINE = ' stroke="#4a3530" stroke-width="2" stroke-linejoin="round"';
-  var SNORBIT_SVG =
-    '<svg viewBox="0 0 130 90" aria-hidden="true">' +
-    '<path class="wing" d="M52 42C46 18 64 6 82 8c-4 5-2 9-6 13-4 0-4 6-8 8-4 0-4 6-8 9z" fill="#a8e2cf"' + LINE + '/>' +
-    '<path d="M30 58C18 60 10 54 9 45" fill="none" stroke="#4a3530" stroke-width="9" stroke-linecap="round"/>' +
-    '<path d="M30 58C18 60 10 54 9 45" fill="none" stroke="#b9a3e3" stroke-width="5" stroke-linecap="round"/>' +
-    '<path d="M9 46l-7-6 10-4 3 9z" fill="#a8e2cf"' + LINE + '/>' +
-    '<ellipse cx="47" cy="73" rx="5.5" ry="4" fill="#b9a3e3"' + LINE + '/>' +
-    '<ellipse cx="64" cy="73" rx="5.5" ry="4" fill="#b9a3e3"' + LINE + '/>' +
-    '<path d="M38 43l4-9 5 8zM50 40l4-9 5 8zM62 41l4-8 4 8z" fill="#a8e2cf"' + LINE + '/>' +
-    '<ellipse cx="56" cy="57" rx="29" ry="17" fill="#b9a3e3"' + LINE + '/>' +
-    '<ellipse cx="59" cy="63" rx="17" ry="8" fill="#d9f3ea"/>' +
-    '<path d="M80 33l-8-9 11 2zM89 30l-3-11 8 8z" fill="#a8e2cf"' + LINE + '/>' +
-    '<circle cx="89" cy="45" r="15" fill="#b9a3e3"' + LINE + '/>' +
-    '<ellipse cx="104" cy="50" rx="9" ry="7" fill="#b9a3e3"' + LINE + '/>' +
-    '<circle cx="108" cy="48" r="1.3" fill="#4a3530"/>' +
-    '<path d="M86 44q4 4 8 0" fill="none" stroke="#4a3530" stroke-width="2.2" stroke-linecap="round"/>' +
-    '<circle cx="95" cy="52" r="3" fill="#f5b5c6"/>' +
-    '</svg>';
 
   function flySnorbit() {
     var dragon = document.createElement('div');

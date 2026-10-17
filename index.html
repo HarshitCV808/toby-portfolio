@@ -134,6 +134,7 @@
         <li><a class="shelf-card" href="#lantern"><span class="shelf-art shelf-art-lantern" aria-hidden="true"></span><span class="shelf-name">The Moonbell Lantern</span><span class="shelf-blurb">A nightlight in any colour you like</span></a></li>
         <li><a class="shelf-card" href="#rattle-blocks"><span class="shelf-art shelf-art-blocks" aria-hidden="true"><span>T</span><span>O</span><span>B</span></span><span class="shelf-name">Rattle Blocks</span><span class="shelf-blurb">Spell the secret words</span></a></li>
         <li><a class="shelf-card" href="#star-catcher"><span class="shelf-art shelf-art-game" aria-hidden="true"></span><span class="shelf-name">Star Catcher</span><span class="shelf-blurb">Catch stars, dodge alarm clocks</span></a></li>
+        <li><a class="shelf-card" href="#dream-routes"><span class="shelf-art shelf-art-routes" aria-hidden="true"></span><span class="shelf-name">Dream Delivery Routes</span><span class="shelf-blurb">Fly a dream to every home in Hushbury</span></a></li>
         <li><a class="shelf-card" href="#storybook"><span class="shelf-art art-snorbit-hat" aria-hidden="true"></span><span class="shelf-name">Snorbit's Storybook</span><span class="shelf-blurb">A bedtime story he never finishes</span></a></li>
       </ul>
 
@@ -212,6 +213,125 @@
             <div><dt>Best</dt><dd id="game-best">0</dd></div>
             <div><dt>Snorbit</dt><dd id="game-wake">Asleep</dd></div>
           </dl>
+        </div>
+      </article>
+
+      <article class="project project-wide" id="dream-routes">
+        <div class="project-copy">
+          <h3>Dream Delivery Routes</h3>
+          <p>Every night Snorbit and I fly over the rooftops of Hushbury and drop a dream down every chimney. Pick a home and watch the delivery.</p>
+        </div>
+        <div class="routes">
+          <div class="routes-map" id="routes-map">
+            <svg viewBox="0 0 800 480" aria-hidden="true">
+              <defs>
+                <linearGradient id="routes-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14103a"/><stop offset="1" stop-color="#3b2f73"/></linearGradient>
+                <mask id="reveal-owl" maskUnits="userSpaceOnUse" x="0" y="0" width="800" height="480"><path class="route-reveal" data-route="owl" d="M150 142 C 178 192, 120 226, 163 298" pathLength="1" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-dasharray="1" stroke-dashoffset="1"/></mask>
+                <mask id="reveal-mouse" maskUnits="userSpaceOnUse" x="0" y="0" width="800" height="480"><path class="route-reveal" data-route="mouse" d="M150 142 C 270 172, 302 252, 350 316" pathLength="1" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-dasharray="1" stroke-dashoffset="1"/></mask>
+                <mask id="reveal-bunny" maskUnits="userSpaceOnUse" x="0" y="0" width="800" height="480"><path class="route-reveal" data-route="bunny" d="M150 142 C 330 132, 440 252, 470 382" pathLength="1" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-dasharray="1" stroke-dashoffset="1"/></mask>
+                <mask id="reveal-frog" maskUnits="userSpaceOnUse" x="0" y="0" width="800" height="480"><path class="route-reveal" data-route="frog" d="M150 142 C 420 92, 610 262, 638 396" pathLength="1" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-dasharray="1" stroke-dashoffset="1"/></mask>
+                <mask id="reveal-moon" maskUnits="userSpaceOnUse" x="0" y="0" width="800" height="480"><path class="route-reveal" data-route="moon" d="M150 122 C 300 32, 520 32, 638 86" pathLength="1" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-dasharray="1" stroke-dashoffset="1"/></mask>
+              </defs>
+              <rect width="800" height="480" fill="url(#routes-sky)"/>
+              <g fill="#fff">
+                <circle cx="260" cy="40" r="1.6"/><circle cx="330" cy="110" r="1.2"/><circle cx="420" cy="60" r="2"/><circle cx="500" cy="150" r="1.3"/>
+                <circle cx="560" cy="40" r="1.5"/><circle cx="760" cy="180" r="1.8"/><circle cx="40" cy="230" r="1.4"/><circle cx="250" cy="250" r="1.2"/>
+                <circle cx="590" cy="230" r="1.6"/><circle cx="740" cy="30" r="1.2"/><circle cx="380" cy="200" r="1.1"/><circle cx="30" cy="40" r="1.5"/>
+              </g>
+
+              <!-- The moon (a home too) -->
+              <g class="home" data-home="moon">
+                <circle class="home-light moon-face" cx="672" cy="96" r="46"/>
+                <circle cx="694" cy="82" r="40" fill="#1a1546"/>
+                <text class="home-z" x="610" y="62">z z</text>
+                <text class="map-label" x="660" y="168" text-anchor="middle">The moon</text>
+              </g>
+
+              <!-- Cloud Cradle Workshop, where every route starts -->
+              <g>
+                <ellipse cx="122" cy="146" rx="78" ry="26" fill="#e4d8f8"/>
+                <circle cx="88" cy="132" r="26" fill="#f6d3e6"/>
+                <circle cx="150" cy="128" r="30" fill="#e4d8f8"/>
+                <rect x="100" y="86" width="44" height="34" rx="4" fill="#fffaf0"/>
+                <path d="M94 88 L122 62 L150 88 Z" fill="#8a6cc9"/>
+                <rect x="115" y="96" width="14" height="12" rx="2" fill="#ffd36e"/>
+                <text class="map-label" x="122" y="196" text-anchor="middle">Cloud Cradle Workshop</text>
+              </g>
+
+              <!-- Hills -->
+              <path d="M0 392 Q 120 336 260 378 T 520 368 T 800 380 V480 H0 Z" fill="#2a2358"/>
+              <path d="M0 436 Q 200 404 400 432 T 800 424 V480 H0 Z" fill="#221c4a"/>
+
+              <!-- The owl's tree -->
+              <g class="home" data-home="owl">
+                <rect x="152" y="292" width="22" height="108" rx="4" fill="#5a3f3a"/>
+                <circle cx="146" cy="272" r="44" fill="#3e3a7a"/>
+                <circle cx="186" cy="256" r="38" fill="#4a4590"/>
+                <circle cx="166" cy="228" r="36" fill="#443f86"/>
+                <ellipse cx="163" cy="318" rx="11" ry="14" fill="#2a1f22"/>
+                <circle class="home-light" cx="159" cy="316" r="3.2"/>
+                <circle class="home-light" cx="167" cy="316" r="3.2"/>
+                <text class="home-z" x="190" y="300">z z</text>
+                <text class="map-label" x="163" y="420" text-anchor="middle">Owl tree</text>
+              </g>
+
+              <!-- The mouse house -->
+              <g class="home" data-home="mouse">
+                <rect x="344" y="316" width="9" height="20" fill="#8a6cc9"/>
+                <rect x="300" y="344" width="58" height="44" rx="4" fill="#c9b6f5"/>
+                <path d="M292 348 L329 316 L366 348 Z" fill="#8a6cc9"/>
+                <path d="M322 388 v-14 a7 7 0 0 1 14 0 v14 z" fill="#4a3530"/>
+                <rect class="home-light" x="306" y="354" width="12" height="10" rx="1"/>
+                <rect class="home-light" x="340" y="354" width="12" height="10" rx="1"/>
+                <text class="home-z" x="362" y="318">z z</text>
+                <text class="map-label" x="329" y="410" text-anchor="middle">Mouse house</text>
+              </g>
+
+              <!-- The bunny burrow -->
+              <g class="home" data-home="bunny">
+                <ellipse cx="470" cy="398" rx="78" ry="40" fill="#3a3a7e"/>
+                <ellipse cx="470" cy="396" rx="21" ry="15" fill="#1a1435"/>
+                <circle class="home-light" cx="465" cy="394" r="3"/>
+                <circle class="home-light" cx="475" cy="394" r="3"/>
+                <rect x="518" y="366" width="4" height="24" fill="#8d5d3e"/>
+                <path d="M511 360 h18 l-9 12 z" fill="#ff9d4d"/>
+                <text class="home-z" x="492" y="372">z z</text>
+                <text class="map-label" x="470" y="452" text-anchor="middle">Bunny burrow</text>
+              </g>
+
+              <!-- The frog pond -->
+              <g class="home" data-home="frog">
+                <ellipse cx="650" cy="428" rx="92" ry="24" fill="#4a6fa5"/>
+                <ellipse cx="634" cy="424" rx="24" ry="8" fill="#6fbf8a"/>
+                <ellipse cx="638" cy="414" rx="11" ry="7" fill="#7ed39b"/>
+                <circle class="home-light" cx="633" cy="407" r="3.2"/>
+                <circle class="home-light" cx="643" cy="407" r="3.2"/>
+                <path d="M700 428 q4 -30 10 -40 M712 428 q2 -24 -4 -34" stroke="#6fbf8a" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <text class="home-z" x="656" y="392">z z</text>
+                <text class="map-label" x="650" y="470" text-anchor="middle">Frog pond</text>
+              </g>
+
+              <!-- Routes: a dotted trail, revealed by its mask as Snorbit flies -->
+              <path class="route" data-route="owl" d="M150 142 C 178 192, 120 226, 163 298" mask="url(#reveal-owl)"/>
+              <path class="route" data-route="mouse" d="M150 142 C 270 172, 302 252, 350 316" mask="url(#reveal-mouse)"/>
+              <path class="route" data-route="bunny" d="M150 142 C 330 132, 440 252, 470 382" mask="url(#reveal-bunny)"/>
+              <path class="route" data-route="frog" d="M150 142 C 420 92, 610 262, 638 396" mask="url(#reveal-frog)"/>
+              <path class="route" data-route="moon" d="M150 122 C 300 32, 520 32, 638 86" mask="url(#reveal-moon)"/>
+            </svg>
+            <div class="routes-flyer" id="routes-flyer" aria-hidden="true"></div>
+          </div>
+          <div class="routes-panel">
+            <p class="routes-label" id="routes-label">Deliver a dream to:</p>
+            <div class="chip-row" role="group" aria-labelledby="routes-label">
+              <button class="chip route-chip" type="button" data-home="owl">The owl's tree</button>
+              <button class="chip route-chip" type="button" data-home="mouse">The mouse house</button>
+              <button class="chip route-chip" type="button" data-home="bunny">The bunny burrow</button>
+              <button class="chip route-chip" type="button" data-home="frog">The frog pond</button>
+              <button class="chip route-chip" type="button" data-home="moon">The moon</button>
+            </div>
+            <p class="routes-dream" id="routes-dream" role="status" aria-live="polite">Snorbit is waiting at the Cloud Cradle Workshop with a sack of dreams.</p>
+            <p class="routes-count" id="routes-count">0 of 5 homes dreaming</p>
+          </div>
         </div>
       </article>
 

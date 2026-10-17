@@ -223,7 +223,11 @@
             <li class="word" data-word="SHH"><span class="word-blanks" aria-hidden="true">_ _ _</span><span class="visually-hidden">A 3-letter word, not found yet</span></li>
             <li class="word" data-word="SNORBIT"><span class="word-blanks" aria-hidden="true">_ _ _ _ _ _ _</span><span class="visually-hidden">A 7-letter word, not found yet</span></li>
           </ul>
-          <button class="button button-quiet" id="blocks-clear" type="button">Tip the blocks out</button>
+          <div class="blocks-actions">
+            <button class="button button-quiet" id="blocks-hint-button" type="button">Give me a hint</button>
+            <button class="button button-quiet" id="blocks-clear" type="button">Tip the blocks out</button>
+          </div>
+          <p class="blocks-hint" id="blocks-hint" aria-live="polite"></p>
         </div>
       </article>
 

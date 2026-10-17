@@ -915,6 +915,21 @@ main { overflow-x: clip; }
   letter-spacing: 0.08em;
 }
 .word.is-found { border-style: solid; border-color: var(--cocoa); background: var(--butter); color: var(--cocoa); }
+.blocks-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+/* Hints appear as a little paper note from Toby */
+.blocks-hint {
+  margin: 1rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.blocks-hint:not(:empty) {
+  padding: 0.7rem 1rem;
+  border-radius: 6px 16px 16px 6px;
+  border-left: 5px solid var(--lavender);
+  background: #fffaf0;
+  color: var(--cocoa);
+  box-shadow: 0 3px 0 rgba(74, 53, 48, 0.15);
+}
 
 /* Star projector: shapes turning slowly behind the whole site */
 .projector {

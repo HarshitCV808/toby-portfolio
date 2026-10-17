@@ -1001,6 +1001,7 @@
       blocksStatus.textContent = WORDS[spelled]();
       if (!wordsFound[spelled]) {
         markWordFound(spelled);
+        blocksHint.textContent = '';
         save('toby-words', Object.keys(wordsFound).join(','));
         var box = wordTray.getBoundingClientRect();
         celebrate({ x: (box.left + box.width / 2) / window.innerWidth, y: box.top / window.innerHeight });
@@ -1020,6 +1021,34 @@
       item.textContent = word;
     });
   }
+  // Hints: two per word (a riddle, then a letter clue) for the first word not found yet
+  var HINTS = {
+    TOBY: ['A 4-letter word: the name of a certain skull baby.', 'It starts with T and ends with Y.'],
+    HUSH: ['A 4-letter word you whisper to help a baby fall asleep.', 'It starts and ends with H.'],
+    SHH: ['The quietest word there is. Only 3 letters!', 'An S, then the same letter twice.'],
+    SNORBIT: ['A 7-letter word: who is asleep on Toby\u2019s hat?', 'It starts with S-N-O.']
+  };
+  var hintsShown = {};
+  var blocksHint = document.getElementById('blocks-hint');
+  var hintButton = document.getElementById('blocks-hint-button');
+  hintButton.setAttribute('data-sound', 'own');
+
+  hintButton.addEventListener('click', function () {
+    var waiting = WORD_LIST.filter(function (word) { return !wordsFound[word]; });
+    if (!waiting.length) {
+      blocksHint.textContent = 'You\u2019ve found every secret word! There are no more hiding in these blocks.';
+      return;
+    }
+    // stay on a word until both its hints are used, then move to the next one
+    var word = waiting.find(function (w) { return (hintsShown[w] || 0) < HINTS[w].length; }) || waiting[0];
+    var shown = hintsShown[word] || 0;
+    var level = Math.min(shown, HINTS[word].length - 1);
+    hintsShown[word] = shown + 1;
+    blocksHint.textContent = 'Hint ' + (level + 1) + ' of ' + HINTS[word].length + ': ' + HINTS[word][level];
+    ping(783.99, { duration: 0.5, volume: 0.1 });
+    ping(1046.5, { delay: 0.1, duration: 0.6, volume: 0.1 });
+  });
+
   // Words found on earlier visits stay found
   (load('toby-words') || '').split(',').forEach(function (word) { if (WORDS[word]) markWordFound(word); });
 

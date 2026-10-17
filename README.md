@@ -28,7 +28,7 @@ The site has five pages (Home, Who, Work, Story, Guestbook). Each opens on its o
 **Work: a toy shelf of seven projects that really work**
 - **The Toby Box**: a wind-up music box made with the Web Audio API. Wind it up to five turns and it slows as the spring runs down. It has three tunes (one is generated live and never repeats), a brass cylinder and comb that pluck each note, and a tempo slider.
 - **The Moonbell Lantern**: pick a glow colour, turn off the big light so your cursor becomes the lantern, charge glow-in-the-dark stickers, or switch on a star projector that turns slowly behind the whole site.
-- **Rattle Blocks**: eleven blocks and four secret words, each with its own surprise.
+- **Rattle Blocks**: eleven blocks and four secret words, each with its own surprise. Stuck? Toby gives two hints per word: a riddle, then a letter clue.
 - **Star Catcher**: a canvas mini-game. Catch stars in the dream jar and dodge alarm clocks.
 - **Dream Delivery Routes**: an SVG map of Hushbury. Snorbit flies the route you choose while the trail draws in behind him.
 - **Toby's Growth Chart**: skills measured in pencil on the nursery wall, each with a note.

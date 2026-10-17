@@ -710,7 +710,8 @@ main { overflow-x: clip; }
 
 /* Lantern glows in the picked colour */
 .lantern-media { background: radial-gradient(circle at 50% 55%, color-mix(in srgb, var(--glow) 35%, #fbf3e6), #f3eadb 70%); }
-.lantern { max-height: min(72svh, 600px); width: auto; margin-inline: auto; transition: filter 0.4s ease; }
+/* .lantern-media raises specificity over .project-media img (width: 100%), so the photo keeps its shape */
+.lantern-media .lantern { max-height: min(72svh, 600px); width: auto; margin-inline: auto; transition: filter 0.4s ease; }
 /* Tint the light inside the lantern with the picked glow */
 .lantern-media::after {
   content: "";

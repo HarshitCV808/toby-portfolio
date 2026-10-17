@@ -143,6 +143,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .brand {
   display: flex;
   align-items: center;
+  min-height: 44px;
   gap: 0.45rem;
   margin-right: auto;
   font-family: var(--font-display);
@@ -155,6 +156,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 .nav { display: flex; gap: 0.25rem; }
 .nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   padding: 0.5rem 0.8rem;
   border-radius: var(--radius-chip);
   color: var(--ink);

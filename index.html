@@ -35,6 +35,7 @@
       <a href="#who">Who</a>
       <a href="#work">Work</a>
       <a href="#story">Story</a>
+      <a href="#guestbook">Guestbook</a>
     </nav>
     <button class="switch sound-switch" id="sound-switch" type="button" aria-pressed="true" data-sound="none">
       <svg class="icon-sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="wave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
@@ -265,6 +266,28 @@
             <p>The Cloud Cradle Workshop gave me a tiny toolbelt and a job title longer than I am. Every night I hang the lanterns, wind the music boxes and tuck the sky in, corner by corner. If you're still up, I'm on my way.</p>
           </li>
         </ol>
+      </div>
+    </section>
+
+    <!-- GUESTBOOK: live, stored in Supabase -->
+    <section class="guestbook" id="guestbook" aria-labelledby="guestbook-title">
+      <h2 id="guestbook-title">Leave Toby a dream wish</h2>
+      <p class="guestbook-intro">What would you like to dream about tonight? Pin your wish to the nursery wall and Toby will try to build it.</p>
+      <div class="guestbook-grid">
+        <form class="wish-form" id="wish-form" novalidate>
+          <label for="wish-name">Your name</label>
+          <input id="wish-name" name="name" maxlength="30" required autocomplete="nickname">
+          <label for="wish-message">Your dream wish</label>
+          <textarea id="wish-message" name="message" maxlength="140" rows="4" required aria-describedby="wish-count"></textarea>
+          <p class="wish-count" id="wish-count">140 characters left</p>
+          <!-- Bots fill in every field; people never see this one -->
+          <input class="wish-trap" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button class="button button-primary" type="submit" id="wish-submit">Pin my wish</button>
+          <p class="wish-status" id="wish-status" role="status"></p>
+        </form>
+        <ul class="wish-wall" id="wish-wall" aria-label="Dream wishes from visitors" aria-busy="true">
+          <li class="wish-empty">Fetching wishes from the wall…</li>
+        </ul>
       </div>
     </section>
   </main>

@@ -11,3 +11,14 @@ This powers the live guestbook and the real visitor counter. Supabase's free tie
 5. Send both to Claude in chat. Don't send the `service_role` or secret key; that one must stay private.
 
 The anon/publishable key is designed to sit in public website code. The rules in `setup.sql` only let visitors read notes, add notes, and add one to the counter. Nobody can edit or delete anything through it.
+
+## Before you submit: clear test data
+
+While building, Claude pinned one test wish (from "Snorbit") and test visits bumped the counter. To start fresh, run this in **SQL Editor**:
+
+```sql
+delete from public.guestbook;
+update public.site_counter set visits = 0 where id = 1;
+```
+
+To remove a single rude wish later, open **Table Editor > guestbook**, tick the row and click **Delete**.

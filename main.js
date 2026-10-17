@@ -1204,9 +1204,156 @@
   }
   renderDreams();
 
-  setInterval(function () {
+  // Until the real visitor count arrives (or if it can't), tick "dreams delivered".
+  var dreamTicker = setInterval(function () {
     if (document.hidden) return;
     dreams += 1 + Math.floor(Math.random() * 3);
     renderDreams();
   }, 4000);
+
+  function showVisitorNumber(visits) {
+    clearInterval(dreamTicker);
+    document.getElementById('counter-label').textContent = 'You are visitor number';
+    dreams = visits;
+    renderDreams();
+  }
+
+  /* ------------------------------------------------------------------------
+     Live guestbook and visitor counter, stored in Supabase.
+     The anon key is meant to be public: the database rules in
+     supabase/setup.sql only let visitors read wishes, add wishes, and add
+     one to the counter.
+     ------------------------------------------------------------------------ */
+
+  var SUPABASE_URL = 'https://agnjfijwdyiujviraosh.supabase.co';
+  var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFnbmpmaWp3ZHlpdWp2aXJhb3NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyMzkyNTQsImV4cCI6MjEwNzgxNTI1NH0.fRisguhKbORO63VmfT0C_29yzaSgYgR8s7EBS8wy9Y0';
+
+  function supabase(path, options) {
+    options = options || {};
+    var headers = { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY };
+    if (options.body) headers['Content-Type'] = 'application/json';
+    if (options.prefer) headers.Prefer = options.prefer;
+    return fetch(SUPABASE_URL + '/rest/v1/' + path, {
+      method: options.method || 'GET',
+      headers: headers,
+      body: options.body ? JSON.stringify(options.body) : undefined
+    }).then(function (response) {
+      if (!response.ok) throw new Error('Supabase ' + response.status);
+      return response.status === 204 ? null : response.json();
+    });
+  }
+
+  // Count each browser once per session, so reloading doesn't inflate the number.
+  (function countVisit() {
+    var counted = null;
+    try { counted = sessionStorage.getItem('toby-visitor-number'); } catch (e) {}
+    if (counted) { showVisitorNumber(parseInt(counted, 10)); return; }
+    supabase('rpc/count_visit', { method: 'POST', body: {} })
+      .then(function (visits) {
+        if (typeof visits !== 'number') return;
+        try { sessionStorage.setItem('toby-visitor-number', String(visits)); } catch (e) {}
+        showVisitorNumber(visits);
+      })
+      .catch(function () { /* offline: the dreams ticker keeps going */ });
+  })();
+
+  var wishForm = document.getElementById('wish-form');
+  var wishName = document.getElementById('wish-name');
+  var wishMessage = document.getElementById('wish-message');
+  var wishCount = document.getElementById('wish-count');
+  var wishStatus = document.getElementById('wish-status');
+  var wishSubmit = document.getElementById('wish-submit');
+  var wishWall = document.getElementById('wish-wall');
+  wishSubmit.setAttribute('data-sound', 'own');
+
+  var timeAgo = window.Intl && Intl.RelativeTimeFormat ? new Intl.RelativeTimeFormat('en', { numeric: 'auto' }) : null;
+  function whenText(iso) {
+    var seconds = (new Date(iso).getTime() - Date.now()) / 1000;
+    if (!timeAgo) return new Date(iso).toLocaleDateString();
+    var units = [['day', 86400], ['hour', 3600], ['minute', 60]];
+    for (var i = 0; i < units.length; i++) {
+      if (Math.abs(seconds) >= units[i][1]) return timeAgo.format(Math.round(seconds / units[i][1]), units[i][0]);
+    }
+    return 'just now';
+  }
+
+  // Built with textContent only, so nobody can inject HTML into the wall.
+  function wishNote(wish, isNew) {
+    var li = document.createElement('li');
+    li.className = 'wish' + (isNew ? ' is-new' : '');
+    var message = document.createElement('p');
+    message.className = 'wish-message';
+    message.textContent = wish.message;
+    var meta = document.createElement('p');
+    meta.className = 'wish-meta';
+    meta.textContent = wish.name + ' ';
+    var time = document.createElement('time');
+    time.dateTime = wish.created_at;
+    time.textContent = whenText(wish.created_at);
+    meta.appendChild(time);
+    li.appendChild(message);
+    li.appendChild(meta);
+    return li;
+  }
+
+  function wallMessage(text) {
+    wishWall.textContent = '';
+    var li = document.createElement('li');
+    li.className = 'wish-empty';
+    li.textContent = text;
+    wishWall.appendChild(li);
+  }
+
+  function loadWishes() {
+    supabase('guestbook?select=name,message,created_at&order=created_at.desc&limit=30')
+      .then(function (wishes) {
+        wishWall.setAttribute('aria-busy', 'false');
+        if (!wishes.length) { wallMessage('No wishes yet. Pin the very first one!'); return; }
+        wishWall.textContent = '';
+        wishes.forEach(function (wish) { wishWall.appendChild(wishNote(wish, false)); });
+      })
+      .catch(function () {
+        wishWall.setAttribute('aria-busy', 'false');
+        wallMessage("The wall didn't load. Check your connection and refresh the page.");
+      });
+  }
+  loadWishes();
+
+  function updateWishCount() {
+    var left = 140 - wishMessage.value.length;
+    wishCount.textContent = left + (left === 1 ? ' character left' : ' characters left');
+  }
+  wishMessage.addEventListener('input', updateWishCount);
+
+  wishForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    var name = wishName.value.trim();
+    var message = wishMessage.value.trim();
+
+    if (!name) { wishStatus.textContent = 'Add your name so Toby knows who wished.'; wishName.focus(); return; }
+    if (!message) { wishStatus.textContent = 'Write a wish first. Even a tiny one counts.'; wishMessage.focus(); return; }
+    if (wishForm.elements.website.value) { wishForm.reset(); return; } // a bot filled the hidden field
+
+    var lastWish = parseInt(load('toby-last-wish'), 10) || 0;
+    var wait = Math.ceil((lastWish + 30000 - Date.now()) / 1000);
+    if (wait > 0) { wishStatus.textContent = 'Toby is still pinning your last wish. Try again in ' + wait + ' seconds.'; return; }
+
+    wishSubmit.disabled = true;
+    wishStatus.textContent = 'Pinning your wish…';
+    supabase('guestbook', { method: 'POST', body: { name: name, message: message }, prefer: 'return=representation' })
+      .then(function (rows) {
+        save('toby-last-wish', String(Date.now()));
+        var empty = wishWall.querySelector('.wish-empty');
+        if (empty) empty.remove();
+        wishWall.insertBefore(wishNote(rows[0], true), wishWall.firstChild);
+        wishForm.reset();
+        updateWishCount();
+        wishStatus.textContent = 'Pinned! Toby will try to dream it tonight.';
+        [659.25, 783.99, 1046.5].forEach(function (f, i) { ping(f, { delay: i * 0.08, duration: 0.6, volume: 0.13 }); });
+      })
+      .catch(function () {
+        wishStatus.textContent = "Your wish didn't stick. Check your connection and try again.";
+      })
+      .then(function () { wishSubmit.disabled = false; });
+  });
 })();

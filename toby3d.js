@@ -36,7 +36,7 @@ export function createToby3D(container, options) {
   const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
   keyLight.position.set(3, 5, 5);
   scene.add(keyLight);
-  const rimLight = new THREE.DirectionalLight(0xd9c8ff, 0.9);
+  const rimLight = new THREE.DirectionalLight(0xd9c8ff, 1.3);
   rimLight.position.set(-4, 2, -4);
   scene.add(rimLight);
 
@@ -109,33 +109,35 @@ export function createToby3D(container, options) {
 
   /* ---------- Toby ---------- */
 
+  // Snorbit, curled up asleep: tail wrapped round his body, head resting on it
   function buildSnorbit() {
     const snorbit = new THREE.Group();
     const purple = material(COLORS.lavender);
     const mint = material(COLORS.mint);
     const dark = material(COLORS.socket);
 
-    const body = mesh(sphere(0.3), purple, [0, 0, 0], [1.25, 0.7, 0.85]);
+    const body = mesh(sphere(0.28), purple, [0, 0, 0], [1.25, 0.65, 1]);
     snorbit.add(body);
-    snorbit.add(mesh(sphere(0.19), purple, [0.36, 0.06, 0.06]));
-    snorbit.add(mesh(sphere(0.1), purple, [0.52, 0.03, 0.09], [1.2, 0.85, 1]));
-    // little horns
+    // the tail curls round the front, ending in a spade tip
+    const tail = mesh(track(new THREE.TorusGeometry(0.32, 0.075, retro ? 5 : 12, retro ? 10 : 32, Math.PI * 1.15)), purple, [0, -0.06, 0], null, [Math.PI / 2, 0, -0.3]);
+    snorbit.add(tail);
+    snorbit.add(mesh(track(new THREE.ConeGeometry(0.08, 0.14, 3)), mint, [-0.34, -0.06, 0.18], [1, 1, 0.35], [Math.PI / 2, 0, 0.9]));
+    // head resting on the tail
+    snorbit.add(mesh(sphere(0.17), purple, [0.3, 0.06, 0.2]));
+    snorbit.add(mesh(sphere(0.09), purple, [0.43, 0.02, 0.27], [1.15, 0.85, 1]));
     const horn = track(new THREE.ConeGeometry(0.035, 0.13, retro ? 4 : 10));
-    snorbit.add(mesh(horn, mint, [0.3, 0.25, -0.01], null, [0, 0, 0.5]));
-    snorbit.add(mesh(horn, mint, [0.38, 0.25, 0.12], null, [0.2, 0, 0.4]));
-    // closed, sleepy eyes
-    const lid = track(new THREE.TorusGeometry(0.04, 0.012, 6, 12, Math.PI));
-    snorbit.add(mesh(lid, dark, [0.44, 0.1, 0.21], null, [0, 0.5, Math.PI]));
-    snorbit.add(mesh(lid, dark, [0.33, 0.11, 0.24], null, [0, 0.2, Math.PI]));
-    // wings and back spikes
-    const wing = track(new THREE.ConeGeometry(0.2, 0.42, 3));
-    snorbit.add(mesh(wing, mint, [-0.06, 0.3, -0.12], [1, 1, 0.3], [0.45, 0, -0.55]));
-    snorbit.add(mesh(wing, mint, [0.04, 0.3, 0.14], [1, 1, 0.3], [-0.45, 0, -0.45]));
-    const spike = track(new THREE.ConeGeometry(0.045, 0.1, retro ? 3 : 8));
-    [-0.22, -0.08, 0.06].forEach((x) => snorbit.add(mesh(spike, mint, [x, 0.21, 0])));
-    // tail with a spade tip
-    snorbit.add(mesh(track(new THREE.ConeGeometry(0.09, 0.42, retro ? 5 : 16)), purple, [-0.44, -0.05, 0.05], null, [0, 0, 1.9]));
-    snorbit.add(mesh(track(new THREE.ConeGeometry(0.06, 0.1, 3)), mint, [-0.66, -0.12, 0.05], null, [0, 0, 1.9]));
+    snorbit.add(mesh(horn, mint, [0.24, 0.22, 0.13], null, [-0.3, 0, 0.45]));
+    snorbit.add(mesh(horn, mint, [0.33, 0.22, 0.24], null, [0, 0, -0.1]));
+    const lid = track(new THREE.TorusGeometry(0.035, 0.011, 6, 12, Math.PI));
+    snorbit.add(mesh(lid, dark, [0.32, 0.09, 0.36], null, [0, 0.25, Math.PI]));
+    snorbit.add(mesh(lid, dark, [0.42, 0.1, 0.33], null, [0, 0.6, Math.PI]));
+    snorbit.add(mesh(sphere(0.035), material(COLORS.blush), [0.3, 0.02, 0.36], [1, 0.6, 0.4]));
+    // wings folded along his back, and little spikes
+    const wing = track(new THREE.ConeGeometry(0.16, 0.36, 3));
+    snorbit.add(mesh(wing, mint, [-0.05, 0.16, -0.08], [1, 1, 0.28], [0.25, 0, -1.25]));
+    snorbit.add(mesh(wing, mint, [0.02, 0.15, 0.1], [1, 1, 0.28], [-0.25, 0, -1.15]));
+    const spike = track(new THREE.ConeGeometry(0.04, 0.09, retro ? 3 : 8));
+    [[-0.26, 0.13], [-0.13, 0.17], [0.0, 0.18]].forEach((p) => snorbit.add(mesh(spike, mint, [p[0], p[1], -0.02], null, [0, 0, 0.3])));
 
     snorbit.userData.body = body;
     return snorbit;
@@ -185,9 +187,9 @@ export function createToby3D(container, options) {
     cap.add(mesh(track(new THREE.IcosahedronGeometry(0.28, retro ? 0 : 3)), material(COLORS.cream), [end.x, end.y - 0.22, end.z]));
 
     const snorbit = buildSnorbit();
-    snorbit.position.set(0.12, 1.08, 0.26);
-    snorbit.rotation.set(-0.3, -0.15, 0.05);
-    snorbit.scale.setScalar(1.35);
+    snorbit.position.set(0.12, 1.1, 0.22);
+    snorbit.rotation.set(-0.28, -0.35, 0.05);
+    snorbit.scale.setScalar(1.3);
     cap.add(snorbit);
 
     return { cap, snorbit };
@@ -198,9 +200,11 @@ export function createToby3D(container, options) {
     group.position.x = 0.25;
     const bone = material(COLORS.bone);
     const dark = material(COLORS.socket);
+    // eye sockets get a glossy finish, like the painting's shiny eyes
+    const glossy = retro ? dark : track(new THREE.MeshStandardMaterial({ color: COLORS.socket, roughness: 0.25, metalness: 0.1 }));
 
     // Skull head and little jaw
-    group.add(mesh(sphere(1), bone, [0, 0.35, 0], [1.06, 0.98, 1]));
+    group.add(mesh(sphere(1), bone, [0, 0.35, 0], [1.1, 1, 1.02]));
     group.add(mesh(sphere(0.66), bone, [0, -0.12, 0.06], [1.05, 0.8, 0.92]));
 
     // Eye sockets with glowing star pupils (they follow the pointer) and catch-lights
@@ -208,12 +212,13 @@ export function createToby3D(container, options) {
     const shine = track(new THREE.MeshBasicMaterial({ color: 0xffffff }));
     const pupils = [];
     [-1, 1].forEach((side) => {
-      group.add(mesh(sphere(0.27), dark, [side * 0.36, 0.32, 0.86], [1, 1.08, 0.45], [0, side * 0.34, 0]));
-      const pupil = mesh(starGeometry(0.1, 0.045, 0.03), pupilMat, [side * 0.36, 0.32, 1.0], null, [0, side * 0.34, 0]);
+      group.add(mesh(sphere(0.3), glossy, [side * 0.37, 0.31, 0.86], [1, 1.08, 0.45], [0, side * 0.34, 0]));
+      const pupil = mesh(starGeometry(0.125, 0.055, 0.03), pupilMat, [side * 0.37, 0.31, 1.01], null, [0, side * 0.34, 0]);
       pupil.userData.home = pupil.position.clone();
       pupils.push(pupil);
       group.add(pupil);
-      group.add(mesh(sphere(0.035), shine, [side * 0.36 - 0.09, 0.43, 1.0]));
+      group.add(mesh(sphere(0.04), shine, [side * 0.37 - 0.1, 0.44, 1.0]));
+      group.add(mesh(sphere(0.02), shine, [side * 0.37 + 0.09, 0.2, 1.0]));
     });
 
     // Nose, crooked smile, little fangs, blush
@@ -242,9 +247,68 @@ export function createToby3D(container, options) {
     group.add(mesh(button, butter, [0.24, -0.98, 0.66], null, [0, 0.3, 0.2]));
     group.add(mesh(button, butter, [-0.18, -1.3, 0.66], null, [0, -0.2, -0.3]));
 
+    // Little arms: the lantern in one hand, the music box in the other
+    const sleeve = material(COLORS.pajama);
+    const cuff = material(COLORS.mint);
+    function arm(from, to) {
+      const a = new THREE.Vector3(from[0], from[1], from[2]);
+      const b = new THREE.Vector3(to[0], to[1], to[2]);
+      const dir = b.clone().sub(a);
+      const limb = mesh(track(new THREE.CapsuleGeometry(0.13, dir.length(), retro ? 3 : 8, retro ? 6 : 16)), sleeve);
+      limb.position.copy(a).add(b).multiplyScalar(0.5);
+      limb.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+      group.add(limb);
+      const ring = mesh(track(new THREE.TorusGeometry(0.13, 0.05, retro ? 4 : 10, retro ? 8 : 24)), cuff);
+      ring.position.copy(b);
+      ring.quaternion.copy(limb.quaternion);
+      ring.rotateX(Math.PI / 2);
+      group.add(ring);
+      group.add(mesh(sphere(0.11), bone, [to[0], to[1] - 0.04, to[2] + 0.02]));
+    }
+    arm([-0.55, -0.82, 0.18], [-0.82, -1.08, 0.55]);
+    arm([0.55, -0.82, 0.18], [0.74, -1.1, 0.58]);
+
+    // A mini Moonbell Lantern that really glows in the chosen colour
+    const lantern = new THREE.Group();
+    lantern.position.set(-0.86, -1.62, 0.6);
+    const glassMat = track(new THREE.MeshStandardMaterial({ color: 0xfff6dc, emissive: new THREE.Color(opts.glow), emissiveIntensity: 0.9, roughness: 0.4 }));
+    lantern.add(mesh(track(new THREE.CylinderGeometry(0.21, 0.24, 0.1, retro ? 6 : 24)), material(COLORS.cream), [0, -0.18, 0]));
+    lantern.add(mesh(track(new THREE.CylinderGeometry(0.17, 0.2, 0.32, retro ? 6 : 24)), glassMat, [0, 0, 0]));
+    lantern.add(mesh(track(new THREE.ConeGeometry(0.2, 0.16, retro ? 6 : 24)), material(COLORS.lavender), [0, 0.24, 0]));
+    lantern.add(mesh(track(new THREE.TorusGeometry(0.06, 0.018, 6, 16)), material(COLORS.butter), [0, 0.38, 0]));
+    const lanternLight = new THREE.PointLight(new THREE.Color(opts.glow), 2.2, 3.2, 1.6);
+    lanternLight.position.set(0, 0.02, 0.1);
+    lantern.add(lanternLight);
+    group.add(lantern);
+
+    // The music box, with its gold wind-up key
+    const musicBox = new THREE.Group();
+    musicBox.position.set(0.86, -1.42, 0.58);
+    musicBox.rotation.y = -0.45;
+    musicBox.add(mesh(track(new THREE.BoxGeometry(0.46, 0.28, 0.34)), material(COLORS.cream), [0, 0, 0]));
+    musicBox.add(mesh(track(new THREE.BoxGeometry(0.5, 0.07, 0.38)), material(COLORS.lavender), [0, 0.17, 0]));
+    musicBox.add(mesh(track(new THREE.BoxGeometry(0.5, 0.06, 0.38)), material(COLORS.lavender), [0, -0.16, 0]));
+    musicBox.add(mesh(sphere(0.07), material(COLORS.lavender), [0, 0.25, 0], [1.3, 0.7, 1]));
+    const gold = material(COLORS.butter);
+    musicBox.add(mesh(track(new THREE.CylinderGeometry(0.025, 0.025, 0.12, 8)), gold, [0.29, 0, 0], null, [0, 0, Math.PI / 2]));
+    musicBox.add(mesh(track(new THREE.TorusGeometry(0.06, 0.02, 6, 16)), gold, [0.37, 0, 0], null, [0, Math.PI / 2, 0]));
+    group.add(musicBox);
+
     // The cloud Toby sits on
     [[-0.9, -2.0, 0.2, 0.55], [0, -2.1, 0.4, 0.62], [0.9, -2.0, 0.2, 0.55], [-0.45, -1.85, -0.3, 0.5], [0.5, -1.85, -0.3, 0.5], [0, -2.0, -0.1, 0.6]]
       .forEach((c, i) => group.add(mesh(sphere(c[3]), material(i % 2 ? COLORS.cloudLilac : COLORS.cloudPink), [c[0], c[1], c[2]], [1, 0.65, 1])));
+
+    // A soft shadow under the cloud
+    const shade = document.createElement('canvas');
+    shade.width = shade.height = 64;
+    const shadePen = shade.getContext('2d');
+    const fade = shadePen.createRadialGradient(32, 32, 0, 32, 32, 32);
+    fade.addColorStop(0, 'rgba(60, 40, 90, 0.45)');
+    fade.addColorStop(1, 'rgba(60, 40, 90, 0)');
+    shadePen.fillStyle = fade;
+    shadePen.fillRect(0, 0, 64, 64);
+    const shadowMat = track(new THREE.MeshBasicMaterial({ map: track(new THREE.CanvasTexture(shade)), transparent: true, depthWrite: false }));
+    group.add(mesh(track(new THREE.PlaneGeometry(3.4, 1.6)), shadowMat, [0, -2.42, 0.1], null, [-Math.PI / 2, 0, 0]));
 
     // Stars drifting round him
     const orbit = new THREE.Group();
@@ -256,7 +320,7 @@ export function createToby3D(container, options) {
     }
     group.add(orbit);
 
-    return { group, pupils, pupilMat, snorbitBody: snorbit.userData.body, orbit };
+    return { group, pupils, pupilMat, glassMat, lanternLight, snorbitBody: snorbit.userData.body, orbit };
   }
 
   function rebuild() {
@@ -402,6 +466,11 @@ export function createToby3D(container, options) {
       retro = on;
       rebuild();
     },
-    setGlow(color) { model.pupilMat.color.set(color); }
+    setGlow(color) {
+      opts.glow = color;
+      model.pupilMat.color.set(color);
+      model.glassMat.emissive.set(color);
+      model.lanternLight.color.set(color);
+    }
   };
 }

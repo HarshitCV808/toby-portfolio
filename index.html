@@ -143,6 +143,11 @@
         <div class="project-media box-media" id="box-media">
           <img src="assets/toby-music-box.webp" alt="A cream and lavender music box with Toby's name in gold, a wind-up key on the side and Snorbit asleep on top" width="1200" height="896" loading="lazy">
           <div class="notes" id="notes" aria-hidden="true"></div>
+          <!-- Inside the box: the pinned cylinder turns and the comb's teeth pluck each note -->
+          <div class="mechanism" aria-hidden="true">
+            <div class="comb" id="comb"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <div class="cylinder" id="cylinder"></div>
+          </div>
         </div>
         <div class="project-copy">
           <h3>The Toby Box</h3>
@@ -159,6 +164,10 @@
             </button>
             <button class="button button-quiet" id="box-stop" type="button" disabled>Stop</button>
           </div>
+          <label class="tempo">Tempo
+            <input type="range" id="tempo" min="0.7" max="1.3" step="0.05" value="1" aria-describedby="tempo-name">
+            <span class="tempo-name" id="tempo-name">Cosy</span>
+          </label>
           <div class="spring" id="spring" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
           <p class="box-status" id="box-status" role="status" aria-live="polite">The spring is loose. Wind it up to play.</p>
         </div>
@@ -176,23 +185,41 @@
             <button class="chip glow-chip" type="button" data-glow="bubblegum" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Bubblegum</button>
             <button class="chip glow-chip" type="button" data-glow="mint" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Mint</button>
           </div>
-          <button class="button button-quiet lights-out" id="lights-out" type="button">Turn off the big light</button>
+          <div class="lantern-actions">
+            <button class="button button-quiet" id="lights-out" type="button">Turn off the big light</button>
+            <button class="button button-quiet" id="projector" type="button" aria-pressed="false">Star projector: off</button>
+          </div>
         </div>
       </article>
 
       <article class="project" id="rattle-blocks">
         <div class="project-media blocks-media">
+          <p class="word-tray" id="word-tray" aria-live="polite" aria-label="Letters so far"></p>
           <div class="blocks" role="group" aria-label="Toy blocks">
             <button class="block" type="button" data-letter="T">T</button>
             <button class="block" type="button" data-letter="O">O</button>
             <button class="block" type="button" data-letter="B">B</button>
             <button class="block" type="button" data-letter="Y">Y</button>
+            <button class="block" type="button" data-letter="S">S</button>
+            <button class="block" type="button" data-letter="N">N</button>
+            <button class="block" type="button" data-letter="R">R</button>
+            <button class="block" type="button" data-letter="I">I</button>
+            <button class="block" type="button" data-letter="H">H</button>
+            <button class="block" type="button" data-letter="U">U</button>
+            <button class="block" type="button" data-letter="H">H</button>
           </div>
         </div>
         <div class="project-copy">
           <h3>Rattle Blocks</h3>
-          <p>Four wobbly blocks, filled with dried peas so they rattle. Tap them in the right order and they spell something.</p>
-          <p class="blocks-status" id="blocks-status" role="status" aria-live="polite"></p>
+          <p>Eleven wobbly blocks filled with dried peas. Some of them spell secret words, and every word does something different.</p>
+          <p class="blocks-status" id="blocks-status" role="status" aria-live="polite">Tap the blocks to spell a word.</p>
+          <ul class="words-found" id="words-found" aria-label="Secret words">
+            <li class="word" data-word="TOBY"><span class="word-blanks" aria-hidden="true">_ _ _ _</span><span class="visually-hidden">A 4-letter word, not found yet</span></li>
+            <li class="word" data-word="HUSH"><span class="word-blanks" aria-hidden="true">_ _ _ _</span><span class="visually-hidden">A 4-letter word, not found yet</span></li>
+            <li class="word" data-word="SHH"><span class="word-blanks" aria-hidden="true">_ _ _</span><span class="visually-hidden">A 3-letter word, not found yet</span></li>
+            <li class="word" data-word="SNORBIT"><span class="word-blanks" aria-hidden="true">_ _ _ _ _ _ _</span><span class="visually-hidden">A 7-letter word, not found yet</span></li>
+          </ul>
+          <button class="button button-quiet" id="blocks-clear" type="button">Tip the blocks out</button>
         </div>
       </article>
 
@@ -405,6 +432,10 @@
             <p class="book-count" id="book-count" aria-live="polite"></p>
             <button class="button button-primary" id="book-next" type="button" data-sound="own" aria-label="Next page">Next</button>
           </div>
+          <div class="book-read-row">
+            <button class="button button-quiet" id="book-read" type="button" aria-pressed="false">Read it to me</button>
+            <p class="book-status" id="book-status" role="status" aria-live="polite"></p>
+          </div>
         </div>
       </article>
     </section>
@@ -517,6 +548,9 @@
     <button type="button" id="gotchi-b" aria-label="B: boop Toby">B</button>
     <button type="button" id="gotchi-c" aria-label="C: lights on or off">C</button>
   </div>
+
+  <!-- Lantern star projector: shapes turning slowly behind the whole site -->
+  <div class="projector" id="projector-layer" aria-hidden="true" hidden></div>
 
   <!-- Nightlight mode: the page goes dark and the pointer becomes Toby's lantern -->
   <div class="darkness" id="darkness" hidden>

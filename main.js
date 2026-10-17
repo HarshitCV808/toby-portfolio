@@ -193,6 +193,7 @@
     soundSwitch.setAttribute('aria-pressed', String(!muted));
     soundLabel.textContent = muted ? 'Sound off' : 'Sound on';
     if (master) master.gain.setTargetAtTime(muted ? 0 : 0.6, audio.currentTime, 0.02);
+    document.dispatchEvent(new CustomEvent('toby:sound', { detail: { muted: muted } }));
   }
 
   soundSwitch.addEventListener('click', function () {
@@ -521,7 +522,10 @@
     return { name: tune.name, bpm: tune.bpm, length: beat, events: events };
   }
 
-  var box = { tune: 'twinkle', spring: 0, playing: false, loop: null, index: 0, beat: 0, time: 0, timer: 0, turnsShown: -1 };
+  var box = { tune: 'twinkle', tempo: 1, spring: 0, playing: false, loop: null, index: 0, beat: 0, time: 0, timer: 0, turnsShown: -1 };
+  var combTeeth = Array.prototype.slice.call(document.querySelectorAll('#comb span'));
+  var tempoInput = document.getElementById('tempo');
+  var tempoName = document.getElementById('tempo-name');
 
   function turnsLeft() { return Math.ceil(box.spring / SECONDS_PER_TURN - 0.001); }
 
@@ -530,7 +534,7 @@
     return box.spring >= SECONDS_PER_TURN ? 1 : 0.55 + 0.45 * Math.max(0, box.spring) / SECONDS_PER_TURN;
   }
 
-  function timeAt(beat) { return box.time + (beat - box.beat) * 60 / box.loop.bpm / speed(); }
+  function timeAt(beat) { return box.time + (beat - box.beat) * 60 / (box.loop.bpm * box.tempo) / speed(); }
 
   function moveTo(beat, time) {
     box.spring -= time - box.time;
@@ -572,8 +576,20 @@
       }
     } else {
       ping(event.freq, { at: at, duration: 1.3, volume: 0.15 + 0.07 * speed() });
-      setTimeout(function () { floatUp(Math.random() < 0.5 ? '♪' : '♫', 'note'); }, wait);
+      setTimeout(function () {
+        floatUp(Math.random() < 0.5 ? '♪' : '♫', 'note');
+        pluck(event.freq);
+      }, wait);
     }
+  }
+
+  // Light up the comb tooth for this pitch (higher notes, shorter teeth further right)
+  function pluck(freq) {
+    var note = 69 + 12 * Math.log2(freq / 440);
+    var tooth = combTeeth[Math.max(0, Math.min(combTeeth.length - 1, Math.round((note - 72) / 2)))];
+    tooth.classList.remove('is-plucked');
+    void tooth.offsetWidth;
+    tooth.classList.add('is-plucked');
   }
 
   function floatUp(text, className) {
@@ -592,6 +608,7 @@
     springDots.forEach(function (dot, i) { dot.classList.toggle('is-wound', i < turns); });
     stopButton.disabled = !box.playing;
     boxMedia.classList.toggle('is-playing', box.playing);
+    boxMedia.style.setProperty('--turn-time', (1.2 / (speed() * box.tempo)).toFixed(2) + 's');
     if (box.playing && turns !== box.turnsShown) {
       box.turnsShown = turns;
       boxStatus.textContent = 'Playing ' + box.loop.name + '. ' + (turns === 1 ? 'Last turn, slowing down…' : turns + ' turns left.');
@@ -635,6 +652,12 @@
 
     if (!box.playing) startBox();
     else box.turnsShown = -1;
+    renderBox();
+  });
+
+  tempoInput.addEventListener('input', function () {
+    box.tempo = parseFloat(tempoInput.value) || 1;
+    tempoName.textContent = box.tempo < 0.85 ? 'Sleepy' : box.tempo > 1.15 ? 'Bouncy' : 'Cosy';
     renderBox();
   });
 
@@ -783,6 +806,31 @@
 
   lightsOutButton.addEventListener('click', lightsOut);
   lightsOnButton.addEventListener('click', lightsOn);
+
+  // Star projector: stars and moons in the glow colour, turning slowly behind the whole site
+  var projectorButton = document.getElementById('projector');
+  var projectorLayer = document.getElementById('projector-layer');
+  var lanternMedia = document.querySelector('.lantern-media');
+  projectorButton.setAttribute('data-sound', 'own');
+
+  for (var shape = 0; shape < 34; shape++) {
+    var bit = document.createElement('span');
+    bit.className = shape % 5 === 0 ? 'p-moon' : 'p-star';
+    bit.style.left = (Math.random() * 96) + '%';
+    bit.style.top = (Math.random() * 96) + '%';
+    bit.style.setProperty('--size', (shape % 5 === 0 ? 34 + Math.random() * 30 : 14 + Math.random() * 26).toFixed(0) + 'px');
+    projectorLayer.appendChild(bit);
+  }
+
+  projectorButton.addEventListener('click', function () {
+    var on = projectorLayer.hidden;
+    projectorLayer.hidden = !on;
+    projectorButton.setAttribute('aria-pressed', String(on));
+    projectorButton.textContent = 'Star projector: ' + (on ? 'on' : 'off');
+    lanternMedia.classList.toggle('is-projecting', on);
+    if (on) [523.25, 783.99, 1046.5, 1567.98].forEach(function (f, i) { ping(f, { delay: i * 0.12, duration: 1.2, volume: 0.1 }); });
+    else ping(392, { duration: 0.4, volume: 0.1 });
+  });
   window.addEventListener('resize', function () {
     if (!nightlightOn) return;
     light.radius = lightRadius();
@@ -790,53 +838,112 @@
   });
 
   /* ------------------------------------------------------------------------
-     Project 3: Rattle Blocks. Shuffled on load; tap T-O-B-Y in order.
+     Project 3: Rattle Blocks. Tap blocks to spell; four secret words each
+     do something different. A block can be used once per word.
      ------------------------------------------------------------------------ */
 
   var blockRow = document.querySelector('.blocks');
   var blocks = Array.prototype.slice.call(blockRow.querySelectorAll('.block'));
   var blocksStatus = document.getElementById('blocks-status');
-  var WORD = 'TOBY';
-  var BLOCK_NOTES = { T: 523.25, O: 659.25, B: 783.99, Y: 1046.5 };
-  var progress = 0;
+  var wordTray = document.getElementById('word-tray');
+  var wordItems = Array.prototype.slice.call(document.querySelectorAll('.word'));
+  var LETTER_NOTES = { T: 523.25, O: 587.33, B: 659.25, Y: 783.99, S: 880, N: 1046.5, R: 1174.66, I: 1318.5, H: 392, U: 440 };
+  var spelled = '';
+  var blocksBusy = false;
+  var wordsFound = {};
 
-  // Shuffle until the blocks are not already in order
-  do {
-    blocks.sort(function () { return Math.random() - 0.5; });
-  } while (blocks.map(function (b) { return b.dataset.letter; }).join('') === WORD);
+  // Each secret word has its own tune and its own little surprise
+  var WORDS = {
+    TOBY: function () {
+      [659.25, 783.99, 880, 783.99, 659.25].forEach(function (f, i) { ping(f, { delay: i * 0.18, duration: 0.9, volume: 0.15 }); });
+      return 'T-O-B-Y! That spells me! (I knew that.)';
+    },
+    HUSH: function () {
+      [783.99, 659.25, 523.25, 392].forEach(function (f, i) { ping(f, { delay: i * 0.3, duration: 1.4, volume: 0.09 }); });
+      if (audio) snore(audio.currentTime + 1.3);
+      return 'Hush\u2026 now you can hear Snorbit snoring.';
+    },
+    SHH: function () {
+      // Everything goes properly quiet for a moment
+      if (master && !muted) {
+        master.gain.setTargetAtTime(0, audio.currentTime, 0.05);
+        setTimeout(function () { if (!muted) master.gain.setTargetAtTime(0.6, audio.currentTime, 0.2); }, 2500);
+      }
+      return 'SHHH. \u2026 \u2026 Okay. You can make noise again.';
+    },
+    SNORBIT: function () {
+      if (audio) snore(audio.currentTime);
+      [392, 523.25, 659.25, 783.99, 1046.5].forEach(function (f, i) { ping(f, { delay: 0.8 + i * 0.08, duration: 0.8, volume: 0.13 }); });
+      return 'Snorbit rolled over, said \u201cmrrf\u201d, and went straight back to sleep.';
+    }
+  };
+  var WORD_LIST = Object.keys(WORDS);
+
+  // Shuffle the blocks so nothing is spelled out already
+  blocks.sort(function () { return Math.random() - 0.5; });
   blocks.forEach(function (b) { b.setAttribute('data-sound', 'own'); blockRow.appendChild(b); });
+
+  function tipOut(message) {
+    spelled = '';
+    wordTray.textContent = '';
+    wordTray.classList.remove('is-wrong', 'is-right');
+    blocks.forEach(function (b) { b.classList.remove('is-used'); b.removeAttribute('aria-disabled'); });
+    if (message) blocksStatus.textContent = message;
+    blocksBusy = false;
+  }
 
   blocks.forEach(function (block) {
     block.addEventListener('click', function () {
-      var letter = block.dataset.letter;
       rattle();
-      ping(BLOCK_NOTES[letter], { delay: 0.05, duration: 0.6, volume: 0.15 });
       block.classList.remove('is-rattling');
       void block.offsetWidth;
       block.classList.add('is-rattling');
+      if (blocksBusy || block.classList.contains('is-used')) return;
 
-      if (letter === WORD[progress]) {
-        progress++;
-        block.classList.add('is-right');
-        blocksStatus.textContent = WORD.slice(0, progress).split('').join('-') + (progress < WORD.length ? '…' : '');
-        if (progress === WORD.length) {
-          blocksStatus.textContent = 'T-O-B-Y! That spells me!';
-          var box = block.getBoundingClientRect();
-          celebrate({ x: (box.left + box.width / 2) / window.innerWidth, y: box.top / window.innerHeight });
-          setTimeout(resetBlocks, 2200);
-        }
-      } else {
-        blocksStatus.textContent = progress ? 'Oops, wobbly. Start again from T.' : 'Rattle rattle. Try starting with T.';
-        resetBlocks(true);
+      var letter = block.dataset.letter;
+      ping(LETTER_NOTES[letter], { delay: 0.05, duration: 0.6, volume: 0.15 });
+      spelled += letter;
+      block.classList.add('is-used');
+      block.setAttribute('aria-disabled', 'true');
+      wordTray.textContent = spelled;
+
+      var possible = WORD_LIST.filter(function (word) { return word.indexOf(spelled) === 0; });
+      if (!possible.length) {
+        blocksBusy = true;
+        wordTray.classList.add('is-wrong');
+        blocksStatus.textContent = 'Hmm, Toby doesn\u2019t know a word that starts with \u201c' + spelled + '\u201d.';
+        setTimeout(function () { tipOut(); }, 1100);
+        return;
       }
+      if (possible.indexOf(spelled) === -1) {
+        blocksStatus.textContent = spelled + '\u2026 keep going!';
+        return;
+      }
+
+      // A whole secret word
+      blocksBusy = true;
+      wordTray.classList.add('is-right');
+      blocksStatus.textContent = WORDS[spelled]();
+      if (!wordsFound[spelled]) {
+        wordsFound[spelled] = true;
+        wordItems.forEach(function (item) {
+          if (item.dataset.word !== spelled) return;
+          item.classList.add('is-found');
+          item.textContent = spelled;
+        });
+        var box = wordTray.getBoundingClientRect();
+        celebrate({ x: (box.left + box.width / 2) / window.innerWidth, y: box.top / window.innerHeight });
+        if (Object.keys(wordsFound).length === WORD_LIST.length) {
+          blocksStatus.textContent += ' That\u2019s every secret word!';
+        }
+      }
+      setTimeout(function () { tipOut(); }, 1800);
     });
   });
 
-  function resetBlocks(keepMessage) {
-    progress = 0;
-    blocks.forEach(function (b) { b.classList.remove('is-right'); });
-    if (keepMessage !== true) blocksStatus.textContent = '';
-  }
+  document.getElementById('blocks-clear').addEventListener('click', function () {
+    tipOut('All tipped out. Start a new word.');
+  });
 
   /* ------------------------------------------------------------------------
      Project 4: Star Catcher, a canvas mini-game
@@ -1361,8 +1468,8 @@
   }
 
   function onBookKey(event) {
-    if (event.key === 'ArrowRight') { turn(1); event.preventDefault(); }
-    if (event.key === 'ArrowLeft') { turn(-1); event.preventDefault(); }
+    if (event.key === 'ArrowRight') { manualTurn(1); event.preventDefault(); }
+    if (event.key === 'ArrowLeft') { manualTurn(-1); event.preventDefault(); }
   }
 
   // Swipe or click: right side turns forward, left side turns back.
@@ -1373,17 +1480,99 @@
     var dx = event.clientX - bookPointer.x;
     var dy = event.clientY - bookPointer.y;
     bookPointer = null;
-    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { turn(dx < 0 ? 1 : -1); return; }
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { manualTurn(dx < 0 ? 1 : -1); return; }
     if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
       var box = book.stage.getBoundingClientRect();
-      turn(event.clientX > box.left + box.width / 2 ? 1 : -1);
+      manualTurn(event.clientX > box.left + box.width / 2 ? 1 : -1);
     }
   }
 
-  bookPrev.addEventListener('click', function () { turn(-1); });
-  bookNext.addEventListener('click', function () { turn(1); });
+  bookPrev.addEventListener('click', function () { manualTurn(-1); });
+  bookNext.addEventListener('click', function () { manualTurn(1); });
   if (spreadQuery.addEventListener) spreadQuery.addEventListener('change', buildBook);
   buildBook();
+
+  // "Read it to me": the browser's own voice reads the pages and turns them.
+  var readButton = document.getElementById('book-read');
+  var bookStatus = document.getElementById('book-status');
+  var speech = window.speechSynthesis;
+  var reading = false;
+  var readTimer = 0;
+  readButton.setAttribute('data-sound', 'own');
+  if (!speech || typeof SpeechSynthesisUtterance === 'undefined') readButton.hidden = true;
+
+  // The last open page is one leaf before the end (the back cover, or The End on phones)
+  function atLastPage() { return book.turned >= book.leaves.length - 1; }
+
+  // The words on the pages that are open right now (not the page numbers)
+  function openPageText() {
+    var faces = book.stage.querySelectorAll('.face[aria-hidden="false"]');
+    var words = [];
+    Array.prototype.forEach.call(faces, function (face) {
+      Array.prototype.forEach.call(face.querySelectorAll('h4, p:not(.page-number):not(.page-zzz)'), function (el) {
+        words.push(el.textContent);
+      });
+    });
+    return words.join(' ');
+  }
+
+  function pickVoice() {
+    var voices = speech.getVoices().filter(function (v) { return /^en/i.test(v.lang); });
+    return voices.find(function (v) { return /female|samantha|karen|serena|moira|zira|google uk english female/i.test(v.name); }) || voices[0] || null;
+  }
+
+  function readOpenPages() {
+    if (!reading) return;
+    var line = new SpeechSynthesisUtterance(openPageText());
+    var voice = pickVoice();
+    if (voice) line.voice = voice;
+    line.rate = 0.9;
+    line.pitch = 1.15;
+    line.onend = function () {
+      if (!reading) return;
+      if (atLastPage()) { stopReading('The end. Shh, Snorbit is asleep.'); return; }
+      readTimer = setTimeout(function () {
+        if (!reading) return;
+        turn(1);
+        readTimer = setTimeout(readOpenPages, 1000); // wait for the page to land
+      }, 600);
+    };
+    speech.speak(line);
+  }
+
+  function stopReading(message) {
+    reading = false;
+    clearTimeout(readTimer);
+    if (speech) speech.cancel();
+    readButton.setAttribute('aria-pressed', 'false');
+    readButton.textContent = 'Read it to me';
+    bookStatus.textContent = message || '';
+  }
+
+  function manualTurn(direction) {
+    if (reading) stopReading('Stopped reading. Turn the pages yourself, or press Read it to me again.');
+    turn(direction);
+  }
+
+  readButton.addEventListener('click', function () {
+    if (reading) { stopReading(); return; }
+    if (muted) { bookStatus.textContent = 'Turn the sound on to hear the story.'; return; }
+    reading = true;
+    readButton.setAttribute('aria-pressed', 'true');
+    readButton.textContent = 'Stop reading';
+    bookStatus.textContent = 'Reading\u2026';
+    speech.cancel();
+    if (atLastPage()) {
+      book.turned = 0; // start again from the cover
+      renderBook(true);
+    }
+    readOpenPages();
+  });
+
+  // Stop when the sound is muted or the storybook is closed
+  document.addEventListener('toby:sound', function (event) { if (event.detail.muted && reading) stopReading('Muted, so I stopped reading.'); });
+  document.addEventListener('toby:project', function (event) { if (event.detail.id !== 'storybook' && reading) stopReading(); });
+  document.addEventListener('toby:page', function (event) { if (event.detail.id !== 'work' && reading) stopReading(); });
 
   /* ------------------------------------------------------------------------
      Story: scroll position drives the sky (--p) and highlights each scene

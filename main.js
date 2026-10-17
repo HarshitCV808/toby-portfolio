@@ -483,17 +483,35 @@
     save('toby-found-snorbit', '1');
   });
 
+  // The confetti library only downloads the first time something is celebrated
+  var confettiLoading = null;
+  function loadConfetti() {
+    if (window.confetti) return Promise.resolve(window.confetti);
+    if (!confettiLoading) {
+      confettiLoading = new Promise(function (resolve) {
+        var script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js';
+        script.onload = function () { resolve(window.confetti || null); };
+        script.onerror = function () { confettiLoading = null; resolve(null); }; // offline: no confetti, everything else still works
+        document.head.appendChild(script);
+      });
+    }
+    return confettiLoading;
+  }
+
   function celebrate(origin) {
-    if (typeof window.confetti !== 'function') return; // CDN blocked: the egg still talks and chimes
-    window.confetti({
-      particleCount: 90,
-      spread: 80,
-      startVelocity: 38,
-      origin: origin || { x: 0.3, y: 0.35 },
-      shapes: ['star', 'circle'],
-      colors: ['#ffd36e', '#b9a3e3', '#a8e2cf', '#f5b5c6', '#fff8f1'],
-      scalar: 1.1,
-      disableForReducedMotion: true
+    loadConfetti().then(function (confetti) {
+      if (!confetti) return;
+      confetti({
+        particleCount: 90,
+        spread: 80,
+        startVelocity: 38,
+        origin: origin || { x: 0.3, y: 0.35 },
+        shapes: ['star', 'circle'],
+        colors: ['#ffd36e', '#b9a3e3', '#a8e2cf', '#f5b5c6', '#fff8f1'],
+        scalar: 1.1,
+        disableForReducedMotion: true
+      });
     });
   }
 
@@ -1566,7 +1584,7 @@
     var faces = book.stage.querySelectorAll('.face[aria-hidden="false"]');
     var words = [];
     Array.prototype.forEach.call(faces, function (face) {
-      Array.prototype.forEach.call(face.querySelectorAll('h4, p:not(.page-number):not(.page-zzz)'), function (el) {
+      Array.prototype.forEach.call(face.querySelectorAll('h3, p:not(.page-number):not(.page-zzz)'), function (el) {
         words.push(el.textContent);
       });
     });
@@ -1847,7 +1865,13 @@
         wallMessage("The wall didn't load. Check your connection and refresh the page.");
       });
   }
-  loadWishes();
+  // Fetch the wall the first time the guestbook page opens, not on every visit
+  var wishesLoaded = false;
+  document.addEventListener('toby:page', function (event) {
+    if (event.detail.id !== 'guestbook' || wishesLoaded) return;
+    wishesLoaded = true;
+    loadWishes();
+  });
 
   function updateWishCount() {
     var left = 140 - wishMessage.value.length;
@@ -2171,7 +2195,7 @@
   var projectEls = Array.prototype.slice.call(workPage.querySelectorAll('.project'));
   var currentProject = null;
 
-  function projectName(project) { return project.querySelector('h3').textContent; }
+  function projectName(project) { return project.querySelector('.project-title').textContent; }
 
   projectEls.forEach(function (project, i) {
     var back = document.createElement('a');
@@ -2242,7 +2266,7 @@
 
     // Move screen readers to the new page's (or project's) heading
     if (fromClick) {
-      var heading = project ? project.querySelector('h3') : page.querySelector('h1, h2');
+      var heading = project ? project.querySelector('.project-title') : page.querySelector('h1');
       heading.setAttribute('tabindex', '-1');
       heading.focus({ preventScroll: true });
     }

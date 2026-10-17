@@ -18,9 +18,11 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:ital,wght@0,400..800;1,400&family=VT323&display=swap" rel="stylesheet">
+  <!-- Fonts load without blocking the first paint; the page shows in fallback fonts for a moment -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:wght@400..800&family=VT323&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:wght@400..800&family=VT323&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:wght@400..800&family=VT323&display=swap"></noscript>
   <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer></script>
   <script src="main.js" defer></script>
 </head>
 <body>
@@ -90,7 +92,7 @@
         </div>
         </div>
         <button class="button button-quiet view-3d" id="view-3d" type="button" aria-pressed="false" aria-controls="flip-card">View in 3D</button>
-        <figcaption class="bubble" id="bubble" role="status" aria-live="polite">Oh! Hi. I was only resting my eyes.</figcaption>
+        <p class="bubble" id="bubble" role="status" aria-live="polite">Oh! Hi. I was only resting my eyes.</p>
       </figure>
 
       <div class="hero-copy">
@@ -106,7 +108,7 @@
 
     <!-- WHO: the 5-point character sheet Track 2 asks for, as a nursery ID card -->
     <section class="who" id="who" aria-labelledby="who-title" data-page="Who is Toby?">
-      <h2 id="who-title">Who is Toby?</h2>
+      <h1 class="section-title" id="who-title">Who is Toby?</h1>
       <div class="id-card">
         <dl class="sheet">
           <div class="sheet-row"><dt>Name</dt><dd>Toby</dd></div>
@@ -120,16 +122,16 @@
           <li><strong>Doesn't love</strong> cold socks and too much quiet</li>
           <li><strong>Quirk</strong> my eyes twinkle brighter the sleepier I get</li>
         </ul>
-        <aside class="sidekick">
-          <h3>My sidekick, Snorbit</h3>
+        <div class="sidekick">
+          <h2>My sidekick, Snorbit</h2>
           <p>A pocket-sized dragon who has been asleep since we met. Snorbit snores in tune and keeps my head warm.</p>
-        </aside>
+        </div>
       </div>
     </section>
 
     <!-- WORK: three projects -->
     <section class="work" id="work" aria-labelledby="work-title" data-page="Things I've made">
-      <h2 id="work-title">Things I've made</h2>
+      <h1 class="section-title" id="work-title">Things I've made</h1>
       <p class="work-intro">Everything on this shelf really works. Pick a toy to play with it.</p>
       <ul class="shelf" id="shelf" aria-label="Toby's projects">
         <li><a class="shelf-card" href="#music-box"><span class="shelf-art shelf-art-box" aria-hidden="true"></span><span class="shelf-name">The Toby Box</span><span class="shelf-blurb">A wind-up music box with three lullabies</span></a></li>
@@ -152,7 +154,7 @@
           </div>
         </div>
         <div class="project-copy">
-          <h3>The Toby Box</h3>
+          <h2 class="project-title">The Toby Box</h2>
           <p>My very first music box, built from a teacup, a spoon and a lot of patience. Wind it up and it plays until the spring runs down. Snorbit snores along in tune.</p>
           <div class="chip-row" role="group" aria-label="Choose a tune">
             <button class="chip tune-chip" type="button" data-tune="twinkle" aria-pressed="true">Twinkle, Twinkle</button>
@@ -180,7 +182,7 @@
           <img class="lantern" src="assets/toby-lantern.webp" alt="A glowing bell-shaped nightlight with a sleepy moon and Snorbit curled on a cloud inside" width="928" height="1152" loading="lazy">
         </div>
         <div class="project-copy">
-          <h3>The Moonbell Lantern</h3>
+          <h2 class="project-title">The Moonbell Lantern</h2>
           <p>Every creature likes a different glow. The owls want honey, the mice want bubblegum. Pick one, and my eyes change too.</p>
           <div class="chip-row" role="group" aria-label="Lantern glow">
             <button class="chip glow-chip" type="button" data-glow="honey" aria-pressed="true"><span class="dot" aria-hidden="true"></span>Honey</button>
@@ -196,7 +198,7 @@
 
       <article class="project" id="rattle-blocks">
         <div class="project-media blocks-media">
-          <p class="word-tray" id="word-tray" aria-live="polite" aria-label="Letters so far"></p>
+          <p class="word-tray" id="word-tray" aria-live="polite"></p>
           <div class="blocks" role="group" aria-label="Toy blocks">
             <button class="block" type="button" data-letter="T">T</button>
             <button class="block" type="button" data-letter="O">O</button>
@@ -212,7 +214,7 @@
           </div>
         </div>
         <div class="project-copy">
-          <h3>Rattle Blocks</h3>
+          <h2 class="project-title">Rattle Blocks</h2>
           <p>Eleven wobbly blocks filled with dried peas. Some of them spell secret words, and every word does something different.</p>
           <p class="blocks-status" id="blocks-status" role="status" aria-live="polite">Tap the blocks to spell a word.</p>
           <ul class="words-found" id="words-found" aria-label="Secret words">
@@ -235,7 +237,7 @@
           </div>
         </div>
         <div class="project-copy">
-          <h3>Star Catcher</h3>
+          <h2 class="project-title">Star Catcher</h2>
           <p>Fallen stars make the best nightlights, so I catch them in a jar. The trick is staying quiet: three alarm clocks and Snorbit wakes up.</p>
           <p class="game-help">Move the jar with your mouse, a finger, or the arrow keys.</p>
           <dl class="game-stats">
@@ -248,7 +250,7 @@
 
       <article class="project project-wide" id="dream-routes">
         <div class="project-copy">
-          <h3>Dream Delivery Routes</h3>
+          <h2 class="project-title">Dream Delivery Routes</h2>
           <p>Every night Snorbit and I fly over the rooftops of Hushbury and drop a dream down every chimney. Pick a home and watch the delivery.</p>
         </div>
         <div class="routes">
@@ -380,7 +382,7 @@
           </ol>
         </div>
         <div class="project-copy">
-          <h3>Toby's Growth Chart</h3>
+          <h2 class="project-title">Toby's Growth Chart</h2>
           <p>Most babies get measured on the nursery wall. Toby measures his skills instead, in pencil, whenever nobody is looking.</p>
           <div class="notebook" aria-live="polite">
             <p class="notebook-title" id="notebook-title">Tap a pencil mark</p>
@@ -392,7 +394,7 @@
 
       <article class="project project-wide" id="storybook">
         <div class="project-copy">
-          <h3>Snorbit's Bedtime Storybook</h3>
+          <h2 class="project-title">Snorbit's Bedtime Storybook</h2>
           <p>I wrote Snorbit a bedtime story. He has never heard the ending, because he always falls asleep on page one. Turn the pages quietly.</p>
         </div>
         <div class="book" id="book">
@@ -400,7 +402,7 @@
           <ol class="book-pages" id="book-pages">
             <li class="page page-cover">
               <div class="page-art art-snorbit-hat" role="img" aria-label="Snorbit curled up asleep on Toby's striped nightcap"></div>
-              <h4 class="page-title">Snorbit's Very Long Nap</h4>
+              <h3 class="page-title">Snorbit's Very Long Nap</h3>
               <p class="page-byline">written by Toby, age nearly one</p>
             </li>
             <li class="page">
@@ -450,26 +452,26 @@
         <svg class="sky-snorbit" viewBox="0 0 64 40"><path d="M8 26c0-9 9-15 20-15 6 0 10 2 13 5l9-7-2 10c3 2 6 5 7 9-6 6-17 9-28 9C14 37 8 33 8 26z"/><path class="wing" d="M24 13c-2-7 3-11 9-11-1 4 0 8 3 12z"/><circle class="eye-dot" cx="20" cy="23" r="1.6"/></svg>
       </div>
       <div class="story-inner">
-        <h2 id="story-title">How I learned to tuck in the sky</h2>
+        <h1 class="section-title" id="story-title">How I learned to tuck in the sky</h1>
         <ol class="scenes">
           <li class="scene">
             <p class="scene-num">Scene 1</p>
-            <h3>The star that fell into a sock</h3>
+            <h2>The star that fell into a sock</h2>
             <p>One windy night, a tiny star tumbled out of the sky and landed in a warm sock on the Cloud Cradle washing line. By morning the sock had giggled, wriggled and turned into a baby. That was me. I kept the star. You can see it in my eyes.</p>
           </li>
           <li class="scene">
             <p class="scene-num">Scene 2</p>
-            <h3>A dragon in the laundry basket</h3>
+            <h2>A dragon in the laundry basket</h2>
             <p>Under the washing line sat a laundry basket, and in it a little purple dragon, curled up like a warm croissant. I said hello. Snorbit snored. We've been best friends ever since, and Snorbit still hasn't fully woken up.</p>
           </li>
           <li class="scene">
             <p class="scene-num">Scene 3</p>
-            <h3>The sky that couldn't sleep</h3>
+            <h2>The sky that couldn't sleep</h2>
             <p>The sky above Hushbury was restless. The owls hooted, the clouds fidgeted and the moon tossed and turned. So I took a teacup and a spoon and wound up my first music box. The moon yawned. The owls went quiet. That was my first lullaby.</p>
           </li>
           <li class="scene">
             <p class="scene-num">Scene 4</p>
-            <h3>Now I tuck the whole sky in</h3>
+            <h2>Now I tuck the whole sky in</h2>
             <p>The Cloud Cradle Workshop gave me a tiny toolbelt and a job title longer than I am. Every night I hang the lanterns, wind the music boxes and tuck the sky in, corner by corner. If you're still up, I'm on my way.</p>
           </li>
         </ol>
@@ -478,7 +480,7 @@
 
     <!-- GUESTBOOK: live, stored in Supabase -->
     <section class="guestbook" id="guestbook" aria-labelledby="guestbook-title" data-page="Guestbook">
-      <h2 id="guestbook-title">Leave Toby a dream wish</h2>
+      <h1 class="section-title" id="guestbook-title">Leave Toby a dream wish</h1>
       <p class="guestbook-intro">What would you like to dream about tonight? Pin your wish to the nursery wall and Toby will try to build it.</p>
       <div class="guestbook-grid">
         <form class="wish-form" id="wish-form" novalidate>
@@ -502,7 +504,7 @@
   <footer class="footer">
     <div class="counter">
       <p class="counter-label" id="counter-label">Dreams delivered tonight</p>
-      <p class="odometer" id="odometer" aria-labelledby="counter-label">1204</p>
+      <p class="odometer" id="odometer">1204</p>
     </div>
     <ul class="badges" aria-label="Site badges">
       <li>best viewed at 2am</li>

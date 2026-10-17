@@ -83,12 +83,12 @@ h1, h2, h3 {
   margin: 0;
 }
 
-h2 {
+.section-title {
   font-size: clamp(2rem, 1.4rem + 2.6vw, 3.25rem);
   margin-bottom: 1.5rem;
 }
 
-h3 { font-size: 1.5rem; }
+h2, h3 { font-size: 1.5rem; }
 
 p { margin: 0 0 1rem; }
 
@@ -138,7 +138,8 @@ main { overflow-x: clip; }
 }
 /* Headings receive focus after a page change, for screen readers; no ring needed */
 [data-page] h1:focus,
-[data-page] h2:focus { outline: none; }
+[data-page] h2:focus,
+.project-title:focus { outline: none; }
 
 .page-turner {
   grid-column: 1 / -1;
@@ -488,7 +489,7 @@ main { overflow-x: clip; }
   text-decoration: none;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.button-primary { background: var(--lavender); color: #fff; box-shadow: 0 5px 0 var(--cocoa); }
+.button-primary { background: var(--lavender-deep); color: #fff; box-shadow: 0 5px 0 var(--cocoa); }
 .button-quiet   { background: var(--surface); color: var(--ink); box-shadow: 0 5px 0 var(--cocoa); }
 [data-theme="night"] .button { border-color: #120e2b; }
 [data-theme="night"] .button-primary,
@@ -540,7 +541,7 @@ main { overflow-x: clip; }
   border-radius: 20px;
 }
 [data-theme="night"] .sidekick { background: #3a3175; color: var(--ink); }
-.sidekick h3 { font-size: 1.2rem; margin-bottom: 0.4rem; }
+.sidekick h2 { font-size: 1.2rem; margin-bottom: 0.4rem; }
 .sidekick p { margin: 0; }
 
 /* --------------------------------------------------------------------------
@@ -555,7 +556,7 @@ main { overflow-x: clip; }
   margin-bottom: clamp(3rem, 7vw, 5.5rem);
 }
 .project-flip .project-media { order: 2; }
-.project-copy h3 { font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.25rem); margin-bottom: 0.75rem; }
+.project-copy .project-title { font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.25rem); margin-bottom: 0.75rem; }
 .project-copy p { max-width: 30rem; color: var(--ink-soft); }
 
 .project-media {
@@ -1235,7 +1236,14 @@ main { overflow-x: clip; }
   margin: 0 auto;
   padding: clamp(3rem, 8vw, 6rem) clamp(1rem, 4vw, 2.5rem) 30vh;
 }
-.story h2 { text-shadow: 0 2px 12px rgba(18, 14, 43, 0.5); }
+/* A dark backing keeps the white title readable at every point of the sunset */
+.story .section-title {
+  display: inline-block;
+  padding: 0.2em 0.5em;
+  border-radius: 20px;
+  background: rgba(35, 29, 71, 0.6);
+  text-shadow: 0 2px 12px rgba(18, 14, 43, 0.5);
+}
 
 .scenes { list-style: none; margin: 0; padding: 0; }
 .scene {
@@ -1255,7 +1263,7 @@ main { overflow-x: clip; }
 .scene:last-child { margin-bottom: 0; }
 .scene.is-active { opacity: 1; transform: none; }
 .scene-num { margin: 0 0 0.35rem; font-family: var(--font-retro); font-size: 1.4rem; color: var(--butter); }
-.scene h3 { margin-bottom: 0.6rem; }
+.scene h2 { margin-bottom: 0.6rem; }
 .scene p:last-child { margin: 0; }
 
 /* --------------------------------------------------------------------------
@@ -1683,7 +1691,7 @@ main { overflow-x: clip; }
 :root[data-chaos="on"] .chaos-winbtns { display: none; } /* shown per screen size below */
 
 /* WordArt headings */
-:root[data-chaos="on"] h2,
+:root[data-chaos="on"] .section-title,
 :root[data-chaos="on"] .hero-copy h1 {
   display: inline-block;
   background: var(--chaos-rainbow);
@@ -1698,7 +1706,7 @@ main { overflow-x: clip; }
 :root[data-chaos="on"] .hero-copy h1 { -webkit-text-stroke-width: 3px; }
 
 /* Blinking NEW! tags on the projects (stops after 5 seconds) */
-:root[data-chaos="on"] .project-copy h3::after {
+:root[data-chaos="on"] .project-title::after {
   content: " NEW!";
   font-size: 0.55em;
   vertical-align: super;
@@ -1730,8 +1738,8 @@ main { overflow-x: clip; }
 
 :root[data-chaos="on"] a { color: var(--link); }
 :root[data-chaos="on"] .nav a { color: #ffe600; text-decoration: underline; }
-:root[data-chaos="on"] .nav a:hover { background: #ff00aa; color: #fff; }
-:root[data-chaos="on"] .nav a[aria-current="page"] { background: #ff00aa; color: #fff; }
+:root[data-chaos="on"] .nav a:hover { background: #c2006f; color: #fff; }
+:root[data-chaos="on"] .nav a[aria-current="page"] { background: #c2006f; color: #fff; }
 
 :root[data-chaos="on"] .project-media,
 :root[data-chaos="on"] .portrait-art,
@@ -1892,7 +1900,7 @@ main { overflow-x: clip; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root[data-chaos="on"] .project-copy h3::after { animation: none; }
+  :root[data-chaos="on"] .project-title::after { animation: none; }
   :root[data-chaos="on"] .project:nth-of-type(odd) .project-media,
   :root[data-chaos="on"] .project:nth-of-type(even) .project-media { transform: none; }
 }

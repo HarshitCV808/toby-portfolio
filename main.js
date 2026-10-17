@@ -507,6 +507,115 @@
   setGlow(load('toby-glow') || 'honey');
 
   /* ------------------------------------------------------------------------
+     Nightlight mode: the big light goes off and the pointer becomes the
+     lantern. Shining it on the glow-in-the-dark stickers charges them.
+     ------------------------------------------------------------------------ */
+
+  var darkness = document.getElementById('darkness');
+  var lightsOutButton = document.getElementById('lights-out');
+  var lightsOnButton = document.getElementById('lights-on');
+  var darknessHint = document.getElementById('darkness-hint');
+  var stickerLayer = document.getElementById('glow-stickers');
+  lightsOutButton.setAttribute('data-sound', 'own');
+  lightsOnButton.setAttribute('data-sound', 'own');
+
+  // Sticker positions as percentages of the screen; one is a moon.
+  var STICKER_SPOTS = [[9, 22], [24, 72], [36, 34], [50, 84], [63, 18], [76, 62], [89, 28], [93, 80], [14, 50], [56, 52], [82, 44], [30, 92]];
+  var stickers = STICKER_SPOTS.map(function (spot, i) {
+    var el = document.createElement('span');
+    el.className = 'sticker' + (i === 4 ? ' sticker-moon' : '');
+    el.style.left = spot[0] + '%';
+    el.style.top = spot[1] + '%';
+    el.appendChild(document.createElement('i'));
+    stickerLayer.appendChild(el);
+    return { el: el, charged: false };
+  });
+  var chargedCount = 0;
+  var light = { x: 0, y: 0, frame: 0, radius: 120 };
+  var nightlightOn = false;
+
+  function lightRadius() { return Math.min(160, Math.max(90, window.innerWidth * 0.14)); }
+
+  function moveLight(x, y) {
+    light.x = x;
+    light.y = y;
+    if (!light.frame) light.frame = requestAnimationFrame(drawLight);
+  }
+
+  function drawLight() {
+    light.frame = 0;
+    darkness.style.setProperty('--lx', light.x + 'px');
+    darkness.style.setProperty('--ly', light.y + 'px');
+    chargeStickers();
+  }
+
+  function chargeStickers() {
+    stickers.forEach(function (sticker) {
+      if (sticker.charged) return;
+      var box = sticker.el.getBoundingClientRect();
+      var distance = Math.hypot(box.left + box.width / 2 - light.x, box.top + box.height / 2 - light.y);
+      if (distance > light.radius * 0.8) return;
+      sticker.charged = true;
+      sticker.el.classList.add('is-charged');
+      chargedCount++;
+      ping(PENTATONIC[chargedCount % PENTATONIC.length] * 2, { duration: 0.6, volume: 0.1 });
+      if (chargedCount === stickers.length) {
+        darknessHint.textContent = 'Every sticker is glowing! Snorbit will sleep like a log tonight.';
+        celebrate({ x: light.x / window.innerWidth, y: light.y / window.innerHeight });
+        [523.25, 659.25, 783.99, 1046.5].forEach(function (f, i) { ping(f, { delay: 0.2 + i * 0.1, duration: 1.2, volume: 0.14 }); });
+      } else {
+        darknessHint.textContent = chargedCount + ' of ' + stickers.length + ' glow stickers charged.';
+      }
+    });
+  }
+
+  function onPointer(event) { moveLight(event.clientX, event.clientY); }
+  // Keyboard visitors: the light follows whatever has focus.
+  function onFocus(event) {
+    var box = event.target.getBoundingClientRect();
+    moveLight(box.left + box.width / 2, box.top + box.height / 2);
+  }
+  function onKey(event) { if (event.key === 'Escape') lightsOn(); }
+
+  function lightsOut() {
+    nightlightOn = true;
+    light.radius = lightRadius();
+    darkness.style.setProperty('--r', light.radius + 'px');
+    var start = lightsOutButton.getBoundingClientRect();
+    darkness.hidden = false;
+    moveLight(start.left + start.width / 2, start.top + start.height / 2);
+    requestAnimationFrame(function () { darkness.classList.add('is-on'); });
+    // Focus the exit first, so the light doesn't jump to it straight away
+    lightsOnButton.focus({ preventScroll: true });
+    window.addEventListener('pointermove', onPointer, { passive: true });
+    window.addEventListener('pointerdown', onPointer, { passive: true });
+    document.addEventListener('focusin', onFocus);
+    document.addEventListener('keydown', onKey);
+    ping(196, { duration: 0.5, volume: 0.15, type: 'triangle' }); // the switch going click
+  }
+
+  function lightsOn() {
+    if (!nightlightOn) return;
+    nightlightOn = false;
+    darkness.classList.remove('is-on');
+    window.removeEventListener('pointermove', onPointer);
+    window.removeEventListener('pointerdown', onPointer);
+    document.removeEventListener('focusin', onFocus);
+    document.removeEventListener('keydown', onKey);
+    setTimeout(function () { if (!nightlightOn) darkness.hidden = true; }, 500);
+    ping(783.99, { duration: 0.5, volume: 0.15 });
+    lightsOutButton.focus({ preventScroll: true });
+  }
+
+  lightsOutButton.addEventListener('click', lightsOut);
+  lightsOnButton.addEventListener('click', lightsOn);
+  window.addEventListener('resize', function () {
+    if (!nightlightOn) return;
+    light.radius = lightRadius();
+    darkness.style.setProperty('--r', light.radius + 'px');
+  });
+
+  /* ------------------------------------------------------------------------
      Project 3: Rattle Blocks. Shuffled on load; tap T-O-B-Y in order.
      ------------------------------------------------------------------------ */
 

@@ -742,12 +742,83 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .credits { max-width: 40rem; margin: 0; font-size: 0.95rem; color: var(--ink-soft); }
 
 /* --------------------------------------------------------------------------
+   Nightlight mode: everything goes dark except a pool of lantern light.
+   The overlay ignores the pointer, so the page underneath still works.
+   -------------------------------------------------------------------------- */
+
+.lights-out { margin-top: 1.25rem; }
+
+.darkness {
+  --lx: 50vw;
+  --ly: 50vh;
+  --r: 120px;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at var(--lx) var(--ly), color-mix(in srgb, var(--glow) 24%, transparent) 0, transparent var(--r)),
+    radial-gradient(circle at var(--lx) var(--ly), transparent 0, transparent calc(var(--r) * 0.75), rgba(8, 6, 24, 0.95) calc(var(--r) * 1.9));
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.darkness.is-on { opacity: 1; }
+
+.glow-stickers { position: absolute; inset: 0; }
+.sticker {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  opacity: 0.18;
+  transition: opacity 0.5s ease, filter 0.5s ease, transform 0.5s var(--ease-soft);
+}
+.sticker i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #d9ffc2;
+  clip-path: polygon(50% 2%, 63% 34%, 98% 36%, 71% 58%, 80% 94%, 50% 74%, 20% 94%, 29% 58%, 2% 36%, 37% 34%);
+}
+.sticker-moon i { clip-path: none; border-radius: 50%; background: transparent; box-shadow: inset -7px 3px 0 0 #d9ffc2; }
+.sticker.is-charged {
+  opacity: 1;
+  transform: scale(1.25);
+  filter: drop-shadow(0 0 4px #c4ff9e) drop-shadow(0 0 12px #9dff6e);
+}
+
+.darkness-hint {
+  position: fixed;
+  top: 1.25rem;
+  left: 50%;
+  width: min(90vw, 30rem);
+  margin: 0;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  text-align: center;
+  color: #fff8f1;
+  text-shadow: 0 1px 8px #000;
+}
+
+.darkness-exit {
+  position: fixed;
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+.darkness-exit:hover { transform: translateX(-50%) translateY(-2px); }
+.darkness-exit:active { transform: translateX(-50%) translateY(4px); }
+
+/* --------------------------------------------------------------------------
    Sparkle trail: stars and tiny bones
    -------------------------------------------------------------------------- */
 
 .trail {
   position: fixed;
-  z-index: 50;
+  z-index: 70; /* above nightlight mode, so sparkles glow in the dark */
   width: 14px;
   height: 14px;
   margin: -7px 0 0 -7px;

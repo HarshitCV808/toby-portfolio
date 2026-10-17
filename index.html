@@ -145,6 +145,7 @@
             <button class="chip glow-chip" type="button" data-glow="bubblegum" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Bubblegum</button>
             <button class="chip glow-chip" type="button" data-glow="mint" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Mint</button>
           </div>
+          <button class="button button-quiet lights-out" id="lights-out" type="button">Turn off the big light</button>
         </div>
       </article>
 
@@ -210,7 +211,14 @@
       <li>made with warm milk</li>
       <li>no grown-ups allowed</li>
     </ul>
-    <p class="credits">Made by Toby's Night Shift for Baby's First Website 2026. Toby artwork generated with Google Gemini. Code built with help from <a href="https://claude.ai">Claude</a> by Anthropic.</p>
+    <p class="credits" id="credits">Made by Toby's Night Shift for Baby's First Website 2026. Toby artwork generated with Google Gemini. Code built with help from <a href="https://claude.ai">Claude</a> by Anthropic.</p>
   </footer>
+
+  <!-- Nightlight mode: the page goes dark and the pointer becomes Toby's lantern -->
+  <div class="darkness" id="darkness" hidden>
+    <div class="glow-stickers" id="glow-stickers" aria-hidden="true"></div>
+    <p class="darkness-hint" id="darkness-hint" role="status" aria-live="polite">You're the nightlight now. Shine on the glow stickers to charge them.</p>
+    <button class="button button-primary darkness-exit" id="lights-on" type="button">Big light back on</button>
+  </div>
 </body>
 </html>

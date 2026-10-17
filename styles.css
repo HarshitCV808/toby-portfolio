@@ -592,6 +592,37 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .blocks-status { min-height: 1.6em; font-family: var(--font-display); font-weight: 600; color: var(--link); }
 
 /* --------------------------------------------------------------------------
+   Star Catcher mini-game
+   -------------------------------------------------------------------------- */
+
+.game-media { background: #231d47; }
+.game-canvas { display: block; width: 100%; }
+.game-canvas.is-playing { touch-action: none; }
+.game-canvas:focus-visible { outline-offset: -4px; }
+
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  text-align: center;
+  background: rgba(35, 29, 71, 0.74);
+  color: #fff8f1;
+}
+.game-overlay[hidden] { display: none; }
+.game-title { margin: 0; font-family: var(--font-display); font-size: clamp(1.8rem, 1.2rem + 2vw, 2.6rem); font-weight: 700; color: var(--butter); }
+.game-text { max-width: 24rem; margin: 0 0 0.5rem; }
+
+.game-help { font-size: 0.95rem; }
+.game-stats { display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; margin: 1rem 0 0; }
+.game-stats dt { font-family: var(--font-display); font-weight: 600; color: var(--link); }
+.game-stats dd { margin: 0; font-family: var(--font-retro); font-size: 2rem; line-height: 1.1; }
+
+/* --------------------------------------------------------------------------
    Storybook flipbook. Each leaf has a front and back face; turning a leaf
    rotates it 180° around its left edge. Paper colours stay the same in
    day and night, because it's a real book.

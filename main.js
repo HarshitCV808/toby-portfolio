@@ -692,7 +692,274 @@
   }
 
   /* ------------------------------------------------------------------------
-     Project 4: Snorbit's storybook, a flipbook
+     Project 4: Star Catcher, a canvas mini-game
+     Catch stars in the dream jar; three alarm clocks wake Snorbit and end
+     the round. Movement is scaled by frame time, so speed is the same on
+     every screen refresh rate.
+     ------------------------------------------------------------------------ */
+
+  var canvas = document.getElementById('game');
+  var pen = canvas.getContext('2d');
+  // Older Safari and Firefox lack roundRect; square corners are fine there.
+  if (!pen.roundRect) pen.roundRect = function (x, y, w, h) { this.rect(x, y, w, h); };
+  var gameOverlay = document.getElementById('game-overlay');
+  var gameText = document.getElementById('game-text');
+  var gameStart = document.getElementById('game-start');
+  var gameScore = document.getElementById('game-score');
+  var gameBest = document.getElementById('game-best');
+  var gameWake = document.getElementById('game-wake');
+  var WAKE_WORDS = ['Asleep', 'Stirring…', 'Grumpy!', 'AWAKE'];
+
+  var game = {
+    state: 'idle', // idle | playing | paused | over
+    w: 0, h: 0,
+    jarX: 0, jarW: 0, target: null,
+    left: false, right: false,
+    items: [], score: 0, noise: 0, elapsed: 0, untilSpawn: 0, last: 0, frame: 0, shake: 0,
+    best: parseInt(load('toby-best-stars'), 10) || 0,
+    sky: []
+  };
+  gameBest.textContent = game.best;
+
+  function sizeGame() {
+    var width = canvas.parentElement.clientWidth;
+    var height = Math.round(width * (width < 520 ? 1.1 : 0.75));
+    var ratio = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    canvas.style.height = height + 'px';
+    pen.setTransform(ratio, 0, 0, ratio, 0, 0);
+    game.jarX = game.w ? game.jarX * width / game.w : width / 2;
+    game.w = width;
+    game.h = height;
+    game.jarW = Math.max(64, width * 0.17);
+    game.sky = [];
+    for (var i = 0; i < 40; i++) game.sky.push([Math.random() * width, Math.random() * height, Math.random() * 1.4 + 0.4]);
+    drawGame();
+  }
+
+  function starPath(x, y, r, spin) {
+    pen.beginPath();
+    for (var i = 0; i < 10; i++) {
+      var angle = spin + i * Math.PI / 5 - Math.PI / 2;
+      var radius = i % 2 ? r * 0.45 : r;
+      pen.lineTo(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius);
+    }
+    pen.closePath();
+  }
+
+  function drawClock(item) {
+    pen.save();
+    pen.translate(item.x, item.y);
+    pen.rotate(Math.sin(item.spin * 6) * 0.25); // ringing wobble
+    pen.fillStyle = '#4a3530';
+    pen.beginPath(); pen.arc(-item.r * 0.6, -item.r * 0.85, item.r * 0.38, 0, Math.PI * 2); pen.fill();
+    pen.beginPath(); pen.arc(item.r * 0.6, -item.r * 0.85, item.r * 0.38, 0, Math.PI * 2); pen.fill();
+    pen.fillStyle = '#f5b5c6';
+    pen.strokeStyle = '#4a3530';
+    pen.lineWidth = 3;
+    pen.beginPath(); pen.arc(0, 0, item.r, 0, Math.PI * 2); pen.fill(); pen.stroke();
+    pen.fillStyle = '#fffaf0';
+    pen.beginPath(); pen.arc(0, 0, item.r * 0.72, 0, Math.PI * 2); pen.fill();
+    pen.lineCap = 'round';
+    pen.beginPath(); pen.moveTo(0, 0); pen.lineTo(0, -item.r * 0.5); pen.moveTo(0, 0); pen.lineTo(item.r * 0.35, item.r * 0.1); pen.stroke();
+    pen.restore();
+  }
+
+  function drawJar() {
+    var w = game.jarW;
+    var h = w * 0.9;
+    var x = game.jarX - w / 2 + (game.shake ? Math.sin(game.shake * 60) * 4 : 0);
+    var y = game.h - h - 12;
+    var fill = Math.min(0.75, 0.12 + game.score * 0.025);
+    // glow from the stars inside
+    pen.fillStyle = 'rgba(255, 211, 110, ' + fill + ')';
+    pen.shadowColor = '#ffd36e';
+    pen.shadowBlur = 10 + game.score;
+    pen.beginPath(); pen.roundRect(x + 6, y + h * 0.35, w - 12, h * 0.6, 10); pen.fill();
+    pen.shadowBlur = 0;
+    // glass
+    pen.strokeStyle = '#fff8f1';
+    pen.lineWidth = 3;
+    pen.fillStyle = 'rgba(255, 255, 255, 0.12)';
+    pen.beginPath(); pen.roundRect(x, y + 10, w, h - 10, 14); pen.fill(); pen.stroke();
+    // lid
+    pen.fillStyle = '#8a6cc9';
+    pen.beginPath(); pen.roundRect(x - 4, y, w + 8, 14, 6); pen.fill();
+  }
+
+  function drawGame() {
+    var sky = pen.createLinearGradient(0, 0, 0, game.h);
+    sky.addColorStop(0, '#171233');
+    sky.addColorStop(1, '#3a2f6e');
+    pen.fillStyle = sky;
+    pen.fillRect(0, 0, game.w, game.h);
+    pen.fillStyle = 'rgba(255, 255, 255, 0.55)';
+    game.sky.forEach(function (s) { pen.fillRect(s[0], s[1], s[2], s[2]); });
+
+    game.items.forEach(function (item) {
+      if (item.kind === 'star') {
+        pen.fillStyle = '#ffd36e';
+        pen.shadowColor = '#ffd36e';
+        pen.shadowBlur = 12;
+        starPath(item.x, item.y, item.r, item.spin);
+        pen.fill();
+        pen.shadowBlur = 0;
+      } else {
+        drawClock(item);
+      }
+    });
+    drawJar();
+  }
+
+  function spawnItem() {
+    var clockChance = Math.min(0.38, 0.2 + game.elapsed * 0.004);
+    var r = Math.max(12, game.w * 0.028);
+    game.items.push({
+      kind: Math.random() < clockChance ? 'clock' : 'star',
+      x: r + Math.random() * (game.w - r * 2),
+      y: -r,
+      r: r,
+      vy: game.h * (0.3 + Math.random() * 0.12 + Math.min(0.45, game.elapsed * 0.008)),
+      spin: Math.random() * Math.PI
+    });
+  }
+
+  function stepGame(now) {
+    game.frame = 0;
+    if (game.state !== 'playing') return;
+    var dt = game.last ? Math.min(0.05, (now - game.last) / 1000) : 0;
+    game.last = now;
+    game.elapsed += dt;
+    game.shake = Math.max(0, game.shake - dt);
+
+    // move the jar: keys first, then glide towards the pointer
+    var dir = (game.right ? 1 : 0) - (game.left ? 1 : 0);
+    if (dir) { game.jarX += dir * game.w * 0.95 * dt; game.target = null; }
+    else if (game.target !== null) game.jarX += (game.target - game.jarX) * Math.min(1, dt * 14);
+    game.jarX = Math.max(game.jarW / 2, Math.min(game.w - game.jarW / 2, game.jarX));
+
+    game.untilSpawn -= dt;
+    if (game.untilSpawn <= 0) {
+      spawnItem();
+      game.untilSpawn = Math.max(0.32, 0.85 - game.elapsed * 0.012);
+    }
+
+    var jarTop = game.h - game.jarW * 0.9 - 12;
+    game.items = game.items.filter(function (item) {
+      item.y += item.vy * dt;
+      item.spin += dt * 2;
+      var inJar = item.y + item.r * 0.5 >= jarTop && item.y - item.r <= jarTop + 20 && Math.abs(item.x - game.jarX) < game.jarW / 2;
+      if (inJar) { catchItem(item); return false; }
+      return item.y - item.r < game.h;
+    });
+
+    drawGame();
+    if (game.state === 'playing') game.frame = requestAnimationFrame(stepGame);
+  }
+
+  function catchItem(item) {
+    if (item.kind === 'star') {
+      game.score++;
+      gameScore.textContent = game.score;
+      ping(PENTATONIC[game.score % PENTATONIC.length] * 2, { duration: 0.5, volume: 0.12 });
+      return;
+    }
+    game.noise++;
+    game.shake = 0.35;
+    gameWake.textContent = WAKE_WORDS[game.noise];
+    ping(110, { duration: 0.35, volume: 0.2, type: 'square' });
+    if (game.noise >= 3) endGame();
+  }
+
+  function showOverlay(text, buttonLabel) {
+    gameText.textContent = text;
+    gameStart.textContent = buttonLabel;
+    gameOverlay.hidden = false;
+  }
+
+  function startGame() {
+    getAudio();
+    if (game.state !== 'paused') {
+      game.items = [];
+      game.score = 0;
+      game.noise = 0;
+      game.elapsed = 0;
+      game.untilSpawn = 0.4;
+      game.jarX = game.w / 2;
+      gameScore.textContent = '0';
+      gameWake.textContent = WAKE_WORDS[0];
+    }
+    game.state = 'playing';
+    game.last = 0;
+    gameOverlay.hidden = true;
+    canvas.classList.add('is-playing');
+    canvas.focus({ preventScroll: true });
+    game.frame = requestAnimationFrame(stepGame);
+  }
+
+  function pauseGame() {
+    if (game.state !== 'playing') return;
+    game.state = 'paused';
+    cancelAnimationFrame(game.frame);
+    game.frame = 0;
+    canvas.classList.remove('is-playing');
+    showOverlay('Paused. Snorbit is still asleep.', 'Keep catching');
+  }
+
+  function endGame() {
+    game.state = 'over';
+    cancelAnimationFrame(game.frame);
+    game.frame = 0;
+    canvas.classList.remove('is-playing');
+    [523.25, 392, 329.63, 261.63].forEach(function (f, i) { ping(f, { delay: i * 0.12, duration: 0.6, volume: 0.14 }); });
+    var message = 'Snorbit woke up! You caught ' + game.score + (game.score === 1 ? ' star.' : ' stars.');
+    if (game.score > game.best) {
+      game.best = game.score;
+      gameBest.textContent = game.best;
+      save('toby-best-stars', String(game.best));
+      message += ' That’s a new best!';
+      var box = canvas.getBoundingClientRect();
+      celebrate({ x: (box.left + box.width / 2) / window.innerWidth, y: (box.top + box.height / 2) / window.innerHeight });
+    }
+    showOverlay(message, 'Play again');
+    gameStart.focus({ preventScroll: true });
+  }
+
+  gameStart.addEventListener('click', startGame);
+
+  canvas.addEventListener('pointermove', function (event) {
+    if (game.state !== 'playing') return;
+    game.target = event.clientX - canvas.getBoundingClientRect().left;
+  });
+  canvas.addEventListener('pointerdown', function (event) {
+    if (game.state !== 'playing') return;
+    game.target = event.clientX - canvas.getBoundingClientRect().left;
+  });
+  canvas.addEventListener('keydown', function (event) {
+    if (event.key === 'ArrowLeft') { game.left = true; event.preventDefault(); }
+    if (event.key === 'ArrowRight') { game.right = true; event.preventDefault(); }
+  });
+  canvas.addEventListener('keyup', function (event) {
+    if (event.key === 'ArrowLeft') game.left = false;
+    if (event.key === 'ArrowRight') game.right = false;
+  });
+  canvas.addEventListener('blur', function () { game.left = game.right = false; });
+
+  // Pause when the game scrolls out of view or the tab is hidden.
+  document.addEventListener('visibilitychange', function () { if (document.hidden) pauseGame(); });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) pauseGame();
+    }, { threshold: 0.3 }).observe(canvas);
+  }
+  window.addEventListener('resize', function () {
+    if (canvas.parentElement.clientWidth !== game.w) sizeGame();
+  });
+  sizeGame();
+
+  /* ------------------------------------------------------------------------
+     Project 5: Snorbit's storybook, a flipbook
      The readable list of pages in the HTML is rebuilt into leaves: two pages
      per leaf (a spread) on wide screens, one page per leaf on narrow ones.
      ------------------------------------------------------------------------ */

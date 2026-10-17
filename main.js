@@ -8,6 +8,10 @@
   // localStorage can throw in private windows, so every read and write is guarded.
   function load(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
   function save(key, value) { try { localStorage.setItem(key, value); } catch (e) { /* not saved, fine */ } }
+  // True when a key press is going into a text box, so shortcuts stay out of the way
+  function isTyping(event) {
+    return !!(event.target && event.target.closest && event.target.closest('input, textarea'));
+  }
 
   /* ------------------------------------------------------------------------
      Sound: Web Audio, no files. Nothing plays until the visitor clicks,
@@ -279,7 +283,7 @@
   // Secret: type 1999 anywhere (outside a text box) to toggle chaos mode
   var typed = '';
   document.addEventListener('keydown', function (event) {
-    if (event.target.closest('input, textarea')) return;
+    if (isTyping(event)) return;
     typed = (typed + event.key).slice(-4);
     if (typed === '1999') { typed = ''; setChaos(root.dataset.chaos !== 'on'); }
   });
@@ -1250,12 +1254,9 @@
   var lastSparkle = 0;
   var liveSparkles = 0;
 
-  window.addEventListener('pointermove', function (event) {
-    if (event.pointerType !== 'mouse' || !finePointer.matches || reduceMotion.matches) return;
-    var now = performance.now();
-    if (now - lastSparkle < 45 || liveSparkles > 28) return;
-    lastSparkle = now;
-
+  // One sparkle (a star, sometimes a tiny bone) at a screen position
+  function sparkleAt(x, y) {
+    if (reduceMotion.matches || liveSparkles > 40) return;
     var bit = document.createElement('span');
     var isBone = Math.random() < 0.18;
     bit.className = 'trail ' + (isBone ? 'trail-bone' : 'trail-star');
@@ -1264,11 +1265,19 @@
     else bit.style.setProperty('--c', root.dataset.chaos === 'on'
       ? 'hsl(' + Math.floor(Math.random() * 360) + ' 100% 62%)'
       : TRAIL_COLOURS[Math.floor(Math.random() * TRAIL_COLOURS.length)]);
-    bit.style.left = event.clientX + 'px';
-    bit.style.top = event.clientY + 'px';
+    bit.style.left = x + 'px';
+    bit.style.top = y + 'px';
     liveSparkles++;
     bit.addEventListener('animationend', function () { bit.remove(); liveSparkles--; });
     document.body.appendChild(bit);
+  }
+
+  window.addEventListener('pointermove', function (event) {
+    if (event.pointerType !== 'mouse' || !finePointer.matches) return;
+    var now = performance.now();
+    if (now - lastSparkle < 45 || liveSparkles > 28) return;
+    lastSparkle = now;
+    sparkleAt(event.clientX, event.clientY);
   }, { passive: true });
 
   /* ------------------------------------------------------------------------
@@ -1461,6 +1470,189 @@
       })
       .then(function () { wishSubmit.disabled = false; });
   });
+
+  /* ------------------------------------------------------------------------
+     Easter eggs
+     ------------------------------------------------------------------------ */
+
+  // 1. Leave the page alone for 45 seconds and Toby dozes off.
+  var IDLE_MS = 45000;
+  var idleTimer = 0;
+  var zTimer = 0;
+  var asleep = false;
+  var brandText = document.getElementById('brand-text');
+  var BRAND = brandText.textContent;
+
+  function yawn() {
+    if (muted || !audio) return;
+    var t = audio.currentTime;
+    var osc = audio.createOscillator();
+    var gain = audio.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(520, t);
+    osc.frequency.exponentialRampToValueAtTime(240, t + 0.9);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.linearRampToValueAtTime(0.12, t + 0.15);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 1);
+    osc.connect(gain).connect(master);
+    osc.start(t);
+    osc.stop(t + 1.05);
+  }
+
+  function floatZ() {
+    var z = document.createElement('span');
+    z.className = 'sleep-z';
+    z.setAttribute('aria-hidden', 'true');
+    z.textContent = 'z';
+    z.style.right = (8 + Math.random() * 14) + '%';
+    z.addEventListener('animationend', function () { z.remove(); });
+    portrait.appendChild(z);
+  }
+
+  function fallAsleep() {
+    if (document.hidden) { resetIdle(); return; }
+    asleep = true;
+    root.classList.add('toby-asleep');
+    brandText.textContent = 'toby is napping\u2026';
+    say('zzz\u2026 (Toby dozed off. Wiggle the mouse to wake him.)');
+    floatZ();
+    zTimer = setInterval(floatZ, 1400);
+  }
+
+  function wakeUp() {
+    asleep = false;
+    root.classList.remove('toby-asleep');
+    brandText.textContent = BRAND;
+    clearInterval(zTimer);
+    say('*yawn* I wasn\u2019t asleep. I was testing my eyelids.');
+    yawn();
+  }
+
+  function resetIdle() {
+    if (asleep) wakeUp();
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(fallAsleep, IDLE_MS);
+  }
+  ['pointermove', 'pointerdown', 'keydown', 'scroll', 'wheel', 'touchstart'].forEach(function (type) {
+    window.addEventListener(type, resetIdle, { passive: true });
+  });
+  resetIdle();
+
+  // 2. Konami code: Snorbit sleep-flies loop-the-loops across the screen.
+  var KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
+  var konamiStep = 0;
+  // Snorbit in profile, facing right: bat wing, back spikes, snout, spade-tipped tail
+  var LINE = ' stroke="#4a3530" stroke-width="2" stroke-linejoin="round"';
+  var SNORBIT_SVG =
+    '<svg viewBox="0 0 130 90" aria-hidden="true">' +
+    '<path class="wing" d="M52 42C46 18 64 6 82 8c-4 5-2 9-6 13-4 0-4 6-8 8-4 0-4 6-8 9z" fill="#a8e2cf"' + LINE + '/>' +
+    '<path d="M30 58C18 60 10 54 9 45" fill="none" stroke="#4a3530" stroke-width="9" stroke-linecap="round"/>' +
+    '<path d="M30 58C18 60 10 54 9 45" fill="none" stroke="#b9a3e3" stroke-width="5" stroke-linecap="round"/>' +
+    '<path d="M9 46l-7-6 10-4 3 9z" fill="#a8e2cf"' + LINE + '/>' +
+    '<ellipse cx="47" cy="73" rx="5.5" ry="4" fill="#b9a3e3"' + LINE + '/>' +
+    '<ellipse cx="64" cy="73" rx="5.5" ry="4" fill="#b9a3e3"' + LINE + '/>' +
+    '<path d="M38 43l4-9 5 8zM50 40l4-9 5 8zM62 41l4-8 4 8z" fill="#a8e2cf"' + LINE + '/>' +
+    '<ellipse cx="56" cy="57" rx="29" ry="17" fill="#b9a3e3"' + LINE + '/>' +
+    '<ellipse cx="59" cy="63" rx="17" ry="8" fill="#d9f3ea"/>' +
+    '<path d="M80 33l-8-9 11 2zM89 30l-3-11 8 8z" fill="#a8e2cf"' + LINE + '/>' +
+    '<circle cx="89" cy="45" r="15" fill="#b9a3e3"' + LINE + '/>' +
+    '<ellipse cx="104" cy="50" rx="9" ry="7" fill="#b9a3e3"' + LINE + '/>' +
+    '<circle cx="108" cy="48" r="1.3" fill="#4a3530"/>' +
+    '<path d="M86 44q4 4 8 0" fill="none" stroke="#4a3530" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<circle cx="95" cy="52" r="3" fill="#f5b5c6"/>' +
+    '</svg>';
+
+  function flySnorbit() {
+    var dragon = document.createElement('div');
+    dragon.className = 'flying-snorbit';
+    dragon.innerHTML = SNORBIT_SVG;
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    var canFly = window.CSS && CSS.supports && CSS.supports('offset-path', 'path("M0 0L1 1")');
+
+    if (reduceMotion.matches) {
+      dragon.classList.add('is-still');
+      setTimeout(function () { dragon.remove(); }, 3000);
+    } else if (canFly) {
+      // in from the left, a loop-the-loop in the middle, out to the right
+      dragon.style.offsetPath = 'path("M -150 ' + h * 0.7 +
+        ' C ' + w * 0.2 + ' ' + h * 0.75 + ', ' + w * 0.35 + ' ' + h * 0.2 + ', ' + w * 0.5 + ' ' + h * 0.25 +
+        ' C ' + w * 0.66 + ' ' + h * 0.3 + ', ' + w * 0.63 + ' ' + h * 0.66 + ', ' + w * 0.5 + ' ' + h * 0.62 +
+        ' C ' + w * 0.37 + ' ' + h * 0.58 + ', ' + w * 0.38 + ' ' + h * 0.3 + ', ' + w * 0.56 + ' ' + h * 0.3 +
+        ' C ' + w * 0.76 + ' ' + h * 0.3 + ', ' + w * 0.86 + ' ' + h * 0.5 + ', ' + (w + 160) + ' ' + h * 0.45 + '")';
+    } else {
+      dragon.classList.add('is-simple');
+    }
+    document.body.appendChild(dragon);
+
+    var trail = setInterval(function () {
+      var box = dragon.getBoundingClientRect();
+      sparkleAt(box.left + box.width / 2, box.top + box.height / 2);
+    }, 70);
+    dragon.addEventListener('animationend', function (event) {
+      if (event.target !== dragon) return; // ignore the wing flaps
+      clearInterval(trail);
+      dragon.remove();
+    });
+    if (reduceMotion.matches) clearInterval(trail);
+
+    say('SNORBIT?! He\u2019s flying\u2026 and still fast asleep. Sleep-flying!');
+    [392, 523.25, 659.25, 783.99, 1046.5, 1318.5].forEach(function (f, i) { ping(f, { delay: i * 0.11, duration: 1, volume: 0.13 }); });
+    swish();
+  }
+
+  document.addEventListener('keydown', function (event) {
+    if (isTyping(event)) return;
+    var key = event.key.toLowerCase();
+    if (key === KONAMI[konamiStep]) {
+      konamiStep++;
+      if (konamiStep === KONAMI.length) { konamiStep = 0; flySnorbit(); }
+    } else {
+      konamiStep = key === KONAMI[0] ? 1 : 0;
+    }
+  });
+
+  // 3. Midnight visitor: between 12 and 1am (or with ?midnight in the address)
+  if (new Date().getHours() === 0 || new URLSearchParams(location.search).has('midnight')) {
+    root.classList.add('is-midnight');
+    if (root.dataset.theme !== 'night') { root.dataset.theme = 'night'; renderTheme(); }
+    say('A fellow night owl! It\u2019s past midnight, so these are my office hours. Help me tuck in the sky?');
+    var shooting = document.createElement('div');
+    shooting.className = 'shooting-stars';
+    shooting.setAttribute('aria-hidden', 'true');
+    for (var s = 0; s < 5; s++) {
+      var streak = document.createElement('span');
+      streak.className = 'shooting-star';
+      streak.style.left = (45 + Math.random() * 55) + '%';
+      streak.style.top = (Math.random() * 40) + '%';
+      streak.style.animationDelay = (s * 1.4 + Math.random()).toFixed(2) + 's';
+      shooting.appendChild(streak);
+    }
+    document.body.appendChild(shooting);
+  }
+
+  // 4. A note for anyone who opens the developer tools
+  console.log('%c' + [
+    '        _.--~~--._        ',
+    '      .\' *  .  * \'.  o   ',
+    '     /  .  *   .   \\__/   ',
+    '    |==============|      ',
+    '    |   .-.   .-.  |      ',
+    '    |  ( * ) ( * ) |      ',
+    '    |   \'-\' ^ \'-\'  |      ',
+    '     \\   \\_v__v_/  /       ',
+    '      \'-.______.-\'        '
+  ].join('\n'), 'font-family: monospace; font-size: 12px; line-height: 1.25; color: #8a6cc9');
+  console.log('%cPsst, curious grown-up! Toby hid some secrets on this site:', 'font: bold 14px sans-serif; color: #d9a531');
+  console.log([
+    '\u2022 Tap Snorbit (the dragon on Toby\u2019s hat) three times',
+    '\u2022 Type 1999 anywhere',
+    '\u2022 Up Up Down Down Left Right Left Right B A',
+    '\u2022 Sit very still for 45 seconds',
+    '\u2022 Visit between midnight and 1am (or add ?midnight to the address)',
+    '\u2022 Turn off the big light and charge every glow sticker',
+    '\u2022 Spell T-O-B-Y with the rattle blocks'
+  ].join('\n'));
 
   /* ------------------------------------------------------------------------
      Pages: each section is its own page, picked by the address-bar hash

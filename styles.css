@@ -1079,6 +1079,87 @@ main { overflow-x: clip; }
 .darkness-exit:active { transform: translateX(-50%) translateY(4px); }
 
 /* --------------------------------------------------------------------------
+   Easter eggs
+   -------------------------------------------------------------------------- */
+
+/* Toby falls asleep: the star pupils fade and each eye becomes a sleepy curve */
+.pupil,
+.eye::after { transition: opacity 0.6s ease, transform 0.6s ease; }
+.toby-asleep .pupil { opacity: 0; transform: scale(0.3) !important; }
+.toby-asleep .eye::after { opacity: 0; }
+.eye::before {
+  content: "";
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  top: 38%;
+  height: 22%;
+  border-bottom: 3px solid var(--glow);
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  filter: drop-shadow(0 0 4px var(--glow));
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.toby-asleep .eye::before { opacity: 1; }
+.sleep-z {
+  position: absolute;
+  top: 18%;
+  right: 12%;
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--lavender);
+  text-shadow: 0 0 8px #fff;
+  pointer-events: none;
+  animation: float-note 3s ease-out forwards;
+}
+
+/* Konami code: Snorbit sleep-flies loop-the-loops along a path */
+.flying-snorbit {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 75;
+  width: clamp(80px, 12vw, 130px);
+  pointer-events: none;
+  offset-rotate: auto;
+  animation: snorbit-fly 5s ease-in-out forwards;
+}
+@keyframes snorbit-fly {
+  from { offset-distance: 0%; }
+  to { offset-distance: 100%; }
+}
+.flying-snorbit .wing { transform-origin: 52px 42px; animation: flap 0.35s ease-in-out infinite alternate; }
+@keyframes flap { to { transform: rotate(-28deg) scaleY(0.75); } }
+/* Browsers without offset-path: a simple swoop across */
+.flying-snorbit.is-simple { top: 30%; animation: snorbit-swoop 4s ease-in-out forwards; }
+@keyframes snorbit-swoop {
+  from { transform: translate(-160px, 0); }
+  50% { transform: translate(50vw, -80px) rotate(-12deg); }
+  to { transform: translate(calc(100vw + 160px), 20px); }
+}
+.flying-snorbit.is-still { top: 40%; left: 50%; transform: translateX(-50%); animation: none; }
+
+/* Midnight visitor: shooting stars streak across */
+.shooting-stars { position: fixed; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+.shooting-star {
+  position: absolute;
+  width: 130px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #fff, rgba(255, 243, 196, 0));
+  filter: drop-shadow(0 0 6px #fff3c4);
+  transform: rotate(-30deg);
+  opacity: 0;
+  animation: shoot 2.6s ease-out 6;
+}
+@keyframes shoot {
+  0% { opacity: 0; translate: 0 0; }
+  8% { opacity: 1; }
+  40%, 100% { opacity: 0; translate: -420px 240px; }
+}
+
+/* --------------------------------------------------------------------------
    Sparkle trail: stars and tiny bones
    -------------------------------------------------------------------------- */
 
@@ -1156,6 +1237,9 @@ main { overflow-x: clip; }
   .block.is-rattling { animation: none; }
   .note { animation-duration: 0.01s; }
   .wish.is-new { animation: none; }
+  .sleep-z { animation-duration: 0.01s; }
+  .shooting-stars { display: none; }
+  .flying-snorbit .wing { animation: none; }
   .box-media.is-playing img { animation: none; }
   .leaf,
   .book-stage { transition: none; }

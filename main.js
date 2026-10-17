@@ -251,11 +251,18 @@
     if (!chaosMenu.hidden && !event.target.closest('.chaos-taskbar')) closeStartMenu();
   });
 
-  // Webring "Random" jumps to a random section
+  // Webring: Prev and Next go round the pages in a ring; Random picks another page
+  var ringPages = Array.prototype.slice.call(document.querySelectorAll('[data-page]')).map(function (p) { return p.id; });
+  var ringLinks = document.querySelectorAll('.chaos-ring a');
+  document.addEventListener('toby:page', function (event) {
+    var i = ringPages.indexOf(event.detail.id);
+    ringLinks[0].href = '#' + ringPages[(i - 1 + ringPages.length) % ringPages.length];
+    ringLinks[2].href = '#' + ringPages[(i + 1) % ringPages.length];
+  });
   document.getElementById('chaos-random').addEventListener('click', function (event) {
     event.preventDefault();
-    var spots = ['top', 'who', 'work', 'story', 'guestbook'];
-    document.getElementById(spots[Math.floor(Math.random() * spots.length)]).scrollIntoView({ behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+    var others = ringPages.filter(function (id) { return '#' + id !== location.hash && !(id === 'top' && !location.hash); });
+    location.hash = '#' + others[Math.floor(Math.random() * others.length)];
   });
 
   // Tobygotchi buttons
@@ -263,7 +270,8 @@
     window.scrollTo({ top: 0, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
   });
   document.getElementById('gotchi-b').addEventListener('click', function () {
-    window.scrollTo({ top: 0, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+    if (location.hash && location.hash !== '#top') location.hash = '#top';
+    window.scrollTo(0, 0);
     document.getElementById('boop').click();
   });
   document.getElementById('gotchi-c').addEventListener('click', function () { themeSwitch.click(); });
@@ -812,6 +820,7 @@
 
   function sizeGame() {
     var width = canvas.parentElement.clientWidth;
+    if (!width) return; // its page is hidden; sized again when the page shows
     var height = Math.round(width * (width < 520 ? 1.1 : 0.75));
     var ratio = Math.min(2, window.devicePixelRatio || 1);
     canvas.width = Math.round(width * ratio);
@@ -1046,6 +1055,10 @@
     if (canvas.parentElement.clientWidth !== game.w) sizeGame();
   });
   sizeGame();
+  document.addEventListener('toby:page', function () {
+    var width = canvas.parentElement.clientWidth;
+    if (width && width !== game.w) sizeGame();
+  });
 
   /* ------------------------------------------------------------------------
      Project 5: Snorbit's storybook, a flipbook
@@ -1216,6 +1229,7 @@
   window.addEventListener('scroll', function () { if (!storyFrame) storyFrame = requestAnimationFrame(updateSky); }, { passive: true });
   window.addEventListener('resize', updateSky);
   updateSky();
+  document.addEventListener('toby:page', updateSky);
 
   if ('IntersectionObserver' in window) {
     var sceneObserver = new IntersectionObserver(function (entries) {
@@ -1447,4 +1461,80 @@
       })
       .then(function () { wishSubmit.disabled = false; });
   });
+
+  /* ------------------------------------------------------------------------
+     Pages: each section is its own page, picked by the address-bar hash
+     (#who, #work...), so links, bookmarks and the back button all work.
+     Without JavaScript every section simply shows, one after another.
+     Runs last, so every feature above is ready before the first page shows.
+     ------------------------------------------------------------------------ */
+
+  var pages = Array.prototype.slice.call(document.querySelectorAll('[data-page]'));
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
+  var currentPage = null;
+  var BASE_TITLE = document.title;
+
+  function turnLink(page, prefix, classes) {
+    var link = document.createElement('a');
+    link.className = 'button ' + classes;
+    link.href = '#' + page.id;
+    link.textContent = prefix + page.dataset.page;
+    return link;
+  }
+
+  // Previous and next page buttons at the bottom of every page
+  pages.forEach(function (page, i) {
+    var turner = document.createElement('nav');
+    turner.className = 'page-turner';
+    turner.setAttribute('aria-label', 'More pages');
+    if (i > 0) turner.appendChild(turnLink(pages[i - 1], 'Previous: ', 'button-quiet'));
+    if (i < pages.length - 1) turner.appendChild(turnLink(pages[i + 1], 'Next: ', 'button-primary turn-next'));
+    (page.querySelector('.story-inner') || page).appendChild(turner);
+  });
+
+  // Which page holds this id? (The id may be the page itself or something inside it.)
+  function findPage(id) {
+    if (!id) return { page: pages[0], target: null };
+    var target = document.getElementById(id);
+    if (!target) return { page: pages[0], target: null };
+    var page = target.closest('[data-page]');
+    if (!page) return null; // e.g. the skip link's #main: leave the current page alone
+    return { page: page, target: target === page ? null : target };
+  }
+
+  function showPage(fromClick) {
+    var found = findPage(decodeURIComponent(location.hash.slice(1)));
+    if (!found) return;
+    var page = found.page;
+
+    if (page !== currentPage) {
+      pages.forEach(function (p) { p.hidden = p !== page; });
+      currentPage = page;
+      document.title = page === pages[0] ? BASE_TITLE : page.dataset.page + ' | ' + BASE_TITLE;
+      navLinks.forEach(function (link) {
+        if (link.getAttribute('href') === '#' + page.id) link.setAttribute('aria-current', 'page');
+        else link.removeAttribute('aria-current');
+      });
+      if (fromClick) {
+        page.classList.remove('is-entering');
+        void page.offsetWidth; // restart the page-turn animation
+        page.classList.add('is-entering');
+      }
+      document.dispatchEvent(new CustomEvent('toby:page', { detail: { id: page.id } }));
+    }
+
+    // Instant, not smooth: a new page should simply start in the right place
+    if (found.target) found.target.scrollIntoView({ behavior: 'instant', block: 'start' });
+    else window.scrollTo({ top: 0, behavior: 'instant' });
+
+    // Move screen readers to the new page's heading
+    if (fromClick) {
+      var heading = page.querySelector('h1, h2');
+      heading.setAttribute('tabindex', '-1');
+      heading.focus({ preventScroll: true });
+    }
+  }
+
+  window.addEventListener('hashchange', function () { showPage(true); });
+  showPage(false);
 })();

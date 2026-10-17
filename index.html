@@ -31,7 +31,8 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 6.9H22l-6 4.4 2.3 7L12 16l-6.3 4.3 2.3-7-6-4.4h7.6z"/></svg>
       toby's homepage
     </a>
-    <nav class="nav" aria-label="Sections">
+    <nav class="nav" aria-label="Pages">
+      <a href="#top">Home</a>
       <a href="#who">Who</a>
       <a href="#work">Work</a>
       <a href="#story">Story</a>
@@ -70,7 +71,7 @@
 
   <main id="main">
     <!-- HERO: Toby's eyes follow your cursor (on touch screens they follow your last tap) -->
-    <section class="hero" id="top" aria-labelledby="hero-title">
+    <section class="hero" id="top" aria-labelledby="hero-title" data-page="Home">
       <figure class="portrait">
         <div class="portrait-art" id="portrait">
           <img src="assets/toby.webp" alt="Toby, a smiling skull baby in a lavender striped nightcap with a sleeping purple dragon on top, holding a glowing lantern and a music box while sitting on a pink cloud" width="848" height="1264" fetchpriority="high">
@@ -95,7 +96,7 @@
     </section>
 
     <!-- WHO: the 5-point character sheet Track 2 asks for, as a nursery ID card -->
-    <section class="who" id="who" aria-labelledby="who-title">
+    <section class="who" id="who" aria-labelledby="who-title" data-page="Who is Toby?">
       <h2 id="who-title">Who is Toby?</h2>
       <div class="id-card">
         <dl class="sheet">
@@ -118,7 +119,7 @@
     </section>
 
     <!-- WORK: three projects -->
-    <section class="work" id="work" aria-labelledby="work-title">
+    <section class="work" id="work" aria-labelledby="work-title" data-page="Things I've made">
       <h2 id="work-title">Things I've made</h2>
 
       <article class="project" id="project-box">
@@ -248,7 +249,7 @@
     </section>
 
     <!-- STORY: scroll-driven. The sky darkens, the moon rises and stars come out as you scroll. -->
-    <section class="story" id="story" aria-labelledby="story-title">
+    <section class="story" id="story" aria-labelledby="story-title" data-page="My story">
       <div class="sky" aria-hidden="true">
         <div class="sky-stars"></div>
         <div class="sky-moon"></div>
@@ -282,7 +283,7 @@
     </section>
 
     <!-- GUESTBOOK: live, stored in Supabase -->
-    <section class="guestbook" id="guestbook" aria-labelledby="guestbook-title">
+    <section class="guestbook" id="guestbook" aria-labelledby="guestbook-title" data-page="Guestbook">
       <h2 id="guestbook-title">Leave Toby a dream wish</h2>
       <p class="guestbook-intro">What would you like to dream about tonight? Pin your wish to the nursery wall and Toby will try to build it.</p>
       <div class="guestbook-grid">

@@ -124,6 +124,32 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .skip-link:focus { top: 1rem; }
 
 /* --------------------------------------------------------------------------
+   Pages: with JavaScript on, one section shows at a time (see main.js).
+   Without it, every section shows, one after another.
+   -------------------------------------------------------------------------- */
+
+[data-page][hidden] { display: none; }
+/* The page-turn tilt briefly pokes past the right edge; clip it (clip, unlike hidden, keeps sticky working) */
+main { overflow-x: clip; }
+[data-page].is-entering { animation: page-in 0.45s ease-out; transform-origin: left center; }
+@keyframes page-in {
+  from { opacity: 0; transform: perspective(1400px) rotateY(-9deg) translateX(28px); }
+}
+/* Headings receive focus after a page change, for screen readers; no ring needed */
+[data-page] h1:focus,
+[data-page] h2:focus { outline: none; }
+
+.page-turner {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: clamp(2.5rem, 6vw, 4rem);
+}
+.page-turner .turn-next { margin-left: auto; }
+.hero .page-turner { margin-top: 0; }
+
+/* --------------------------------------------------------------------------
    Top bar and switches
    -------------------------------------------------------------------------- */
 
@@ -166,6 +192,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   font-weight: 700;
 }
 .nav a:hover { background: var(--lavender-pale); color: var(--cocoa); }
+.nav a[aria-current="page"] { background: var(--lavender-pale); color: var(--cocoa); }
 
 .switch {
   display: inline-flex;
@@ -1105,6 +1132,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 @media (max-width: 640px) {
   body { font-size: 1rem; }
+  .nav a { padding-inline: 0.45rem; }
   .topbar { flex-wrap: wrap; gap: 0.5rem; }
   .nav { order: 3; width: 100%; justify-content: space-between; }
   .sheet-row { grid-template-columns: 1fr; gap: 0.15rem; }
@@ -1121,6 +1149,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .marquee-track { animation: none; }
   .pupil .star { animation: none; }
   .scene { transform: none; transition: opacity 0.2s linear; }
+  [data-page].is-entering { animation: none; }
   .sky-snorbit { transform: translateX(calc(var(--p) * (100vw + 180px))); }
   .portrait-art.is-booped,
   .bubble.is-new,
@@ -1216,6 +1245,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 :root[data-chaos="on"] a { color: var(--link); }
 :root[data-chaos="on"] .nav a { color: #ffe600; text-decoration: underline; }
 :root[data-chaos="on"] .nav a:hover { background: #ff00aa; color: #fff; }
+:root[data-chaos="on"] .nav a[aria-current="page"] { background: #ff00aa; color: #fff; }
 
 :root[data-chaos="on"] .project-media,
 :root[data-chaos="on"] .portrait-art,

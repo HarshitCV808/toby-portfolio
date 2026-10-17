@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Toby, Lullaby Tinkerer</title>
+  <meta name="description" content="Toby is a skull baby who builds music boxes, nightlights and toys at the Cloud Cradle Workshop. I tuck the whole sky in.">
+  <script>
+    // Set the theme before first paint so the page never flashes the wrong colours.
+    // Saved choice wins; otherwise follow the visitor's clock (7pm to 6am is night).
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem('toby-theme'); } catch (e) {}
+      var hour = new Date().getHours();
+      document.documentElement.dataset.theme = saved || (hour >= 19 || hour < 6 ? 'night' : 'day');
+    })();
+  </script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:ital,wght@0,400..800;1,400&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer></script>
+  <script src="main.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to Toby</a>
+
+  <header class="topbar">
+    <a class="brand" href="#top">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.4 6.9H22l-6 4.4 2.3 7L12 16l-6.3 4.3 2.3-7-6-4.4h7.6z"/></svg>
+      toby's homepage
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#who">Who</a>
+      <a href="#work">Work</a>
+      <a href="#story">Story</a>
+    </nav>
+    <button class="switch sound-switch" id="sound-switch" type="button" aria-pressed="true" data-sound="none">
+      <svg class="icon-sound-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="wave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+      <svg class="icon-sound-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="wave" d="M17 9.5l5 5M22 9.5l-5 5"/></svg>
+      <span class="sound-label">Sound on</span>
+    </button>
+    <button class="switch theme-switch" id="theme-switch" type="button" aria-pressed="false" data-sound="none">
+      <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>
+      <span class="theme-label">Lights off</span>
+    </button>
+  </header>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>✦ now tucking in: 1,204 sleepy creatures ✦ tonight's forecast: 80% chance of sheep ✦ under construction since bedtime ✦ best viewed with your eyes half closed ✦ shhh, Snorbit is sleeping ✦&nbsp;</span>
+      <span>✦ now tucking in: 1,204 sleepy creatures ✦ tonight's forecast: 80% chance of sheep ✦ under construction since bedtime ✦ best viewed with your eyes half closed ✦ shhh, Snorbit is sleeping ✦&nbsp;</span>
+    </div>
+  </div>
+
+  <main id="main">
+    <!-- HERO: Toby's eyes follow your cursor (on touch screens they follow your last tap) -->
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <figure class="portrait">
+        <div class="portrait-art" id="portrait">
+          <img src="assets/toby.webp" alt="Toby, a smiling skull baby in a lavender striped nightcap with a sleeping purple dragon on top, holding a glowing lantern and a music box while sitting on a pink cloud" width="848" height="1264" fetchpriority="high">
+          <!-- Eye overlays: positions are percentages of the artwork, measured from the image -->
+          <span class="eye eye-left" aria-hidden="true"><span class="pupil"><span class="star"></span></span></span>
+          <span class="eye eye-right" aria-hidden="true"><span class="pupil"><span class="star"></span></span></span>
+          <button class="hotspot hotspot-face" id="boop" type="button" aria-label="Boop Toby"></button>
+          <button class="hotspot hotspot-snorbit" id="snorbit" type="button" aria-label="Snorbit, sleeping on Toby's hat"></button>
+        </div>
+        <figcaption class="bubble" id="bubble" role="status" aria-live="polite">Oh! Hi. I was only resting my eyes.</figcaption>
+      </figure>
+
+      <div class="hero-copy">
+        <h1 id="hero-title">Toby</h1>
+        <p class="tagline">I tuck the whole sky in.</p>
+        <p class="intro">I'm the Lullaby Tinkerer at the Cloud Cradle Workshop. I build music boxes, nightlights and toys that help the little creatures of Hushbury fall asleep. My dragon Snorbit helps, mostly by snoring.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#work">See what I've made</a>
+          <a class="button button-quiet" href="#story">Read my story</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHO: the 5-point character sheet Track 2 asks for, as a nursery ID card -->
+    <section class="who" id="who" aria-labelledby="who-title">
+      <h2 id="who-title">Who is Toby?</h2>
+      <div class="id-card">
+        <dl class="sheet">
+          <div class="sheet-row"><dt>Name</dt><dd>Toby</dd></div>
+          <div class="sheet-row"><dt>What I am</dt><dd>A skull baby with little fangs, soft bones and two stars where my eyes should be.</dd></div>
+          <div class="sheet-row"><dt>What I do</dt><dd>Lullaby Tinkerer at the Cloud Cradle Workshop</dd></div>
+          <div class="sheet-row"><dt>My story</dt><dd>A falling star, a warm sock and a dragon in the laundry. <a href="#story">The whole thing</a></dd></div>
+          <div class="sheet-row"><dt>Tagline</dt><dd>I tuck the whole sky in.</dd></div>
+        </dl>
+        <ul class="quirks">
+          <li><strong>Loves</strong> warm milk, humming, glow-in-the-dark stickers</li>
+          <li><strong>Doesn't love</strong> cold socks and too much quiet</li>
+          <li><strong>Quirk</strong> my eyes twinkle brighter the sleepier I get</li>
+        </ul>
+        <aside class="sidekick">
+          <h3>My sidekick, Snorbit</h3>
+          <p>A pocket-sized dragon who has been asleep since we met. Snorbit snores in tune and keeps my head warm.</p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- WORK: three projects -->
+    <section class="work" id="work" aria-labelledby="work-title">
+      <h2 id="work-title">Things I've made</h2>
+
+      <article class="project" id="project-box">
+        <div class="project-media">
+          <img src="assets/toby-music-box.webp" alt="A cream and lavender music box with Toby's name in gold, a wind-up key on the side and Snorbit asleep on top" width="1200" height="896" loading="lazy">
+          <div class="notes" id="notes" aria-hidden="true"></div>
+        </div>
+        <div class="project-copy">
+          <h3>The Toby Box</h3>
+          <p>My very first music box, built from a teacup, a spoon and a lot of patience. Snorbit sleeps on the lid and snores along in tune.</p>
+          <button class="button button-primary" id="wind" type="button">Wind it up</button>
+        </div>
+      </article>
+
+      <article class="project project-flip" id="project-lantern">
+        <div class="project-media lantern-media">
+          <img class="lantern" src="assets/toby-lantern.webp" alt="A glowing bell-shaped nightlight with a sleepy moon and Snorbit curled on a cloud inside" width="928" height="1152" loading="lazy">
+        </div>
+        <div class="project-copy">
+          <h3>The Moonbell Lantern</h3>
+          <p>Every creature likes a different glow. The owls want honey, the mice want bubblegum. Pick one, and my eyes change too.</p>
+          <div class="glow-picker" role="group" aria-label="Lantern glow">
+            <button class="glow-chip" type="button" data-glow="honey" aria-pressed="true"><span class="dot" aria-hidden="true"></span>Honey</button>
+            <button class="glow-chip" type="button" data-glow="bubblegum" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Bubblegum</button>
+            <button class="glow-chip" type="button" data-glow="mint" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Mint</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="project" id="project-blocks">
+        <div class="project-media blocks-media">
+          <div class="blocks" role="group" aria-label="Toy blocks">
+            <button class="block" type="button" data-letter="T">T</button>
+            <button class="block" type="button" data-letter="O">O</button>
+            <button class="block" type="button" data-letter="B">B</button>
+            <button class="block" type="button" data-letter="Y">Y</button>
+          </div>
+        </div>
+        <div class="project-copy">
+          <h3>Rattle Blocks</h3>
+          <p>Four wobbly blocks, filled with dried peas so they rattle. Tap them in the right order and they spell something.</p>
+          <p class="blocks-status" id="blocks-status" role="status" aria-live="polite"></p>
+        </div>
+      </article>
+    </section>
+
+    <!-- STORY: scroll-driven. The sky darkens, the moon rises and stars come out as you scroll. -->
+    <section class="story" id="story" aria-labelledby="story-title">
+      <div class="sky" aria-hidden="true">
+        <div class="sky-stars"></div>
+        <div class="sky-moon"></div>
+        <svg class="sky-snorbit" viewBox="0 0 64 40"><path d="M8 26c0-9 9-15 20-15 6 0 10 2 13 5l9-7-2 10c3 2 6 5 7 9-6 6-17 9-28 9C14 37 8 33 8 26z"/><path class="wing" d="M24 13c-2-7 3-11 9-11-1 4 0 8 3 12z"/><circle class="eye-dot" cx="20" cy="23" r="1.6"/></svg>
+      </div>
+      <div class="story-inner">
+        <h2 id="story-title">How I learned to tuck in the sky</h2>
+        <ol class="scenes">
+          <li class="scene">
+            <p class="scene-num">Scene 1</p>
+            <h3>The star that fell into a sock</h3>
+            <p>One windy night, a tiny star tumbled out of the sky and landed in a warm sock on the Cloud Cradle washing line. By morning the sock had giggled, wriggled and turned into a baby. That was me. I kept the star. You can see it in my eyes.</p>
+          </li>
+          <li class="scene">
+            <p class="scene-num">Scene 2</p>
+            <h3>A dragon in the laundry basket</h3>
+            <p>Under the washing line sat a laundry basket, and in it a little purple dragon, curled up like a warm croissant. I said hello. Snorbit snored. We've been best friends ever since, and Snorbit still hasn't fully woken up.</p>
+          </li>
+          <li class="scene">
+            <p class="scene-num">Scene 3</p>
+            <h3>The sky that couldn't sleep</h3>
+            <p>The sky above Hushbury was restless. The owls hooted, the clouds fidgeted and the moon tossed and turned. So I took a teacup and a spoon and wound up my first music box. The moon yawned. The owls went quiet. That was my first lullaby.</p>
+          </li>
+          <li class="scene">
+            <p class="scene-num">Scene 4</p>
+            <h3>Now I tuck the whole sky in</h3>
+            <p>The Cloud Cradle Workshop gave me a tiny toolbelt and a job title longer than I am. Every night I hang the lanterns, wind the music boxes and tuck the sky in, corner by corner. If you're still up, I'm on my way.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="counter">
+      <p class="counter-label" id="counter-label">Dreams delivered tonight</p>
+      <p class="odometer" id="odometer" aria-labelledby="counter-label">1204</p>
+    </div>
+    <ul class="badges" aria-label="Site badges">
+      <li>best viewed at 2am</li>
+      <li>made with warm milk</li>
+      <li>no grown-ups allowed</li>
+    </ul>
+    <p class="credits">Made by Toby's Night Shift for Baby's First Website 2026. Toby artwork generated with Google Gemini.</p>
+  </footer>
+</body>
+</html>

@@ -128,8 +128,16 @@
     <!-- WORK: three projects -->
     <section class="work" id="work" aria-labelledby="work-title" data-page="Things I've made">
       <h2 id="work-title">Things I've made</h2>
+      <p class="work-intro">Everything on this shelf really works. Pick a toy to play with it.</p>
+      <ul class="shelf" id="shelf" aria-label="Toby's projects">
+        <li><a class="shelf-card" href="#music-box"><span class="shelf-art shelf-art-box" aria-hidden="true"></span><span class="shelf-name">The Toby Box</span><span class="shelf-blurb">A wind-up music box with three lullabies</span></a></li>
+        <li><a class="shelf-card" href="#lantern"><span class="shelf-art shelf-art-lantern" aria-hidden="true"></span><span class="shelf-name">The Moonbell Lantern</span><span class="shelf-blurb">A nightlight in any colour you like</span></a></li>
+        <li><a class="shelf-card" href="#rattle-blocks"><span class="shelf-art shelf-art-blocks" aria-hidden="true"><span>T</span><span>O</span><span>B</span></span><span class="shelf-name">Rattle Blocks</span><span class="shelf-blurb">Spell the secret words</span></a></li>
+        <li><a class="shelf-card" href="#star-catcher"><span class="shelf-art shelf-art-game" aria-hidden="true"></span><span class="shelf-name">Star Catcher</span><span class="shelf-blurb">Catch stars, dodge alarm clocks</span></a></li>
+        <li><a class="shelf-card" href="#storybook"><span class="shelf-art art-snorbit-hat" aria-hidden="true"></span><span class="shelf-name">Snorbit's Storybook</span><span class="shelf-blurb">A bedtime story he never finishes</span></a></li>
+      </ul>
 
-      <article class="project" id="project-box">
+      <article class="project" id="music-box">
         <div class="project-media box-media" id="box-media">
           <img src="assets/toby-music-box.webp" alt="A cream and lavender music box with Toby's name in gold, a wind-up key on the side and Snorbit asleep on top" width="1200" height="896" loading="lazy">
           <div class="notes" id="notes" aria-hidden="true"></div>
@@ -154,7 +162,7 @@
         </div>
       </article>
 
-      <article class="project project-flip" id="project-lantern">
+      <article class="project project-flip" id="lantern">
         <div class="project-media lantern-media">
           <img class="lantern" src="assets/toby-lantern.webp" alt="A glowing bell-shaped nightlight with a sleepy moon and Snorbit curled on a cloud inside" width="928" height="1152" loading="lazy">
         </div>
@@ -170,7 +178,7 @@
         </div>
       </article>
 
-      <article class="project" id="project-blocks">
+      <article class="project" id="rattle-blocks">
         <div class="project-media blocks-media">
           <div class="blocks" role="group" aria-label="Toy blocks">
             <button class="block" type="button" data-letter="T">T</button>
@@ -186,7 +194,7 @@
         </div>
       </article>
 
-      <article class="project project-flip" id="project-game">
+      <article class="project project-flip" id="star-catcher">
         <div class="project-media game-media">
           <canvas class="game-canvas" id="game" tabindex="0" role="img" aria-label="Star Catcher: move the dream jar left and right to catch falling stars and dodge the alarm clocks. Use the arrow keys when the game has focus."></canvas>
           <div class="game-overlay" id="game-overlay">
@@ -207,7 +215,7 @@
         </div>
       </article>
 
-      <article class="project project-wide" id="project-book">
+      <article class="project project-wide" id="storybook">
         <div class="project-copy">
           <h3>Snorbit's Bedtime Storybook</h3>
           <p>I wrote Snorbit a bedtime story. He has never heard the ending, because he always falls asleep on page one. Turn the pages quietly.</p>

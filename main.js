@@ -1061,10 +1061,12 @@
     if (canvas.parentElement.clientWidth !== game.w) sizeGame();
   });
   sizeGame();
-  document.addEventListener('toby:page', function () {
+  function resizeGameIfShown() {
     var width = canvas.parentElement.clientWidth;
     if (width && width !== game.w) sizeGame();
-  });
+  }
+  document.addEventListener('toby:page', resizeGameIfShown);
+  document.addEventListener('toby:project', resizeGameIfShown);
 
   /* ------------------------------------------------------------------------
      Project 5: Snorbit's storybook, a flipbook
@@ -1771,34 +1773,84 @@
     return { page: page, target: target === page ? null : target };
   }
 
+  /* The Work page has two modes: the toy shelf (#work) or one project (#music-box...) */
+  var workPage = document.getElementById('work');
+  var shelf = document.getElementById('shelf');
+  var projectEls = Array.prototype.slice.call(workPage.querySelectorAll('.project'));
+  var currentProject = null;
+
+  function projectName(project) { return project.querySelector('h3').textContent; }
+
+  projectEls.forEach(function (project, i) {
+    var back = document.createElement('a');
+    back.className = 'button button-quiet project-back';
+    back.href = '#work';
+    back.textContent = 'Back to the toy shelf';
+    project.insertBefore(back, project.firstChild);
+
+    var turner = document.createElement('nav');
+    turner.className = 'project-turner';
+    turner.setAttribute('aria-label', 'More projects');
+    var prev = projectEls[(i - 1 + projectEls.length) % projectEls.length];
+    var next = projectEls[(i + 1) % projectEls.length];
+    var prevLink = document.createElement('a');
+    prevLink.className = 'button button-quiet';
+    prevLink.href = '#' + prev.id;
+    prevLink.textContent = 'Previous: ' + projectName(prev);
+    var nextLink = document.createElement('a');
+    nextLink.className = 'button button-primary turn-next';
+    nextLink.href = '#' + next.id;
+    nextLink.textContent = 'Next: ' + projectName(next);
+    turner.appendChild(prevLink);
+    turner.appendChild(nextLink);
+    project.appendChild(turner);
+  });
+
+  function showProject(project) {
+    workPage.classList.toggle('is-shelf', !project);
+    shelf.hidden = !!project;
+    projectEls.forEach(function (p) { p.hidden = p !== project; });
+    if (project !== currentProject) {
+      currentProject = project;
+      document.dispatchEvent(new CustomEvent('toby:project', { detail: { id: project ? project.id : null } }));
+    }
+  }
+
   function showPage(fromClick) {
     var found = findPage(decodeURIComponent(location.hash.slice(1)));
     if (!found) return;
     var page = found.page;
+    var project = page === workPage && found.target ? found.target.closest('.project') : null;
 
     if (page !== currentPage) {
       pages.forEach(function (p) { p.hidden = p !== page; });
       currentPage = page;
-      document.title = page === pages[0] ? BASE_TITLE : page.dataset.page + ' | ' + BASE_TITLE;
       navLinks.forEach(function (link) {
         if (link.getAttribute('href') === '#' + page.id) link.setAttribute('aria-current', 'page');
         else link.removeAttribute('aria-current');
       });
-      if (fromClick) {
-        page.classList.remove('is-entering');
-        void page.offsetWidth; // restart the page-turn animation
-        page.classList.add('is-entering');
-      }
       document.dispatchEvent(new CustomEvent('toby:page', { detail: { id: page.id } }));
+    }
+    if (page === workPage) showProject(project);
+
+    document.title = project ? projectName(project) + ' | ' + BASE_TITLE
+      : page === pages[0] ? BASE_TITLE
+      : page.dataset.page + ' | ' + BASE_TITLE;
+
+    var arriving = project || page;
+    if (fromClick) {
+      arriving.classList.remove('is-entering');
+      void arriving.offsetWidth; // restart the page-turn animation
+      arriving.classList.add('is-entering');
     }
 
     // Instant, not smooth: a new page should simply start in the right place
-    if (found.target) found.target.scrollIntoView({ behavior: 'instant', block: 'start' });
+    if (found.target && !project) found.target.scrollIntoView({ behavior: 'instant', block: 'start' });
     else window.scrollTo({ top: 0, behavior: 'instant' });
 
-    // Move screen readers to the new page's heading
+    // Move screen readers to the new page's (or project's) heading
     if (fromClick) {
-      var heading = page.querySelector('h1, h2');
+      var heading = project ? project.querySelector('h3') : page.querySelector('h1, h2');
       heading.setAttribute('tabindex', '-1');
       heading.focus({ preventScroll: true });
     }

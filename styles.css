@@ -131,7 +131,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 [data-page][hidden] { display: none; }
 /* The page-turn tilt briefly pokes past the right edge; clip it (clip, unlike hidden, keeps sticky working) */
 main { overflow-x: clip; }
-[data-page].is-entering { animation: page-in 0.45s ease-out; transform-origin: left center; }
+[data-page].is-entering,
+.project.is-entering { animation: page-in 0.45s ease-out; transform-origin: left center; }
 @keyframes page-in {
   from { opacity: 0; transform: perspective(1400px) rotateY(-9deg) translateX(28px); }
 }
@@ -540,6 +541,87 @@ main { overflow-x: clip; }
   box-shadow: var(--shadow);
 }
 .project-media img { width: 100%; }
+
+/* The toy shelf: the Work page opens on this; each card opens one project */
+.work-intro { max-width: 36rem; color: var(--ink-soft); }
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
+  column-gap: 0; /* so each row's planks join into one long shelf */
+  row-gap: 2.75rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.shelf[hidden],
+.project[hidden] { display: none; }
+.shelf > li {
+  display: flex;
+  padding: 0 0.65rem;
+  border-bottom: 14px solid #c08a5b;
+  box-shadow: 0 12px 12px -10px rgba(0, 0, 0, 0.4);
+}
+[data-theme="night"] .shelf > li { border-bottom-color: #8d5d3e; }
+.shelf-card {
+  --tilt: -1deg;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.7rem 0.7rem 0.9rem;
+  background: var(--surface);
+  border: 2px solid var(--surface-edge);
+  border-radius: 18px 18px 6px 6px;
+  color: var(--ink);
+  text-decoration: none;
+  transform: rotate(var(--tilt));
+  transition: transform 0.2s var(--ease-soft);
+}
+.shelf > li:nth-child(even) .shelf-card { --tilt: 1.2deg; }
+.shelf > li:nth-child(3n) .shelf-card { --tilt: -0.4deg; }
+.shelf-card:hover,
+.shelf-card:focus-visible { transform: translateY(-6px); }
+.shelf-art {
+  display: block;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  background-color: #fbf3e6;
+  background-repeat: no-repeat;
+}
+.shelf-art-box { background: #fbf3e6 url(assets/toby-music-box.webp) center / cover; }
+.shelf-art-lantern { background: #f3eadb url(assets/toby-lantern.webp) center 42% / cover; }
+.shelf-art-blocks { display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--mint); }
+.shelf-art-blocks span {
+  display: grid;
+  place-items: center;
+  width: 24%;
+  aspect-ratio: 1;
+  border: 2px solid var(--cocoa);
+  border-radius: 8px;
+  background: var(--butter);
+  color: var(--cocoa);
+  font: 700 1.4rem var(--font-display);
+}
+.shelf-art-blocks span:nth-child(2) { background: var(--blush); transform: translateY(-6px) rotate(6deg); }
+.shelf-art-blocks span:nth-child(3) { background: var(--lavender-pale); transform: rotate(-5deg); }
+.shelf-art-game {
+  background:
+    radial-gradient(circle at 30% 35%, #ffd36e 0 7px, transparent 8px),
+    radial-gradient(circle at 72% 22%, #fff 0 2px, transparent 3px),
+    radial-gradient(circle at 56% 58%, #ffd36e 0 5px, transparent 6px),
+    radial-gradient(circle at 18% 72%, #fff 0 1.5px, transparent 2.5px),
+    linear-gradient(#171233, #3a2f6e);
+}
+.shelf-name { font: 600 1.15rem/1.2 var(--font-display); }
+.shelf-blurb { font-size: 0.92rem; color: var(--ink-soft); }
+:root[data-chaos="on"] .shelf-card { border: 4px outset #e8e8e8; border-radius: 0; background: #000048; }
+
+/* Inside a project: a way back to the shelf, and previous/next project */
+.project-back { grid-column: 1 / -1; justify-self: start; }
+.project-turner { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 1rem; }
+.project-turner .turn-next { margin-left: auto; }
+.work:not(.is-shelf) .work-intro,
+.work:not(.is-shelf) > .page-turner { display: none; }
 
 /* Music box: notes float up while it plays, Snorbit's snores drift off as z's */
 .notes { position: absolute; inset: 0; pointer-events: none; }
@@ -1277,7 +1359,8 @@ main { overflow-x: clip; }
   .marquee-track { animation: none; }
   .pupil .star { animation: none; }
   .scene { transform: none; transition: opacity 0.2s linear; }
-  [data-page].is-entering { animation: none; }
+  [data-page].is-entering,
+  .project.is-entering { animation: none; }
   .sky-snorbit { transform: translateX(calc(var(--p) * (100vw + 180px))); }
   .portrait-art.is-booped,
   .bubble.is-new,

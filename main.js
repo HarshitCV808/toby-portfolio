@@ -188,6 +188,95 @@
   renderTheme();
 
   /* ------------------------------------------------------------------------
+     Responsive Chaos Mode: the 1999 version of the site. The CSS does the
+     reshaping per screen size; this wires up the switch, the secret "1999"
+     shortcut, the Start menu, the taskbar clock and the Tobygotchi buttons.
+     ------------------------------------------------------------------------ */
+
+  var chaosSwitch = document.getElementById('chaos-switch');
+  var chaosStart = document.getElementById('chaos-start');
+  var chaosMenu = document.getElementById('chaos-menu');
+  var chaosClock = document.getElementById('chaos-clock');
+  var clockTimer = 0;
+
+  // A few square-wave chirps, like a dial-up modem saying hello.
+  function modem() {
+    [1200, 2100, 900, 2400, 1650, 2900].forEach(function (f, i) {
+      ping(f, { delay: i * 0.07, duration: 0.09, volume: 0.05, type: 'square' });
+    });
+  }
+
+  function tickClock() {
+    chaosClock.textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  }
+
+  function setChaos(on, quiet) {
+    if (on) root.dataset.chaos = 'on';
+    else delete root.dataset.chaos;
+    chaosSwitch.setAttribute('aria-pressed', String(on));
+    save('toby-chaos', on ? '1' : '0');
+    clearInterval(clockTimer);
+    if (on) { tickClock(); clockTimer = setInterval(tickClock, 20000); }
+    closeStartMenu();
+    if (quiet) return;
+    if (on) { modem(); say('WELCOME 2 MY HOMEPAGE!!! Sign my guestbook!!!'); }
+    else { ping(659.25, { duration: 0.5, volume: 0.14 }); say('Phew. Back to bedtime.'); }
+  }
+
+  function closeStartMenu() {
+    chaosMenu.hidden = true;
+    chaosStart.setAttribute('aria-expanded', 'false');
+  }
+
+  chaosSwitch.addEventListener('click', function () { setChaos(root.dataset.chaos !== 'on'); });
+  setChaos(load('toby-chaos') === '1', true);
+
+  chaosStart.addEventListener('click', function () {
+    var open = chaosMenu.hidden;
+    chaosMenu.hidden = !open;
+    chaosStart.setAttribute('aria-expanded', String(open));
+    if (open) chaosMenu.querySelector('a').focus();
+  });
+  chaosMenu.addEventListener('click', function (event) {
+    if (event.target.closest('a')) closeStartMenu();
+  });
+  document.getElementById('chaos-shutdown').addEventListener('click', function () {
+    setChaos(false);
+    chaosSwitch.focus();
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && !chaosMenu.hidden) { closeStartMenu(); chaosStart.focus(); }
+  });
+  document.addEventListener('click', function (event) {
+    if (!chaosMenu.hidden && !event.target.closest('.chaos-taskbar')) closeStartMenu();
+  });
+
+  // Webring "Random" jumps to a random section
+  document.getElementById('chaos-random').addEventListener('click', function (event) {
+    event.preventDefault();
+    var spots = ['top', 'who', 'work', 'story', 'guestbook'];
+    document.getElementById(spots[Math.floor(Math.random() * spots.length)]).scrollIntoView({ behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+  });
+
+  // Tobygotchi buttons
+  document.getElementById('gotchi-a').addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+  });
+  document.getElementById('gotchi-b').addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+    document.getElementById('boop').click();
+  });
+  document.getElementById('gotchi-c').addEventListener('click', function () { themeSwitch.click(); });
+
+  // Secret: type 1999 anywhere (outside a text box) to toggle chaos mode
+  var typed = '';
+  document.addEventListener('keydown', function (event) {
+    if (event.target.closest('input, textarea')) return;
+    typed = (typed + event.key).slice(-4);
+    if (typed === '1999') { typed = ''; setChaos(root.dataset.chaos !== 'on'); }
+  });
+
+  /* ------------------------------------------------------------------------
      Speech bubble
      ------------------------------------------------------------------------ */
 
@@ -1158,7 +1247,9 @@
     bit.className = 'trail ' + (isBone ? 'trail-bone' : 'trail-star');
     bit.setAttribute('aria-hidden', 'true');
     if (isBone) bit.innerHTML = BONE;
-    else bit.style.setProperty('--c', TRAIL_COLOURS[Math.floor(Math.random() * TRAIL_COLOURS.length)]);
+    else bit.style.setProperty('--c', root.dataset.chaos === 'on'
+      ? 'hsl(' + Math.floor(Math.random() * 360) + ' 100% 62%)'
+      : TRAIL_COLOURS[Math.floor(Math.random() * TRAIL_COLOURS.length)]);
     bit.style.left = event.clientX + 'px';
     bit.style.top = event.clientY + 'px';
     liveSparkles++;

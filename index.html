@@ -47,7 +47,19 @@
       <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg>
       <span class="theme-label">Lights off</span>
     </button>
+    <button class="switch chaos-switch" id="chaos-switch" type="button" aria-pressed="false" data-sound="own">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l1.8 5.6L19.5 9l-5.7 1.6L12 16l-1.8-5.4L4.5 9l5.7-1.4z"/><path class="wave" d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>
+      <span class="chaos-label">Chaos mode</span>
+    </button>
+    <!-- Chaos mode, tablet size: fake window buttons on the title bar -->
+    <span class="chaos-only chaos-winbtns" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
   </header>
+
+  <div class="chaos-only chaos-banner" aria-hidden="true">
+    <span class="chaos-stripes"></span>
+    <span class="chaos-banner-text">Under construction!! <span class="chaos-mode-name"></span></span>
+    <span class="chaos-stripes"></span>
+  </div>
 
   <div class="marquee" aria-hidden="true">
     <div class="marquee-track">
@@ -304,6 +316,45 @@
     </ul>
     <p class="credits" id="credits">Made by Toby's Night Shift for Baby's First Website 2026. Toby artwork generated with Google Gemini. Code built with help from <a href="https://claude.ai">Claude</a> by Anthropic.</p>
   </footer>
+
+  <!-- Chaos mode extras. Which ones show depends on screen size (see styles.css). -->
+  <aside class="chaos-only chaos-panel chaos-panel-left" aria-label="Toby's webring">
+    <p class="chaos-panel-title">Toby's Webring</p>
+    <p class="chaos-ring">
+      <a href="#who">&laquo; Prev</a>
+      <a href="#top" id="chaos-random">Random</a>
+      <a href="#story">Next &raquo;</a>
+    </p>
+    <ul class="chaos-badges">
+      <li>made in notepad</li>
+      <li>crayon inside</li>
+      <li>no tables were harmed</li>
+    </ul>
+  </aside>
+  <aside class="chaos-only chaos-panel chaos-panel-right" aria-label="Guestbook">
+    <p class="chaos-panel-title">Sign my guestbook!!</p>
+    <p><a href="#guestbook">Click here to leave a dream wish</a></p>
+    <p class="chaos-small">Best viewed at 800&times;600 with the lights off.</p>
+  </aside>
+
+  <div class="chaos-only chaos-taskbar">
+    <button class="chaos-start" id="chaos-start" type="button" aria-expanded="false" aria-controls="chaos-menu">Start</button>
+    <ul class="chaos-menu" id="chaos-menu" hidden>
+      <li><a href="#who">Who is Toby</a></li>
+      <li><a href="#work">Things I've made</a></li>
+      <li><a href="#story">My story</a></li>
+      <li><a href="#guestbook">Guestbook</a></li>
+      <li><button type="button" id="chaos-shutdown">Shut down chaos mode</button></li>
+    </ul>
+    <span class="chaos-task">toby.exe</span>
+    <span class="chaos-clock" id="chaos-clock"></span>
+  </div>
+
+  <div class="chaos-only chaos-gotchi" role="group" aria-label="Tobygotchi buttons">
+    <button type="button" id="gotchi-a" aria-label="A: back to the top">A</button>
+    <button type="button" id="gotchi-b" aria-label="B: boop Toby">B</button>
+    <button type="button" id="gotchi-c" aria-label="C: lights on or off">C</button>
+  </div>
 
   <!-- Nightlight mode: the page goes dark and the pointer becomes Toby's lantern -->
   <div class="darkness" id="darkness" hidden>

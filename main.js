@@ -1758,14 +1758,39 @@
   updateSky();
   document.addEventListener('toby:page', updateSky);
 
+  // The picture-book stage acts out whichever scene is being read
+  var storyStage = document.getElementById('story-stage');
+
+  function playScene(number) {
+    if (storyStage.dataset.scene === String(number)) return;
+    storyStage.dataset.scene = String(number); // the CSS animations for that scene start now
+    // Small sounds, only once the visitor has turned sound on by clicking something
+    if (!audio || muted) return;
+    if (number === 1) ping(1567.98, { delay: 1.35, duration: 1.4, volume: 0.1 }); // the star lands
+    if (number === 3) {
+      [659.25, 783.99, 880, 783.99, 659.25, 587.33].forEach(function (f, i) {
+        ping(f, { delay: 1.6 + i * 0.42, duration: 1.2, volume: 0.09 }); // the teacup lullaby
+      });
+    }
+  }
+
   if ('IntersectionObserver' in window) {
+    // The reading band sits in the lower half of the screen, below the pinned stage on phones
     var sceneObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) { entry.target.classList.toggle('is-active', entry.isIntersecting); });
-    }, { rootMargin: '-30% 0px -30% 0px' });
+      entries.forEach(function (entry) {
+        entry.target.classList.toggle('is-active', entry.isIntersecting);
+        if (entry.isIntersecting) playScene(scenes.indexOf(entry.target) + 1);
+      });
+    }, { rootMargin: '-50% 0px -20% 0px' });
     scenes.forEach(function (scene) { sceneObserver.observe(scene); });
   } else {
     scenes.forEach(function (scene) { scene.classList.add('is-active'); });
+    playScene(4);
   }
+  // Coming back to the story starts it from the beginning
+  document.addEventListener('toby:page', function (event) {
+    if (event.detail.id === 'story') storyStage.dataset.scene = '0';
+  });
 
   /* ------------------------------------------------------------------------
      Sparkle trail: stars and tiny bones behind a mouse pointer

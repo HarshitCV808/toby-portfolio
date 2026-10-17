@@ -1228,36 +1228,18 @@ main { overflow-x: clip; }
     radial-gradient(1.5px 1.5px at 35% 8%, #fff 50%, transparent);
 }
 
-.sky-moon {
-  position: absolute;
-  right: 12%;
-  top: 10%;
-  width: clamp(70px, 12vw, 130px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  /* an inset shadow draws the crescent, so no shape has to match the sky colour */
-  box-shadow: inset clamp(-26px, -3.4vw, -14px) clamp(8px, 1.2vw, 14px) 0 0 #fff3c4;
-  filter: drop-shadow(0 0 18px rgba(255, 233, 168, 0.7));
-  transform: translateY(calc((1 - var(--p)) * 60vh)) rotate(-20deg);
-}
-
-.sky-snorbit {
-  position: absolute;
-  left: -90px;
-  top: 58%;
-  width: 84px;
-  fill: #b9a3e3;
-  transform: translateX(calc(var(--p) * (100vw + 180px))) translateY(calc(sin(var(--p) * 12rad) * 30px));
-}
-.sky-snorbit .wing { fill: #a8e2cf; }
-.sky-snorbit .eye-dot { fill: #231d47; }
-
+/* The story: a picture-book stage on one side acts out the scene being read */
 .story-inner {
   position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: start;
+  column-gap: clamp(1.5rem, 4vw, 3.5rem);
   max-width: 1180px;
   margin: 0 auto;
   padding: clamp(3rem, 8vw, 6rem) clamp(1rem, 4vw, 2.5rem) 30vh;
 }
+.story-inner > .section-title { grid-column: 1 / -1; justify-self: start; margin-bottom: 2rem; }
 /* A dark backing keeps the white title readable at every point of the sunset */
 .story .section-title {
   display: inline-block;
@@ -1267,12 +1249,146 @@ main { overflow-x: clip; }
   text-shadow: 0 2px 12px rgba(18, 14, 43, 0.5);
 }
 
+.story-stage {
+  position: sticky;
+  top: 6.5rem;
+  z-index: 2;
+  width: min(100%, calc(68svh * 1.25));
+  aspect-ratio: 5 / 4;
+  overflow: hidden;
+  border: 6px solid #fffaf0;
+  border-radius: 26px;
+  background: linear-gradient(
+    color-mix(in oklab, #5b45a8, #0f0b2b calc(var(--p) * 100%)),
+    color-mix(in oklab, #b77ea3, #2c2463 calc(var(--p) * 100%))
+  );
+  box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.55);
+}
+.story-stage svg { display: block; width: 100%; height: 100%; }
+.st-text { font: 700 15px var(--font-display); }
+/* Animations rotate and scale around each drawing's own centre */
+.story-stage g[class] { transform-box: fill-box; transform-origin: center; }
+
+/* Which drawings belong to which scene */
+.story-stage .s1,
+.story-stage .s2,
+.story-stage .s3,
+.story-stage .s4,
+.st-line { transition: opacity 0.6s ease; }
+.story-stage .s1,
+.story-stage .s2,
+.story-stage .s3,
+.story-stage .s4 { opacity: 0; }
+.story-stage[data-scene="1"] .s1,
+.story-stage[data-scene="2"] .s2,
+.story-stage[data-scene="3"] .s3,
+.story-stage[data-scene="4"] .s4 { opacity: 1; }
+.story-stage[data-scene="3"] .st-line,
+.story-stage[data-scene="4"] .st-line { opacity: 0; }
+.story-stage[data-scene="2"] .sock-b { opacity: 0; } /* that sock is Toby now */
+.moon-asleep,
+.owl-asleep,
+.baby-toby,
+.falling-star,
+.sparkle-burst { opacity: 0; }
+
+/* Scene 1: the star falls into the mint sock; it giggles, wriggles and becomes Toby */
+.story-stage[data-scene="1"] .falling-star { animation: star-fall 1.4s cubic-bezier(0.45, 0, 0.75, 0.55) both; }
+.story-stage[data-scene="1"] .sock-b {
+  transform-origin: top center;
+  animation: sock-wiggle 0.22s ease-in-out 1.4s 6 alternate, sock-gone 0.4s ease 2.8s forwards;
+}
+.story-stage[data-scene="1"] .sparkle-burst { animation: burst 0.7s ease-out 2.7s both; }
+.story-stage[data-scene="1"] .baby-toby { animation: pop-in 0.6s var(--ease-soft) 3s both; }
+@keyframes star-fall {
+  from { opacity: 1; transform: translate(160px, -150px) rotate(0deg); }
+  92% { opacity: 1; }
+  to { opacity: 0; transform: translate(0, 0) rotate(420deg); }
+}
+@keyframes sock-wiggle { from { transform: rotate(-12deg); } to { transform: rotate(12deg); } }
+@keyframes sock-gone { to { opacity: 0; transform: scale(0.5); } }
+@keyframes burst {
+  0% { opacity: 0; transform: scale(0.4); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.2); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Scene 2: hello, and Snorbit's snores */
+.story-stage[data-scene="2"] .hello { animation: pop-in 0.5s var(--ease-soft) 0.5s both; }
+.story-stage .zz { opacity: 0; }
+.story-stage[data-scene="2"] .zz { animation: zz-float 2.6s ease-out infinite; }
+.story-stage[data-scene="2"] .z2 { animation-delay: 1.3s; }
+@keyframes zz-float {
+  from { opacity: 0; transform: translate(0, 0); }
+  30% { opacity: 1; }
+  to { opacity: 0; transform: translate(10px, -26px); }
+}
+
+/* Scene 3: the moon tosses, clouds fidget, owls hoot, until the teacup lullaby plays */
+.story-stage[data-scene="3"] .st-moon { animation: moon-toss 0.5s ease-in-out 6 alternate; }
+.story-stage[data-scene="3"] .fidget-cloud { animation: fidget 0.3s ease-in-out 10 alternate; }
+.story-stage[data-scene="3"] .c2 { animation-delay: 0.15s; }
+.story-stage .hoo { opacity: 0; }
+.story-stage[data-scene="3"] .hoo { animation: hoo 0.9s ease-out 3; }
+.story-stage[data-scene="3"] .hoo.h2 { animation-delay: 0.45s; }
+.story-stage .tune { opacity: 0; }
+.story-stage[data-scene="3"] .tune { animation: tune-rise 2s ease-out 1.6s infinite; }
+.story-stage[data-scene="3"] .n2 { animation-delay: 2.2s; }
+.story-stage[data-scene="3"] .n3 { animation-delay: 2.8s; }
+.story-stage[data-scene="3"] .moon-awake,
+.story-stage[data-scene="3"] .owl-awake { animation: fade-out 0.6s ease 3.4s forwards; }
+.story-stage[data-scene="3"] .moon-asleep,
+.story-stage[data-scene="3"] .owl-asleep { animation: fade-in 0.6s ease 3.4s forwards; }
+.story-stage[data-scene="4"] .moon-awake { opacity: 0; }
+.story-stage[data-scene="4"] .moon-asleep { opacity: 1; }
+@keyframes moon-toss { from { transform: rotate(-14deg); } to { transform: rotate(14deg) translateY(3px); } }
+@keyframes fidget { from { transform: translateX(-4px); } to { transform: translateX(4px) translateY(-2px); } }
+@keyframes hoo {
+  from { opacity: 0; transform: translateY(4px); }
+  30% { opacity: 1; }
+  to { opacity: 0; transform: translateY(-8px); }
+}
+@keyframes tune-rise {
+  from { opacity: 0; transform: translate(0, 0); }
+  25% { opacity: 1; }
+  to { opacity: 0; transform: translate(-14px, -40px); }
+}
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes fade-in { to { opacity: 1; } }
+
+/* Scene 4: the starry quilt tucks in the sky, lanterns light up, Toby and Snorbit fly by */
+.story-stage .quilt { transform: translateY(-110%); }
+.story-stage[data-scene="4"] .quilt { animation: tuck-in 2.2s cubic-bezier(0.3, 0.9, 0.4, 1) 0.2s both; }
+.story-stage .lamp { opacity: 0.15; }
+.story-stage[data-scene="4"] .lamp { animation: lamp-on 0.5s ease forwards; filter: drop-shadow(0 0 4px #ffd36e); }
+.story-stage[data-scene="4"] .l1 { animation-delay: 1.2s; }
+.story-stage[data-scene="4"] .l2 { animation-delay: 1.45s; }
+.story-stage[data-scene="4"] .l3 { animation-delay: 1.7s; }
+.story-stage[data-scene="4"] .l4 { animation-delay: 1.95s; }
+.story-stage[data-scene="4"] .l5 { animation-delay: 2.2s; }
+.story-stage .flyers { opacity: 0; }
+.story-stage[data-scene="4"] .flyers { animation: fly-by 6s ease-in-out 0.6s both; }
+@keyframes tuck-in {
+  from { transform: translateY(-110%); }
+  to { transform: translateY(0); }
+}
+@keyframes lamp-on { to { opacity: 1; } }
+@keyframes fly-by {
+  0% { opacity: 0; transform: translate(-90px, 40px); }
+  10% { opacity: 1; }
+  50% { transform: translate(120px, -10px); }
+  100% { opacity: 1; transform: translate(250px, 18px); }
+}
+
 .scenes { list-style: none; margin: 0; padding: 0; }
 .scene {
-  max-width: 34rem;
-  margin: 0 0 45vh;
+  margin: 0 0 55vh;
   padding: 1.5rem 1.75rem;
-  background: rgba(35, 29, 71, 0.78);
+  background: rgba(35, 29, 71, 0.82);
   border: 2px solid rgba(255, 255, 255, 0.18);
   border-radius: 26px;
   backdrop-filter: blur(6px);
@@ -1281,12 +1397,20 @@ main { overflow-x: clip; }
   transform: translateY(24px);
   transition: opacity 0.6s ease, transform 0.6s ease;
 }
-.scene:nth-child(even) { margin-left: auto; }
+.scene:first-child { margin-top: 18vh; }
 .scene:last-child { margin-bottom: 0; }
 .scene.is-active { opacity: 1; transform: none; }
 .scene-num { margin: 0 0 0.35rem; font-family: var(--font-retro); font-size: 1.4rem; color: var(--butter); }
 .scene h2 { margin-bottom: 0.6rem; }
 .scene p:last-child { margin: 0; }
+
+/* Phones and narrow tablets: the stage pins to the top, the text scrolls under it */
+@media (max-width: 900px) {
+  .story-inner { grid-template-columns: minmax(0, 1fr); }
+  .story-stage { top: 7.6rem; width: min(100%, calc(38svh * 1.25)); justify-self: center; }
+  .scene { margin-bottom: 42vh; }
+  .scene:first-child { margin-top: 4vh; }
+}
 
 /* --------------------------------------------------------------------------
    Guestbook: a form and a wall of pinned paper notes
@@ -1807,7 +1931,6 @@ main { overflow-x: clip; }
   .topbar { flex-wrap: wrap; gap: 0.5rem; }
   .nav { order: 3; width: 100%; justify-content: space-between; }
   .sheet-row { grid-template-columns: 1fr; gap: 0.15rem; }
-  .scene { margin-bottom: 35vh; }
   .portrait { width: min(100%, 340px); }
 }
 
@@ -1822,7 +1945,19 @@ main { overflow-x: clip; }
   .scene { transform: none; transition: opacity 0.2s linear; }
   [data-page].is-entering,
   .project.is-entering { animation: none; }
-  .sky-snorbit { transform: translateX(calc(var(--p) * (100vw + 180px))); }
+  /* the story stage shows each scene's final picture */
+  .story-stage *, .story-stage *::before { animation: none !important; }
+  .story-stage[data-scene="1"] .baby-toby { opacity: 1; }
+  .story-stage[data-scene="1"] .sock-b { opacity: 0; }
+  .story-stage[data-scene="2"] .hello { opacity: 1; }
+  .story-stage[data-scene="3"] .moon-awake,
+  .story-stage[data-scene="3"] .owl-awake { opacity: 0; }
+  .story-stage[data-scene="3"] .moon-asleep,
+  .story-stage[data-scene="3"] .owl-asleep { opacity: 1; }
+  .story-stage[data-scene="3"] .tune { opacity: 1; }
+  .story-stage[data-scene="4"] .quilt { transform: none; }
+  .story-stage[data-scene="4"] .lamp { opacity: 1; }
+  .story-stage[data-scene="4"] .flyers { opacity: 1; transform: translate(250px, 18px); }
   .portrait-art.is-booped,
   .bubble.is-new,
   .block.is-rattling { animation: none; }

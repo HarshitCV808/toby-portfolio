@@ -452,11 +452,169 @@
     <section class="story" id="story" aria-labelledby="story-title" data-page="My story">
       <div class="sky" aria-hidden="true">
         <div class="sky-stars"></div>
-        <div class="sky-moon"></div>
-        <svg class="sky-snorbit" viewBox="0 0 64 40"><path d="M8 26c0-9 9-15 20-15 6 0 10 2 13 5l9-7-2 10c3 2 6 5 7 9-6 6-17 9-28 9C14 37 8 33 8 26z"/><path class="wing" d="M24 13c-2-7 3-11 9-11-1 4 0 8 3 12z"/><circle class="eye-dot" cx="20" cy="23" r="1.6"/></svg>
       </div>
       <div class="story-inner">
         <h1 class="section-title" id="story-title">How I learned to tuck in the sky</h1>
+        <!-- A picture-book window that acts out whichever scene you're reading (main.js sets data-scene) -->
+        <div class="story-stage" id="story-stage" data-scene="0" aria-hidden="true">
+          <svg viewBox="0 0 400 320" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <g id="mini-toby">
+                <ellipse cx="0" cy="18" rx="15" ry="13" fill="#c9c2ef"/>
+                <circle cx="-9" cy="29" r="5" fill="#b6a6e6"/><circle cx="9" cy="29" r="5" fill="#b6a6e6"/>
+                <path d="M-12 12 h24" stroke="#a8e2cf" stroke-width="4" stroke-linecap="round"/>
+                <circle cx="0" cy="-6" r="17" fill="#fbf3e6"/>
+                <ellipse cx="-6.5" cy="-5" rx="5.2" ry="5.8" fill="#2c1a17"/>
+                <ellipse cx="6.5" cy="-6" rx="5.2" ry="5.8" fill="#2c1a17"/>
+                <circle cx="-6" cy="-4.5" r="1.8" fill="#ffd36e"/><circle cx="7" cy="-5.5" r="1.8" fill="#ffd36e"/>
+                <path d="M-3 5 q3 3 6 0" stroke="#2c1a17" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+                <circle cx="-11.5" cy="1.5" r="2.6" fill="#f5b5c6"/><circle cx="11.5" cy="1" r="2.6" fill="#f5b5c6"/>
+                <path d="M-17 -11 Q-15 -31 3 -29 Q16 -27 17 -11 Z" fill="#b9a3e3"/>
+                <path d="M-6 -29 l4 18 M5 -28 l2 17" stroke="#a8e2cf" stroke-width="3"/>
+                <path d="M-17 -11 h34" stroke="#a8e2cf" stroke-width="5" stroke-linecap="round"/>
+                <path d="M11 -26 Q27 -27 25 -9" stroke="#b9a3e3" stroke-width="6" fill="none" stroke-linecap="round"/>
+                <circle cx="25" cy="-6" r="4" fill="#f6efe6"/>
+              </g>
+              <g id="mini-snorbit">
+                <path d="M-15 2 Q-22 11 -9 12 Q1 13 7 9" stroke="#b9a3e3" stroke-width="5" fill="none" stroke-linecap="round"/>
+                <path d="M6 9 l6 -2 -2 5z" fill="#a8e2cf"/>
+                <ellipse cx="0" cy="0" rx="16" ry="9" fill="#b9a3e3"/>
+                <path d="M-6 -6 q4 -10 12 -5 q-6 0 -6 6z" fill="#a8e2cf"/>
+                <circle cx="13" cy="-2" r="7" fill="#b9a3e3"/>
+                <path d="M10 -8 l-3 -5 5 3z M15 -8 l1 -6 3 5z" fill="#a8e2cf"/>
+                <path d="M11 -2 q2 2 4 0" stroke="#2c1a17" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                <circle cx="17" cy="1" r="1.6" fill="#f5b5c6"/>
+              </g>
+              <path id="tiny-star" d="M0 -6 L1.8 -1.8 L6 0 L1.8 1.8 L0 6 L-1.8 1.8 L-6 0 L-1.8 -1.8Z"/>
+            </defs>
+
+            <g class="st-stars" fill="#fff8f1">
+              <circle cx="40" cy="40" r="1.4"/><circle cx="110" cy="22" r="1"/><circle cx="160" cy="60" r="1.5"/>
+              <circle cx="230" cy="30" r="1.1"/><circle cx="260" cy="90" r="1.3"/><circle cx="380" cy="40" r="1.2"/>
+              <circle cx="90" cy="95" r="1"/><circle cx="360" cy="130" r="1.4"/><circle cx="20" cy="150" r="1.1"/>
+            </g>
+
+            <!-- The moon: restless in scene 3, then asleep -->
+            <g transform="translate(322 70)">
+              <g class="st-moon">
+                <circle r="30" fill="#fff3c4"/>
+                <g class="moon-awake" stroke="#4a3530" stroke-width="2.4" stroke-linecap="round" fill="none">
+                  <circle cx="-10" cy="-4" r="2.6" fill="#4a3530" stroke="none"/><circle cx="8" cy="-6" r="2.6" fill="#4a3530" stroke="none"/>
+                  <ellipse cx="-1" cy="10" rx="3.5" ry="3" fill="#4a3530" stroke="none"/>
+                </g>
+                <g class="moon-asleep" stroke="#4a3530" stroke-width="2.4" stroke-linecap="round" fill="none">
+                  <path d="M-14 -4 q4 4 8 0 M4 -6 q4 4 8 0"/>
+                  <ellipse cx="-1" cy="10" rx="3" ry="4" fill="#4a3530" stroke="none"/>
+                </g>
+              </g>
+            </g>
+
+            <path d="M0 268 Q100 238 200 260 T400 252 V320 H0 Z" fill="#2a2358"/>
+
+            <!-- Scenes 1 and 2: the Cloud Cradle washing line -->
+            <g class="st-line">
+              <rect x="64" y="106" width="6" height="160" rx="2" fill="#8d5d3e"/>
+              <rect x="330" y="106" width="6" height="160" rx="2" fill="#8d5d3e"/>
+              <path d="M67 112 Q200 140 333 112" stroke="#fff8f1" stroke-width="1.5" fill="none"/>
+              <g transform="translate(132 124)"><g class="sock sock-a"><rect x="-3" y="-6" width="6" height="8" rx="1" fill="#e2b07a"/><path d="M-6 0 h12 v26 q0 8 -8 8 h-10 q-6 0 -6 -6 q0 -5 6 -5 h6 z" fill="#b9a3e3"/></g></g>
+              <g transform="translate(200 131)"><g class="sock sock-b"><rect x="-3" y="-6" width="6" height="8" rx="1" fill="#e2b07a"/><path d="M-6 0 h12 v26 q0 8 -8 8 h-10 q-6 0 -6 -6 q0 -5 6 -5 h6 z" fill="#a8e2cf"/></g></g>
+              <g transform="translate(268 124)"><g class="sock sock-c"><rect x="-3" y="-6" width="6" height="8" rx="1" fill="#e2b07a"/><path d="M-6 0 h12 v26 q0 8 -8 8 h-10 q-6 0 -6 -6 q0 -5 6 -5 h6 z" fill="#f5b5c6"/></g></g>
+            </g>
+
+            <!-- Scene 1: the star falls into the mint sock, which turns into baby Toby -->
+            <g class="s1">
+              <g transform="translate(197 140)">
+                <g class="falling-star">
+                  <path d="M6 -6 L60 -60" stroke="#ffd36e" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+                  <use href="#tiny-star" fill="#ffd36e" transform="scale(1.6)"/>
+                </g>
+              </g>
+              <g transform="translate(197 150)">
+                <g class="sparkle-burst" stroke="#ffd36e" stroke-width="2.5" stroke-linecap="round">
+                  <path d="M0 -14 v-10 M0 14 v10 M-14 0 h-10 M14 0 h10 M-10 -10 l-7 -7 M10 10 l7 7 M10 -10 l7 -7 M-10 10 l-7 7"/>
+                </g>
+              </g>
+              <g transform="translate(200 232)"><g class="baby-toby"><use href="#mini-toby"/></g></g>
+            </g>
+
+            <!-- Scene 2: Snorbit asleep in the laundry basket; Toby says hello -->
+            <g class="s2">
+              <g transform="translate(150 232)"><use href="#mini-toby"/></g>
+              <g transform="translate(150 178)">
+                <g class="hello">
+                  <rect x="-26" y="-14" width="52" height="22" rx="11" fill="#fffaf0"/>
+                  <path d="M-4 8 l4 7 4 -7z" fill="#fffaf0"/>
+                  <text x="0" y="2" text-anchor="middle" class="st-text" fill="#4a3530">hello!</text>
+                </g>
+              </g>
+              <g transform="translate(272 236)"><use href="#mini-snorbit" transform="scale(1.3)"/></g>
+              <path d="M232 240 h80 l-9 32 h-62 z" fill="#c9965b"/>
+              <path d="M236 250 h72 M239 260 h66 M242 270 h60" stroke="#a87a45" stroke-width="2"/>
+              <text class="zz z1 st-text" x="296" y="214" fill="#fff8f1">z</text>
+              <text class="zz z2 st-text" x="306" y="204" fill="#fff8f1">z</text>
+            </g>
+
+            <!-- Scene 3: a restless sky, then the first lullaby -->
+            <g class="s3">
+              <g transform="translate(120 66)"><g class="fidget-cloud"><ellipse rx="34" ry="12" fill="#e4d8f8"/><circle cx="-12" cy="-8" r="12" fill="#e4d8f8"/><circle cx="10" cy="-10" r="14" fill="#e4d8f8"/></g></g>
+              <g transform="translate(230 44)"><g class="fidget-cloud c2"><ellipse rx="26" ry="9" fill="#f6d3e6"/><circle cx="-6" cy="-7" r="10" fill="#f6d3e6"/></g></g>
+              <path d="M0 170 Q60 158 128 172" stroke="#5a3f3a" stroke-width="6" fill="none" stroke-linecap="round"/>
+              <g transform="translate(44 150)" class="owl">
+                <ellipse rx="12" ry="15" fill="#6b5aa8"/><path d="M-10 -12 l-3 -8 8 5z M10 -12 l3 -8 -8 5z" fill="#6b5aa8"/>
+                <g class="owl-awake"><circle cx="-5" cy="-4" r="4.5" fill="#ffd36e"/><circle cx="5" cy="-4" r="4.5" fill="#ffd36e"/><circle cx="-5" cy="-4" r="1.8" fill="#2c1a17"/><circle cx="5" cy="-4" r="1.8" fill="#2c1a17"/></g>
+                <path class="owl-asleep" d="M-9 -4 q4 3 8 0 M1 -4 q4 3 8 0" stroke="#ffd36e" stroke-width="2" fill="none" stroke-linecap="round"/>
+              </g>
+              <g transform="translate(96 152)" class="owl">
+                <ellipse rx="11" ry="14" fill="#7d6cb8"/><path d="M-9 -11 l-3 -8 8 5z M9 -11 l3 -8 -8 5z" fill="#7d6cb8"/>
+                <g class="owl-awake"><circle cx="-4.5" cy="-4" r="4" fill="#ffd36e"/><circle cx="4.5" cy="-4" r="4" fill="#ffd36e"/><circle cx="-4.5" cy="-4" r="1.6" fill="#2c1a17"/><circle cx="4.5" cy="-4" r="1.6" fill="#2c1a17"/></g>
+                <path class="owl-asleep" d="M-8 -4 q3.5 3 7 0 M1 -4 q3.5 3 7 0" stroke="#ffd36e" stroke-width="2" fill="none" stroke-linecap="round"/>
+              </g>
+              <text class="hoo st-text" x="38" y="118" fill="#ffd36e">hoo!</text>
+              <text class="hoo h2 st-text" x="92" y="124" fill="#ffd36e">hoo!</text>
+              <g transform="translate(160 232)"><use href="#mini-toby"/></g>
+              <ellipse cx="236" cy="266" rx="32" ry="6" fill="#ece4fa"/>
+              <path d="M214 238 h44 q0 26 -22 26 q-22 0 -22 -26 z" fill="#fffaf0"/>
+              <path d="M258 244 q12 0 10 10 q-2 7 -12 4" stroke="#fffaf0" stroke-width="3.5" fill="none"/>
+              <path d="M244 234 l16 -22" stroke="#d0d4dc" stroke-width="3.5" stroke-linecap="round"/><circle cx="261" cy="210" r="4" fill="#d0d4dc"/>
+              <g fill="#ffd36e" class="st-text">
+                <text class="tune n1" x="226" y="226">&#9834;</text>
+                <text class="tune n2" x="240" y="222">&#9835;</text>
+                <text class="tune n3" x="232" y="230">&#9834;</text>
+              </g>
+            </g>
+
+            <!-- Scene 4: tucking the whole sky in -->
+            <g class="s4">
+              <g class="quilt">
+                <path d="M-10 -220 H410 V64 q-17 14 -35 0 q-17 14 -35 0 q-17 14 -35 0 q-17 14 -35 0 q-17 14 -35 0 q-17 14 -35 0 q-17 14 -35 0 q-17 14 -35 0 q-17 14 -35 0 q-17 14 -35 0 q-17 14 -35 0 q-17 14 -35 0 V-220 Z" fill="#3f3688"/>
+                <path d="M-10 48 H410" stroke="#8a6cc9" stroke-width="2" stroke-dasharray="6 5"/>
+                <g fill="#ffd36e">
+                  <use href="#tiny-star" x="40" y="20"/><use href="#tiny-star" x="120" y="30"/><use href="#tiny-star" x="200" y="16"/>
+                  <use href="#tiny-star" x="280" y="32"/><use href="#tiny-star" x="350" y="18"/>
+                </g>
+              </g>
+              <g fill="#3a3175">
+                <path d="M20 270 v-42 l24 -20 24 20 v42z"/><path d="M96 270 v-30 l20 -16 20 16 v30z"/>
+                <path d="M258 270 v-38 l22 -18 22 18 v38z"/><path d="M322 270 v-50 l26 -22 26 22 v50z"/>
+              </g>
+              <g fill="#ffd36e"><rect x="38" y="240" width="9" height="9"/><rect x="110" y="246" width="8" height="8"/><rect x="274" y="242" width="9" height="9"/><rect x="342" y="236" width="10" height="10"/></g>
+              <path d="M44 208 Q200 248 348 198" stroke="#fff8f1" stroke-width="1.2" fill="none"/>
+              <g fill="#ffd36e">
+                <circle class="lamp l1" cx="84" cy="221" r="5"/><circle class="lamp l2" cx="140" cy="230" r="5"/>
+                <circle class="lamp l3" cx="200" cy="232" r="5"/><circle class="lamp l4" cx="260" cy="225" r="5"/>
+                <circle class="lamp l5" cx="316" cy="210" r="5"/>
+              </g>
+              <g transform="translate(60 128)">
+                <g class="flyers">
+                  <use href="#mini-toby" transform="scale(0.8)"/>
+                  <g transform="translate(30 16) scale(0.9)"><use href="#mini-snorbit"/></g>
+                  <path d="M-14 14 v8" stroke="#fff8f1" stroke-width="1.2"/>
+                  <circle cx="-14" cy="26" r="5" fill="#ffd36e" class="carried-lamp"/>
+                </g>
+              </g>
+            </g>
+          </svg>
+        </div>
         <ol class="scenes">
           <li class="scene">
             <p class="scene-num">Scene 1</p>

@@ -34,7 +34,7 @@ The site has five pages (Home, Who, Work, Story, Guestbook). Each opens on its o
 - **Toby's Growth Chart**: skills measured in pencil on the nursery wall, each with a note.
 - **Snorbit's Storybook**: a 3D page-turning flipbook. **Read it to me** has Cori, an AI voice, read each page and turn it, with a quiet lullaby underneath.
 
-**Story.** Toby's origin in four scenes. The sky darkens, the moon rises and Snorbit flies across as you scroll.
+**Story.** Toby's origin in four scenes, with a picture-book window that acts out whichever scene you're reading as you scroll: a star falls into a sock on the washing line and becomes Toby, he says hello to Snorbit in the laundry basket, his teacup music box lulls the restless moon and owls to sleep, and a starry quilt tucks in the sky while lanterns light up over Hushbury.
 
 **Guestbook.** Visitors pin dream wishes to a nursery wall, saved in Supabase.
 

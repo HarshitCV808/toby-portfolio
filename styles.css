@@ -333,6 +333,31 @@ main { overflow-x: clip; }
 }
 :root[data-chaos="on"] .toby-3d-status { color: #ffe600; font-family: var(--chaos-ui); }
 
+/* Chaos mode: the painting becomes 16-bit pixel art (drawn by main.js) */
+.pixel-toby {
+  display: none;
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: calc(100% - 24px);
+  height: calc(100% - 24px);
+  border-radius: 18px;
+  image-rendering: pixelated;
+}
+:root[data-chaos="on"] .pixel-toby.is-ready { display: block; border-radius: 0; }
+/* ...and the eyes turn blocky to match */
+:root[data-chaos="on"] .eye {
+  border-radius: 0;
+  background: #2c1a17;
+  box-shadow: none;
+  clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%);
+}
+:root[data-chaos="on"] .eye::after { border-radius: 0; }
+:root[data-chaos="on"] .pupil .star {
+  clip-path: polygon(38% 0, 62% 0, 62% 38%, 100% 38%, 100% 62%, 62% 62%, 62% 100%, 38% 100%, 38% 62%, 0 62%, 0 38%, 38% 38%);
+}
+:root[data-chaos="on"] .eye::before { border-radius: 0; }
+
 /* Eye overlays. Positions are percentages of the 848×1264 artwork,
    measured from the painted sockets. The frame's 12px padding is added back. */
 .eye {

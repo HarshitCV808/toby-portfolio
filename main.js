@@ -380,6 +380,63 @@
   window.addEventListener('scroll', function () { if (!eyeFrame) eyeFrame = requestAnimationFrame(aimEyes); }, { passive: true });
 
   /* ------------------------------------------------------------------------
+     Chaos mode's 16-bit Toby: the painting is shrunk to ~104 pixels wide,
+     then every pixel is matched to a 16-colour pastel palette with ordered
+     (Bayer) dithering, like a 1995 console sprite. Made once, on demand.
+     ------------------------------------------------------------------------ */
+
+  var pixelCanvas = document.getElementById('pixel-toby');
+  var PIXEL_PALETTE = [
+    '#fbf3e6', '#f3e6cf', '#ffffff', '#ddd0f5', '#b9a3e3', '#8a6cc9', '#5b4596', '#cdeee2',
+    '#a8e2cf', '#6fbfa3', '#f9d6e0', '#f5b5c6', '#ffd36e', '#d9a531', '#4a3530', '#2c1a17'
+  ].map(function (hex) { return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)]; });
+  var BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+  var pixelMade = false;
+
+  function makePixelToby() {
+    if (pixelMade) return;
+    var painting = portrait.querySelector('img');
+    var draw = function () {
+      var width = 104;
+      var height = Math.round(width * painting.naturalHeight / painting.naturalWidth);
+      pixelCanvas.width = width;
+      pixelCanvas.height = height;
+      var pen = pixelCanvas.getContext('2d');
+      pen.imageSmoothingQuality = 'high';
+      pen.drawImage(painting, 0, 0, width, height);
+      var image = pen.getImageData(0, 0, width, height);
+      var px = image.data;
+      for (var y = 0; y < height; y++) {
+        for (var x = 0; x < width; x++) {
+          var i = (y * width + x) * 4;
+          var nudge = (BAYER[(y % 4) * 4 + (x % 4)] / 16 - 0.5) * 30;
+          var r = px[i] + nudge;
+          var g = px[i + 1] + nudge;
+          var b = px[i + 2] + nudge;
+          var best = PIXEL_PALETTE[0];
+          var bestDistance = Infinity;
+          for (var c = 0; c < PIXEL_PALETTE.length; c++) {
+            var colour = PIXEL_PALETTE[c];
+            var distance = (r - colour[0]) * (r - colour[0]) * 3 + (g - colour[1]) * (g - colour[1]) * 4 + (b - colour[2]) * (b - colour[2]) * 2;
+            if (distance < bestDistance) { bestDistance = distance; best = colour; }
+          }
+          px[i] = best[0];
+          px[i + 1] = best[1];
+          px[i + 2] = best[2];
+        }
+      }
+      pen.putImageData(image, 0, 0);
+      pixelCanvas.classList.add('is-ready');
+      pixelMade = true;
+    };
+    if (painting.complete && painting.naturalWidth) draw();
+    else painting.addEventListener('load', draw, { once: true });
+  }
+
+  document.addEventListener('toby:chaos', function (event) { if (event.detail.on) makePixelToby(); });
+  if (root.dataset.chaos === 'on') makePixelToby();
+
+  /* ------------------------------------------------------------------------
      Boop Toby
      ------------------------------------------------------------------------ */
 

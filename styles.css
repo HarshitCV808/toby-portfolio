@@ -592,6 +592,113 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .blocks-status { min-height: 1.6em; font-family: var(--font-display); font-weight: 600; color: var(--link); }
 
 /* --------------------------------------------------------------------------
+   Storybook flipbook. Each leaf has a front and back face; turning a leaf
+   rotates it 180° around its left edge. Paper colours stay the same in
+   day and night, because it's a real book.
+   -------------------------------------------------------------------------- */
+
+.project-wide { grid-template-columns: minmax(0, 1fr); }
+.project-wide .project-copy p { max-width: 40rem; }
+
+/* No-JavaScript fallback: a simple list of pages */
+.book-pages { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.book-pages .page { position: relative; padding: 1rem; background: #fffaf0; color: var(--cocoa); border-radius: 18px; }
+.book-pages[hidden] { display: none; }
+
+.book-stage {
+  position: relative;
+  width: min(100%, 940px);
+  margin: 0 auto;
+  aspect-ratio: 2 / 1.3;
+  perspective: 2400px;
+  transition: transform 0.6s ease;
+  touch-action: pan-y;
+  cursor: pointer;
+}
+.book-stage.is-closed-front { transform: translateX(-25%); }
+.book-stage.is-closed-back  { transform: translateX(25%); }
+.book-stage.is-single { width: min(100%, 420px); aspect-ratio: 1 / 1.3; overflow: hidden; border-radius: 18px; }
+.book-stage.is-single.is-closed-front,
+.book-stage.is-single.is-closed-back { transform: none; }
+
+.leaf {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.3, 1);
+}
+.is-single .leaf { left: 0; width: 100%; }
+.leaf.is-turned { transform: rotateY(-180deg); }
+
+.face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background:
+    linear-gradient(to right, rgba(92, 64, 51, 0.12), transparent 9%),
+    #fffaf0;
+  color: var(--cocoa);
+  border-radius: 0 18px 18px 0;
+  box-shadow: var(--shadow);
+}
+.face-back {
+  transform: rotateY(180deg);
+  background:
+    linear-gradient(to left, rgba(92, 64, 51, 0.12), transparent 9%),
+    #fffaf0;
+  border-radius: 18px 0 0 18px;
+}
+.is-single .face,
+.is-single .face-back { border-radius: 18px; }
+
+.face p { margin: 0; font-family: var(--font-display); font-size: clamp(1.05rem, 0.9rem + 0.7vw, 1.35rem); line-height: 1.45; }
+.page-art {
+  flex: none;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 14px;
+  background-color: #fbf3e6;
+  background-repeat: no-repeat;
+}
+.art-snorbit-hat { background-image: url(assets/toby.webp); background-size: 260% auto; background-position: 38.5% 5.2%; }
+.art-box-dragon { background-image: url(assets/toby-music-box.webp); background-size: 230% auto; background-position: 50% 10.8%; }
+.art-star-cap { background-image: url(assets/toby.webp); background-size: 420% auto; background-position: 85% 8.9%; }
+.art-toby-face { background-image: url(assets/toby.webp); background-size: 170% auto; background-position: 54.6% 35.2%; }
+.art-lantern { background-image: url(assets/toby-lantern.webp); background-size: 115% auto; background-position: 50% 54.4%; }
+.art-lantern-snorbit { background-image: url(assets/toby-lantern.webp); background-size: 260% auto; background-position: 64.2% 57.2%; }
+
+.page-cover { background: var(--lavender-pale); }
+.face.page-cover { background: linear-gradient(160deg, #ece4fa, #d9ccf3); }
+.page-title { margin: 0; font-family: var(--font-display); font-size: clamp(1.4rem, 1rem + 1.6vw, 2.2rem); font-weight: 700; line-height: 1.1; color: var(--lavender-deep); }
+.face .page-byline { font-family: var(--font-body); font-size: 1rem; font-style: italic; }
+.face.page-end { justify-content: center; align-items: center; text-align: center; }
+.face .page-the-end { font-size: clamp(2rem, 1.4rem + 2.4vw, 3.2rem); font-weight: 700; color: var(--lavender-deep); }
+.face .page-zzz { font-size: 1.6rem; color: var(--lavender); letter-spacing: 0.3em; }
+.face.page-back-cover { justify-content: flex-end; background: linear-gradient(200deg, #ece4fa, #d9ccf3); }
+.face .page-number { margin-top: auto; font-family: var(--font-retro); font-size: 1.2rem; color: var(--cocoa-soft); text-align: center; }
+.face-blank { background: #f6efe2; }
+
+.book-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+.book-count { min-width: 6.5rem; margin: 0; font-family: var(--font-retro); font-size: 1.35rem; text-align: center; }
+
+/* --------------------------------------------------------------------------
    Story: the sky darkens as you scroll (--p goes from 0 to 1)
    -------------------------------------------------------------------------- */
 
@@ -838,13 +945,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
    -------------------------------------------------------------------------- */
 
 @media (max-width: 900px) {
-  .hero { grid-template-columns: 1fr; text-align: center; }
+  .hero { grid-template-columns: minmax(0, 1fr); text-align: center; }
   .hero-copy { order: -1; }
   .intro { margin-inline: auto; }
   .hero-actions { justify-content: center; }
-  .id-card { grid-template-columns: 1fr; }
+  .id-card { grid-template-columns: minmax(0, 1fr); }
   .sheet { grid-row: auto; }
-  .project { grid-template-columns: 1fr; }
+  .project { grid-template-columns: minmax(0, 1fr); }
   .project-flip .project-media { order: 0; }
 }
 
@@ -875,4 +982,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .block.is-rattling { animation: none; }
   .note { animation-duration: 0.01s; }
   .box-media.is-playing img { animation: none; }
+  .leaf,
+  .book-stage { transition: none; }
 }

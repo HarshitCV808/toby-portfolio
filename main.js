@@ -78,21 +78,48 @@
     src.start();
   }
 
-  // Snorbit's snore: low filtered noise that swells and fades.
+  // White noise, made once and shared by the snore and the page swish.
   var noiseBuffer = null;
-  function snore(at) {
-    if (muted) return;
-    var ctx = getAudio();
-    if (!ctx) return;
+  function getNoise(ctx) {
     if (!noiseBuffer) {
       noiseBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.9), ctx.sampleRate);
       var data = noiseBuffer.getChannelData(0);
       for (var i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
     }
+    return noiseBuffer;
+  }
+
+  // A page turning: a quick sweep of filtered noise.
+  function swish() {
+    if (muted) return;
+    var ctx = getAudio();
+    if (!ctx) return;
+    var t = ctx.currentTime;
     var src = ctx.createBufferSource();
     var filter = ctx.createBiquadFilter();
     var gain = ctx.createGain();
-    src.buffer = noiseBuffer;
+    src.buffer = getNoise(ctx);
+    filter.type = 'bandpass';
+    filter.Q.value = 0.8;
+    filter.frequency.setValueAtTime(700, t);
+    filter.frequency.exponentialRampToValueAtTime(3800, t + 0.35);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.linearRampToValueAtTime(0.16, t + 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+    src.connect(filter).connect(gain).connect(master);
+    src.start(t);
+    src.stop(t + 0.5);
+  }
+
+  // Snorbit's snore: low filtered noise that swells and fades.
+  function snore(at) {
+    if (muted) return;
+    var ctx = getAudio();
+    if (!ctx) return;
+    var src = ctx.createBufferSource();
+    var filter = ctx.createBiquadFilter();
+    var gain = ctx.createGain();
+    src.buffer = getNoise(ctx);
     filter.type = 'lowpass';
     filter.frequency.value = 480;
     filter.Q.value = 6;
@@ -663,6 +690,157 @@
     blocks.forEach(function (b) { b.classList.remove('is-right'); });
     if (keepMessage !== true) blocksStatus.textContent = '';
   }
+
+  /* ------------------------------------------------------------------------
+     Project 4: Snorbit's storybook, a flipbook
+     The readable list of pages in the HTML is rebuilt into leaves: two pages
+     per leaf (a spread) on wide screens, one page per leaf on narrow ones.
+     ------------------------------------------------------------------------ */
+
+  var bookEl = document.getElementById('book');
+  var bookList = document.getElementById('book-pages');
+  var bookPrev = document.getElementById('book-prev');
+  var bookNext = document.getElementById('book-next');
+  var bookCount = document.getElementById('book-count');
+  var pageSources = Array.prototype.slice.call(bookList.children);
+  var spreadQuery = window.matchMedia('(min-width: 760px)');
+  var book = { stage: null, leaves: [], turned: 0, spread: spreadQuery.matches, settle: 0 };
+
+  function makeFace(source, side, number) {
+    var face = document.createElement('div');
+    face.className = 'face face-' + side;
+    if (!source) {
+      face.classList.add('face-blank');
+      return face;
+    }
+    if (source === 'back-cover') {
+      face.classList.add('page-back-cover');
+      face.innerHTML = '<p>Printed at the Cloud Cradle Workshop. Please return to Snorbit’s pillow.</p>';
+      return face;
+    }
+    face.className += ' ' + source.className;
+    face.innerHTML = source.innerHTML;
+    if (number) {
+      var num = document.createElement('p');
+      num.className = 'page-number';
+      num.textContent = '~ ' + number + ' ~';
+      face.appendChild(num);
+    }
+    return face;
+  }
+
+  function buildBook() {
+    var keepPage = book.spread ? book.turned * 2 : book.turned; // first page currently on view
+    book.spread = spreadQuery.matches;
+
+    var stage = document.createElement('div');
+    stage.className = 'book-stage' + (book.spread ? '' : ' is-single');
+    stage.tabIndex = 0;
+    stage.setAttribute('role', 'group');
+    stage.setAttribute('aria-roledescription', 'storybook');
+    stage.setAttribute('aria-label', "Snorbit's Very Long Nap. Use the left and right arrow keys to turn pages.");
+
+    var pages = pageSources.slice();
+    var leaves = [];
+    if (book.spread) {
+      pages.push('back-cover');
+      for (var i = 0; i < pages.length; i += 2) leaves.push([pages[i], pages[i + 1], i, i + 1]);
+    } else {
+      pages.forEach(function (p, i) { leaves.push([p, null, i, null]); });
+    }
+
+    book.leaves = leaves.map(function (pair) {
+      var leaf = document.createElement('div');
+      leaf.className = 'leaf';
+      // page numbers skip the cover and the end
+      var frontNum = pair[2] > 0 && pair[2] < pageSources.length - 1 ? pair[2] : 0;
+      var backNum = pair[3] && pair[3] < pageSources.length - 1 ? pair[3] : 0;
+      leaf.appendChild(makeFace(pair[0], 'front', frontNum));
+      leaf.appendChild(makeFace(pair[1], 'back', backNum));
+      stage.appendChild(leaf);
+      return leaf;
+    });
+
+    if (book.stage) book.stage.remove();
+    book.stage = stage;
+    bookList.hidden = true;
+    bookEl.insertBefore(stage, bookList);
+    book.turned = Math.min(book.spread ? Math.ceil(keepPage / 2) : keepPage, book.leaves.length);
+    stage.addEventListener('keydown', onBookKey);
+    stage.addEventListener('pointerdown', onBookDown);
+    stage.addEventListener('pointerup', onBookUp);
+    renderBook(true);
+  }
+
+  function renderBook(instant) {
+    var total = book.leaves.length;
+    book.leaves.forEach(function (leaf, i) {
+      var turned = i < book.turned;
+      if (instant) leaf.style.transition = 'none';
+      leaf.classList.toggle('is-turned', turned);
+      leaf.style.zIndex = turned ? i + 1 : total - i;
+      // only the faces on view are readable by screen readers
+      leaf.querySelector('.face-front').setAttribute('aria-hidden', String(i !== book.turned));
+      leaf.querySelector('.face-back').setAttribute('aria-hidden', String(i !== book.turned - 1));
+      if (instant) { void leaf.offsetWidth; leaf.style.transition = ''; }
+    });
+    book.stage.classList.toggle('is-closed-front', book.turned === 0);
+    book.stage.classList.toggle('is-closed-back', book.spread && book.turned === total);
+    bookPrev.disabled = book.turned === 0;
+    bookNext.disabled = book.turned === total || (!book.spread && book.turned === total - 1);
+
+    var pageCount = pageSources.length;
+    if (book.turned === 0) bookCount.textContent = 'Cover';
+    else if (book.spread) {
+      var left = book.turned * 2 - 1;
+      if (left >= pageCount) bookCount.textContent = 'Back cover';
+      else if (left + 1 === pageCount - 1) bookCount.textContent = 'Page ' + left + ' and the end';
+      else bookCount.textContent = 'Pages ' + left + '–' + (left + 1);
+    } else {
+      bookCount.textContent = book.turned === pageCount - 1 ? 'The end' : 'Page ' + book.turned + ' of ' + (pageCount - 2);
+    }
+  }
+
+  function turn(direction) {
+    var max = book.spread ? book.leaves.length : book.leaves.length - 1;
+    var next = Math.max(0, Math.min(max, book.turned + direction));
+    if (next === book.turned) return;
+    // lift the moving leaf above the others while it turns
+    var moving = book.leaves[direction > 0 ? book.turned : next];
+    moving.style.zIndex = book.leaves.length + 1;
+    book.turned = next;
+    swish();
+    clearTimeout(book.settle);
+    book.settle = setTimeout(function () { renderBook(false); }, 900);
+    moving.classList.toggle('is-turned', direction > 0);
+    renderBook(false);
+    moving.style.zIndex = book.leaves.length + 1;
+  }
+
+  function onBookKey(event) {
+    if (event.key === 'ArrowRight') { turn(1); event.preventDefault(); }
+    if (event.key === 'ArrowLeft') { turn(-1); event.preventDefault(); }
+  }
+
+  // Swipe or click: right side turns forward, left side turns back.
+  var bookPointer = null;
+  function onBookDown(event) { bookPointer = { x: event.clientX, y: event.clientY }; }
+  function onBookUp(event) {
+    if (!bookPointer) return;
+    var dx = event.clientX - bookPointer.x;
+    var dy = event.clientY - bookPointer.y;
+    bookPointer = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { turn(dx < 0 ? 1 : -1); return; }
+    if (Math.abs(dx) < 8 && Math.abs(dy) < 8) {
+      var box = book.stage.getBoundingClientRect();
+      turn(event.clientX > box.left + box.width / 2 ? 1 : -1);
+    }
+  }
+
+  bookPrev.addEventListener('click', function () { turn(-1); });
+  bookNext.addEventListener('click', function () { turn(1); });
+  if (spreadQuery.addEventListener) spreadQuery.addEventListener('change', buildBook);
+  buildBook();
 
   /* ------------------------------------------------------------------------
      Story: scroll position drives the sky (--p) and highlights each scene

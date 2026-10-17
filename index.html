@@ -164,6 +164,53 @@
           <p class="blocks-status" id="blocks-status" role="status" aria-live="polite"></p>
         </div>
       </article>
+
+      <article class="project project-wide" id="project-book">
+        <div class="project-copy">
+          <h3>Snorbit's Bedtime Storybook</h3>
+          <p>I wrote Snorbit a bedtime story. He has never heard the ending, because he always falls asleep on page one. Turn the pages quietly.</p>
+        </div>
+        <div class="book" id="book">
+          <!-- Read as a plain list without JavaScript; main.js turns it into a flipbook -->
+          <ol class="book-pages" id="book-pages">
+            <li class="page page-cover">
+              <div class="page-art art-snorbit-hat" role="img" aria-label="Snorbit curled up asleep on Toby's striped nightcap"></div>
+              <h4 class="page-title">Snorbit's Very Long Nap</h4>
+              <p class="page-byline">written by Toby, age nearly one</p>
+            </li>
+            <li class="page">
+              <div class="page-art art-box-dragon" role="img" aria-label="Snorbit asleep on top of the music box"></div>
+              <p>Once upon a bedtime, a little purple dragon called Snorbit lay down for a quick nap.</p>
+            </li>
+            <li class="page">
+              <div class="page-art art-star-cap" role="img" aria-label="A sleepy star wearing a tiny nightcap"></div>
+              <p>He napped through breakfast. He napped through lunch. He even napped through the stars' very noisy bedtime singalong.</p>
+            </li>
+            <li class="page">
+              <div class="page-art art-toby-face" role="img" aria-label="Toby smiling with his little fangs and starry eyes"></div>
+              <p>Toby tried everything. He sang. He rattled his blocks. He tickled Snorbit's tail with a feather. Snorbit just snored, perfectly in tune.</p>
+            </li>
+            <li class="page">
+              <div class="page-art art-lantern" role="img" aria-label="The glowing Moonbell Lantern"></div>
+              <p>So Toby built a lantern shaped like the moon, so that wherever Snorbit dreamed, it would never be dark.</p>
+            </li>
+            <li class="page">
+              <div class="page-art art-lantern-snorbit" role="img" aria-label="A tiny Snorbit asleep on a cloud inside the lantern's moon"></div>
+              <p>And somewhere inside that lantern, curled up on a cloud, Snorbit smiled in his sleep.</p>
+            </li>
+            <li class="page page-end">
+              <p class="page-the-end">The End</p>
+              <p>(Snorbit is still asleep. He'll hear the ending tomorrow. Probably.)</p>
+              <p class="page-zzz" aria-hidden="true">z z z</p>
+            </li>
+          </ol>
+          <div class="book-controls">
+            <button class="button button-quiet" id="book-prev" type="button" data-sound="own" aria-label="Previous page">Previous</button>
+            <p class="book-count" id="book-count" aria-live="polite"></p>
+            <button class="button button-primary" id="book-next" type="button" data-sound="own" aria-label="Next page">Next</button>
+          </div>
+        </div>
+      </article>
     </section>
 
     <!-- STORY: scroll-driven. The sky darkens, the moon rises and stars come out as you scroll. -->

@@ -74,7 +74,7 @@
       gain.gain.setValueAtTime(0.0001, t);
       gain.gain.exponentialRampToValueAtTime(volume * partial[1], t + 0.008);
       gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      osc.connect(gain).connect(master);
+      osc.connect(gain).connect(opts.dest || master);
       osc.start(t);
       osc.stop(t + dur + 0.05);
     });
@@ -1621,40 +1621,145 @@
     var words = [];
     Array.prototype.forEach.call(faces, function (face) {
       Array.prototype.forEach.call(face.querySelectorAll('h3, p:not(.page-number):not(.page-zzz)'), function (el) {
-        words.push(el.textContent);
+        var text = el.textContent.trim();
+        // a full stop after titles and bylines, so the voice pauses there
+        words.push(/[.!?\u2026)\u201d"]$/.test(text) ? text : text + '.');
       });
     });
     return words.join(' ');
   }
 
+  // Choose the cosiest voice this device has. Voice lists differ on every
+  // browser and system, so score them: natural/premium voices first, then
+  // known warm ones, and never the novelty voices.
+  // warm voices, cosiest first
+  var WARM_VOICES = ['sonia', 'libby', 'maisie', 'ava', 'zoe', 'serena', 'moira', 'samantha', 'fiona', 'kate', 'karen', 'tessa', 'aria', 'jenny', 'allison', 'susan', 'emma', 'google uk english female', 'google us english'];
+  var SILLY_VOICES = /albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|ralph|grandpa|grandma|rocko|eddy|flo|reed|sandy|shelley/i;
+  var cosyVoice = null;
+  var currentLine = null;
+
   function pickVoice() {
-    var voices = speech.getVoices().filter(function (v) { return /^en/i.test(v.lang); });
-    return voices.find(function (v) { return /female|samantha|karen|serena|moira|zira|google uk english female/i.test(v.name); }) || voices[0] || null;
+    if (cosyVoice) return cosyVoice;
+    var best = null;
+    var bestScore = -Infinity;
+    speech.getVoices().forEach(function (voice) {
+      if (!/^en/i.test(voice.lang) || SILLY_VOICES.test(voice.name)) return;
+      var score = 0;
+      if (/natural|neural/i.test(voice.name)) score += 50;
+      if (/premium|enhanced/i.test(voice.name)) score += 40;
+      var name = voice.name.toLowerCase();
+      var rank = WARM_VOICES.findIndex(function (warm) { return name.indexOf(warm) !== -1; });
+      if (rank !== -1) score += 20 + (WARM_VOICES.length - rank);
+      if (/en[-_](gb|ie|au)/i.test(voice.lang)) score += 5; // softer-sounding accents for a bedtime story
+      if (score > bestScore) { bestScore = score; best = voice; }
+    });
+    cosyVoice = best;
+    return best;
+  }
+  if (speech && speech.addEventListener) speech.addEventListener('voiceschanged', function () { cosyVoice = null; });
+
+  // A very quiet, slow Toby's Theme on the music box underneath the reading
+  var storyBed = { timer: 0, gain: null, loop: null, index: 0, time: 0, beat: 0 };
+
+  function startStoryBed() {
+    var ctx = getAudio();
+    if (!ctx || box.playing) return; // don't clash with the real music box
+    storyBed.gain = ctx.createGain();
+    storyBed.gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    storyBed.gain.gain.linearRampToValueAtTime(1, ctx.currentTime + 2);
+    storyBed.gain.connect(master);
+    storyBed.loop = buildLoop('toby');
+    storyBed.index = 0;
+    storyBed.beat = 0;
+    storyBed.time = ctx.currentTime + 0.3;
+    clearInterval(storyBed.timer);
+    storyBed.timer = setInterval(function () {
+      var secondsPerBeat = 60 / 58; // slower than the music box's 88
+      var horizon = ctx.currentTime + (document.hidden ? 1.5 : 0.3);
+      while (true) {
+        if (storyBed.index >= storyBed.loop.events.length) {
+          storyBed.time += (storyBed.loop.length - storyBed.beat) * secondsPerBeat;
+          storyBed.index = 0;
+          storyBed.beat = 0;
+        }
+        var event = storyBed.loop.events[storyBed.index];
+        var at = storyBed.time + (event.beat - storyBed.beat) * secondsPerBeat;
+        if (at > horizon) break;
+        storyBed.time = at;
+        storyBed.beat = event.beat;
+        ping(event.freq, { at: at, duration: event.bass ? 2.2 : 1.8, volume: event.bass ? 0.025 : 0.045, dest: storyBed.gain });
+        storyBed.index++;
+      }
+    }, 60);
   }
 
+  function stopStoryBed() {
+    clearInterval(storyBed.timer);
+    var fading = storyBed.gain;
+    storyBed.gain = null;
+    if (!fading || !audio) return;
+    fading.gain.cancelScheduledValues(audio.currentTime);
+    fading.gain.setValueAtTime(fading.gain.value, audio.currentTime);
+    fading.gain.linearRampToValueAtTime(0.0001, audio.currentTime + 1.2);
+    setTimeout(function () { fading.disconnect(); }, 1400);
+  }
+
+  // Read the open pages one sentence at a time, with little bedtime pauses
   function readOpenPages() {
     if (!reading) return;
-    var line = new SpeechSynthesisUtterance(openPageText());
+    var sentences = openPageText().match(/[^.!?…]+[.!?…)]*["”]?\s*/g) || [];
     var voice = pickVoice();
-    if (voice) line.voice = voice;
-    line.rate = 0.9;
-    line.pitch = 1.15;
-    line.onend = function () {
+
+    function readNext() {
       if (!reading) return;
+      var sentence = sentences.shift();
+      if (!sentence) { finishedPages(); return; }
+      var line = new SpeechSynthesisUtterance(sentence.trim());
+      var started = false;
+      var done = false;
+      if (voice) line.voice = voice;
+      line.rate = 0.82;
+      line.pitch = 1.02;
+      line.volume = 0.9;
+      currentLine = line; // keep a reference: Chrome can drop lines it isn't holding, and never finish them
+
+      function next() {
+        if (done) return;
+        done = true;
+        clearTimeout(speechWatch);
+        readTimer = setTimeout(readNext, 380); // a little bedtime pause between sentences
+      }
+      line.onstart = function () { started = true; };
+      line.onend = next;
+      line.onerror = next;
+
+      // Safety net: some browsers never start speaking, or never say they finished
+      var words = sentence.split(/\s+/).length;
+      var speechWatch = setTimeout(function () {
+        if (!reading || done) return;
+        if (!started) { stopReading('This browser can\u2019t read aloud right now. Try Chrome, Edge or Safari.'); return; }
+        speechWatch = setTimeout(function () { if (reading && !done) { speech.cancel(); next(); } }, words * 700 + 4000);
+      }, 4000);
+      speech.speak(line);
+    }
+
+    function finishedPages() {
       if (atLastPage()) { stopReading('The end. Shh, Snorbit is asleep.'); return; }
       readTimer = setTimeout(function () {
         if (!reading) return;
         turn(1);
-        readTimer = setTimeout(readOpenPages, 1000); // wait for the page to land
-      }, 600);
-    };
-    speech.speak(line);
+        readTimer = setTimeout(readOpenPages, 1100); // let the page land, then take a breath
+      }, 800);
+    }
+
+    readNext();
   }
 
   function stopReading(message) {
     reading = false;
     clearTimeout(readTimer);
     if (speech) speech.cancel();
+    stopStoryBed();
     readButton.setAttribute('aria-pressed', 'false');
     readButton.textContent = 'Read it to me';
     bookStatus.textContent = message || '';
@@ -1671,12 +1776,13 @@
     reading = true;
     readButton.setAttribute('aria-pressed', 'true');
     readButton.textContent = 'Stop reading';
-    bookStatus.textContent = 'Reading\u2026';
+    bookStatus.textContent = 'Snuggle in\u2026 reading quietly.';
     speech.cancel();
     if (atLastPage()) {
       book.turned = 0; // start again from the cover
       renderBook(true);
     }
+    startStoryBed();
     readOpenPages();
   });
 

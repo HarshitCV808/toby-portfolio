@@ -136,6 +136,29 @@
     src.stop(t + 0.5);
   }
 
+  // A pencil scribble: two quick scratches of high, filtered noise.
+  function scribble() {
+    if (muted) return;
+    var ctx = getAudio();
+    if (!ctx) return;
+    [0, 0.12].forEach(function (offset) {
+      var t = ctx.currentTime + offset;
+      var src = ctx.createBufferSource();
+      var filter = ctx.createBiquadFilter();
+      var gain = ctx.createGain();
+      src.buffer = getNoise(ctx);
+      filter.type = 'bandpass';
+      filter.frequency.value = 3800;
+      filter.Q.value = 1.5;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(0.12, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+      src.connect(filter).connect(gain).connect(master);
+      src.start(t);
+      src.stop(t + 0.12);
+    });
+  }
+
   // Snorbit's snore: low filtered noise that swells and fades.
   function snore(at) {
     if (muted) return;
@@ -1179,6 +1202,36 @@
   routesMap.addEventListener('click', function (event) {
     var home = event.target.closest && event.target.closest('.home');
     if (home) deliverDream(home.dataset.home);
+  });
+
+  /* ------------------------------------------------------------------------
+     Project: Toby's Growth Chart. Marks rise to their heights each time the
+     project opens; tapping one opens Toby's note about it.
+     ------------------------------------------------------------------------ */
+
+  var growthWall = document.getElementById('growth-wall');
+  var markButtons = Array.prototype.slice.call(document.querySelectorAll('.mark-button'));
+  var notebookTitle = document.getElementById('notebook-title');
+  var notebookHeight = document.getElementById('notebook-height');
+  var notebookNote = document.getElementById('notebook-note');
+
+  markButtons.forEach(function (button, i) {
+    button.closest('.mark').style.setProperty('--i', i);
+    button.setAttribute('data-sound', 'own');
+    button.addEventListener('click', function () {
+      markButtons.forEach(function (other) { other.setAttribute('aria-pressed', String(other === button)); });
+      notebookTitle.textContent = button.textContent.trim();
+      notebookHeight.textContent = 'Height: ' + button.dataset.size;
+      notebookNote.textContent = button.dataset.note;
+      scribble();
+    });
+  });
+
+  document.addEventListener('toby:project', function (event) {
+    if (event.detail.id !== 'growth-chart') return;
+    growthWall.classList.remove('is-measured');
+    void growthWall.offsetWidth;
+    setTimeout(function () { growthWall.classList.add('is-measured'); }, 60);
   });
 
   /* ------------------------------------------------------------------------

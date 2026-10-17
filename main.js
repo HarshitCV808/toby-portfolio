@@ -1000,12 +1000,8 @@
       wordTray.classList.add('is-right');
       blocksStatus.textContent = WORDS[spelled]();
       if (!wordsFound[spelled]) {
-        wordsFound[spelled] = true;
-        wordItems.forEach(function (item) {
-          if (item.dataset.word !== spelled) return;
-          item.classList.add('is-found');
-          item.textContent = spelled;
-        });
+        markWordFound(spelled);
+        save('toby-words', Object.keys(wordsFound).join(','));
         var box = wordTray.getBoundingClientRect();
         celebrate({ x: (box.left + box.width / 2) / window.innerWidth, y: box.top / window.innerHeight });
         if (Object.keys(wordsFound).length === WORD_LIST.length) {
@@ -1015,6 +1011,17 @@
       setTimeout(function () { tipOut(); }, 1800);
     });
   });
+
+  function markWordFound(word) {
+    wordsFound[word] = true;
+    wordItems.forEach(function (item) {
+      if (item.dataset.word !== word) return;
+      item.classList.add('is-found');
+      item.textContent = word;
+    });
+  }
+  // Words found on earlier visits stay found
+  (load('toby-words') || '').split(',').forEach(function (word) { if (WORDS[word]) markWordFound(word); });
 
   document.getElementById('blocks-clear').addEventListener('click', function () {
     tipOut('All tipped out. Start a new word.');
@@ -2148,6 +2155,39 @@
     '\u2022 Spell T-O-B-Y with the rattle blocks',
     '\u2022 Open 3D Toby, then switch on chaos mode'
   ].join('\n'));
+
+  /* ------------------------------------------------------------------------
+     Returning visitors: Toby remembers how many times you've visited, when
+     you were last here, and something you did (stored in this browser only).
+     ------------------------------------------------------------------------ */
+
+  (function rememberVisitor() {
+    var visits = parseInt(load('toby-visits'), 10) || 0;
+    var lastVisit = load('toby-last-visit');
+    var newSession = true;
+    try {
+      newSession = !sessionStorage.getItem('toby-here');
+      sessionStorage.setItem('toby-here', '1');
+    } catch (e) { /* no session storage: treat every load as a visit */ }
+    if (!newSession) return;
+
+    visits++;
+    save('toby-visits', String(visits));
+    save('toby-last-visit', new Date().toISOString());
+    if (visits < 2 || root.classList.contains('is-midnight')) return; // the midnight greeting wins
+
+    var memories = [];
+    var foundWords = (load('toby-words') || '').split(',').filter(Boolean).length;
+    if (foundWords) memories.push('You\u2019ve found ' + foundWords + ' of my 4 secret words.');
+    var best = parseInt(load('toby-best-stars'), 10);
+    if (best) memories.push('Your best Star Catcher score is ' + best + '.');
+    if (load('toby-found-snorbit')) memories.push('You woke Snorbit once. He\u2019s still talking about it.');
+
+    var line = 'Welcome back! This is visit number ' + visits + '.';
+    if (lastVisit) line += ' Last time was ' + whenText(lastVisit) + '.';
+    if (memories.length) line += ' ' + memories[Math.floor(Math.random() * memories.length)];
+    say(line);
+  })();
 
   /* ------------------------------------------------------------------------
      Pages: each section is its own page, picked by the address-bar hash

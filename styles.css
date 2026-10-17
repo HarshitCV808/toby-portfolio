@@ -1571,6 +1571,170 @@ main { overflow-x: clip; }
 }
 
 /* --------------------------------------------------------------------------
+   TobyChat 99: the launcher button and the chat window
+   -------------------------------------------------------------------------- */
+
+.chat-launcher {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 55;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  min-width: 48px;
+  padding: 0.5rem 1rem;
+  border: 3px solid var(--cocoa);
+  border-radius: 999px;
+  background: var(--butter);
+  color: var(--cocoa);
+  font: 600 1rem var(--font-display);
+  box-shadow: 0 4px 0 var(--cocoa);
+}
+.chat-launcher svg { width: 1.4rem; height: 1.4rem; fill: currentColor; }
+.chat-launcher svg circle { fill: var(--butter); }
+.chat-launcher:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--cocoa); }
+.chat-launcher[aria-expanded="true"] { display: none; }
+
+.chat {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 58;
+  display: flex;
+  flex-direction: column;
+  width: min(370px, calc(100vw - 32px));
+  height: min(500px, calc(100svh - 120px));
+  overflow: hidden;
+  border: 3px solid var(--cocoa);
+  border-radius: 22px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 6px 0 var(--cocoa), 0 24px 50px -20px rgba(0, 0, 0, 0.5);
+}
+.chat[hidden] { display: none; }
+.chat-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+  background: var(--lavender-deep);
+  color: #fff;
+}
+.chat-avatar {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #fbf3e6 url(assets/toby.webp) no-repeat 54% 36% / 330% auto;
+}
+.chat-title { margin: 0; font-size: 1.05rem; }
+.chat-status { margin-right: auto; font-size: 0.8rem; opacity: 0.85; }
+.chat-close {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #fff;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.chat-close:hover { background: rgba(255, 255, 255, 0.15); }
+
+.chat-log {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.9rem;
+  overflow-y: auto;
+}
+.chat-msg {
+  max-width: 85%;
+  padding: 0.55rem 0.8rem;
+  border-radius: 16px 16px 16px 4px;
+  background: var(--lavender-pale);
+  color: var(--cocoa);
+  font-size: 0.97rem;
+  line-height: 1.45;
+}
+.chat-msg.from-you {
+  align-self: flex-end;
+  border-radius: 16px 16px 4px 16px;
+  background: var(--butter);
+}
+.chat-msg .chat-who { display: block; font: 700 0.75rem var(--font-display); }
+.chat-go {
+  display: inline-block;
+  margin-top: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: var(--lavender-deep);
+  color: #fff;
+  font: 600 0.9rem var(--font-display);
+  text-decoration: none;
+}
+.chat-typing { margin: 0 0.9rem 0.3rem; font: 600 0.85rem var(--font-display); color: var(--ink-soft); }
+.chat-typing[hidden] { display: none; }
+
+.chat-suggestions { display: flex; gap: 0.4rem; padding: 0 0.9rem 0.5rem; overflow-x: auto; }
+.chat-chip {
+  flex: none;
+  min-height: 44px;
+  padding: 0.3rem 0.75rem;
+  border: 2px solid var(--surface-edge);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.chat-form { display: flex; gap: 0.5rem; padding: 0.6rem; border-top: 2px dashed var(--surface-edge); }
+.chat-form input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 0.85rem;
+  border: 2px solid var(--surface-edge);
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+}
+.chat-send { min-height: 44px; padding: 0.4rem 1rem; }
+
+@media (max-width: 640px) {
+  .chat-launcher-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .chat-launcher { padding: 0.5rem; justify-content: center; }
+  .chat { right: 8px; left: 8px; bottom: 8px; width: auto; height: min(560px, calc(100svh - 90px)); }
+}
+
+/* Chaos mode: a 1999 desktop chat app */
+:root[data-chaos="on"] .chat { border: 3px outset #e8e8e8; border-radius: 0; background: #c0c0c0; color: #000; box-shadow: 4px 4px 0 #000; }
+:root[data-chaos="on"] .chat-titlebar { background: linear-gradient(90deg, #000080, #1084d0); font-family: var(--chaos-ui); }
+:root[data-chaos="on"] .chat-close { border: 2px outset #e8e8e8; border-radius: 0; background: #c0c0c0; color: #000; width: 36px; height: 32px; font-size: 1.2rem; }
+:root[data-chaos="on"] .chat-log { margin: 0.5rem; border: 2px inset #e8e8e8; background: #fff; }
+:root[data-chaos="on"] .chat-msg { border-radius: 0; background: transparent; padding: 0.15rem 0; font-family: var(--chaos-ui); }
+:root[data-chaos="on"] .chat-msg .chat-who { color: #c2006f; opacity: 1; }
+:root[data-chaos="on"] .chat-msg.from-you .chat-who { color: #000080; }
+:root[data-chaos="on"] .chat-msg.from-you { align-self: stretch; background: transparent; }
+:root[data-chaos="on"] .chat-typing { color: #000; }
+:root[data-chaos="on"] .chat-chip,
+:root[data-chaos="on"] .chat-form input { border: 2px inset #e8e8e8; border-radius: 0; background: #fff; color: #000; }
+:root[data-chaos="on"] .chat-chip { border-style: outset; background: #c0c0c0; }
+:root[data-chaos="on"] .chat-launcher { border: 3px outset #e8e8e8; border-radius: 0; background: #c0c0c0; color: #000; box-shadow: none; font-family: var(--chaos-ui); }
+:root[data-chaos="on"] .chat-launcher svg circle { fill: #c0c0c0; }
+@media (min-width: 641px) and (max-width: 1100px) {
+  /* clear the Toby 98 taskbar */
+  :root[data-chaos="on"] .chat-launcher,
+  :root[data-chaos="on"] .chat { bottom: 56px; }
+}
+
+/* --------------------------------------------------------------------------
    Sparkle trail: stars and tiny bones
    -------------------------------------------------------------------------- */
 

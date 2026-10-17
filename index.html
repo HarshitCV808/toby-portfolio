@@ -553,6 +553,33 @@
     <button type="button" id="gotchi-c" aria-label="C: lights on or off">C</button>
   </div>
 
+  <!-- TobyChat 99: a scripted chat with Toby, on every page -->
+  <button class="chat-launcher" id="chat-launcher" type="button" aria-expanded="false" aria-controls="chat">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><circle cx="9" cy="10.5" r="1.2"/><circle cx="12.5" cy="10.5" r="1.2"/><circle cx="16" cy="10.5" r="1.2"/></svg>
+    <span class="chat-launcher-label">Talk to Toby</span>
+  </button>
+  <section class="chat" id="chat" role="dialog" aria-labelledby="chat-title" hidden>
+    <div class="chat-titlebar">
+      <span class="chat-avatar" aria-hidden="true"></span>
+      <h2 class="chat-title" id="chat-title">TobyChat 99</h2>
+      <span class="chat-status" id="chat-status">online (sleepy)</span>
+      <button class="chat-close" id="chat-close" type="button" aria-label="Close chat">&times;</button>
+    </div>
+    <div class="chat-log" id="chat-log" role="log" aria-live="polite" aria-label="Chat with Toby"></div>
+    <p class="chat-typing" id="chat-typing" hidden>Toby is typing&hellip;</p>
+    <div class="chat-suggestions" id="chat-suggestions" role="group" aria-label="Things to ask">
+      <button type="button" class="chat-chip">Who are you?</button>
+      <button type="button" class="chat-chip">What's Snorbit?</button>
+      <button type="button" class="chat-chip">Tell me a secret</button>
+      <button type="button" class="chat-chip">Tell me a joke</button>
+    </div>
+    <form class="chat-form" id="chat-form">
+      <label class="visually-hidden" for="chat-input">Message Toby</label>
+      <input id="chat-input" name="message" maxlength="140" autocomplete="off" placeholder="Say hi to Toby">
+      <button class="button button-primary chat-send" type="submit">Send</button>
+    </form>
+  </section>
+
   <!-- Lantern star projector: shapes turning slowly behind the whole site -->
   <div class="projector" id="projector-layer" aria-hidden="true" hidden></div>
 

@@ -2153,8 +2153,161 @@
     '\u2022 Visit between midnight and 1am (or add ?midnight to the address)',
     '\u2022 Turn off the big light and charge every glow sticker',
     '\u2022 Spell T-O-B-Y with the rattle blocks',
-    '\u2022 Open 3D Toby, then switch on chaos mode'
+    '\u2022 Open 3D Toby, then switch on chaos mode',
+    '\u2022 In TobyChat, ask Toby to wake up Snorbit'
   ].join('\n'));
+
+  /* ------------------------------------------------------------------------
+     TobyChat 99: a scripted chat. Each reply rule matches keywords in what
+     you type (most specific first); some replies link to a page, and a few
+     secret commands do things. No AI service: it's all written by hand.
+     ------------------------------------------------------------------------ */
+
+  var chatLauncher = document.getElementById('chat-launcher');
+  var chatPanel = document.getElementById('chat');
+  var chatLog = document.getElementById('chat-log');
+  var chatForm = document.getElementById('chat-form');
+  var chatInput = document.getElementById('chat-input');
+  var chatTyping = document.getElementById('chat-typing');
+  var chatGreeted = false;
+  var chatBusy = false;
+  var replyTurns = {};
+
+  var SECRET_HINTS = [
+    'Psst. Tap Snorbit on my hat three times. Quickly.',
+    'Try typing 1999 anywhere on the page. Not in here, though!',
+    'Up, up, down, down, left, right, left, right, B, A. Snorbit loves that one.',
+    'If you sit very still for 45 seconds, I might doze off.',
+    'Come back between midnight and 1am. I’m always up then.',
+    'There are four secret words hidden in my rattle blocks. One of them makes everything go quiet.',
+    'Turn off the big light on my lantern page and look for glow stickers.'
+  ];
+
+  // [pattern, reply or list of replies, optional { href, label } link, optional action]
+  var CHAT_RULES = [
+    [/wake (up )?snorbit|snorbit,? wake/, ['Shh! Oh no… he’s sleep-flying again.'], null, function () { flySnorbit(); }],
+    [/lights? (off|out)|turn off the light/, ['Click! Ooh, cosy.'], null, function () { if (root.dataset.theme !== 'night') themeSwitch.click(); }],
+    [/lights? on|turn on the light/, ['Too bright! But okay.'], null, function () { if (root.dataset.theme === 'night') themeSwitch.click(); }],
+    [/are you (real|an? ai|a bot|a robot|human)|chat ?gpt|\bbot\b|robot/, ['I’m a skull baby, not a robot. I’m made of soft bones and a bit of code, like a music box made of words.']],
+    [/how are (you|u)|how’?s it going|you ok/, ['Sleepy, cosy and slightly sticky from warm milk. Thanks for asking!']],
+    [/joke|funny|make me laugh/, ['Why didn’t the skeleton go to the party? He had no BODY to go with. (I do, though. It’s in pyjamas.)', 'What does a baby skeleton drink before bed? Warm MILK. Calcium! Get it?', 'Why are skeletons so calm? Nothing gets under their skin.']],
+    [/secret|easter|\begg|hint|cheat|hidden|surprise/, SECRET_HINTS],
+    [/snorbit|dragon|sidekick|\bpet\b/, ['Snorbit is my pocket-sized dragon. He has been asleep since we met, and he snores in tune. He keeps my head warm.', 'Snorbit sleeps on my hat, my music box and my lantern. Not at the same time. Probably.']],
+    [/skull|skeleton|bones?|scary|spooky|creepy|ghost|halloween/, ['I’m a skull baby, but not a scary one! My bones are soft and my fangs are only for biting cookies.']],
+    [/who are you|your name|what are you|about you|yourself/, ['I’m Toby: a skull baby with two stars where my eyes should be. I’m the Lullaby Tinkerer at the Cloud Cradle Workshop.'], { href: '#who', label: 'Read my character sheet' }],
+    [/how old|\bage\b|birthday/, ['Nearly one! I was born on the softest night of the year.']],
+    [/music ?box|lullab|song|sing|\bhum|tune|melody/, ['My music box plays three lullabies. Wind it up and it slows down as the spring runs out, just like a real one.'], { href: '#music-box', label: 'Wind up the Toby Box' }],
+    [/lantern|night ?light|glow|projector/, ['The Moonbell Lantern glows in any colour you like. It can even project stars all over the website.'], { href: '#lantern', label: 'Visit the lantern' }],
+    [/block|spell|\bword|rattle/, ['My rattle blocks hide four secret words. Each one does something different. One of them is my name!'], { href: '#rattle-blocks', label: 'Play with the blocks' }],
+    [/game|star catcher|catch|\bplay\b/, ['Star Catcher! Catch falling stars in my dream jar, but dodge the alarm clocks or Snorbit wakes up.'], { href: '#star-catcher', label: 'Play Star Catcher' }],
+    [/deliver|route|\bmap\b|\bowl\b|mouse|bunny|frog|hushbury|neighbou?r/, ['Every night Snorbit and I fly dreams to every home in Hushbury. The Moon herself gets one too.'], { href: '#dream-routes', label: 'Send Snorbit flying' }],
+    [/grow|chart|skill|\btall|height|measure|good at/, ['I measure my skills on the nursery wall. Humming: very tall. Staying awake: tiny.'], { href: '#growth-chart', label: 'See my growth chart' }],
+    [/storybook|bedtime story|\bbook\b|\bread\b/, ['I wrote Snorbit a bedtime story. He has never heard the ending. It can even read itself to you.'], { href: '#storybook', label: 'Open the storybook' }],
+    [/story|born|origin|where.*from|\bsock|how did you/, ['I started as a falling star that landed in a warm sock. By morning the sock had giggled and turned into me!'], { href: '#story', label: 'Read my whole story' }],
+    [/\b3d\b|three|model|spin/, ['Press View in 3D under my picture on the home page. You can spin me round! Gently, please.'], { href: '#top', label: 'Go to the home page' }],
+    [/1999|chaos|retro|90s|nineties|geocities|pixel/, ['Ooh, you like the old internet? Press the sparkle button at the top for chaos mode. I turn into pixels!']],
+    [/guestbook|wish|\bsign\b/, ['Leave me a dream wish on my nursery wall! I read every single one.'], { href: '#guestbook', label: 'Sign the guestbook' }],
+    [/job|work|what do you do|tinker|workshop|cloud cradle|make/, ['I build music boxes, nightlights and toys that help the little creatures of Hushbury fall asleep. Everything on my shelf really works.'], { href: '#work', label: 'See my toy shelf' }],
+    [/sleep|tired|\bnap|bed ?time|yawn|night night/, ['*yawns* Don’t say sleep, it’s contagious… zzz… wait, I’m awake!']],
+    [/\blike|love|favou?rite|milk|food|\beat\b/, ['I love warm milk, humming and glow-in-the-dark stickers. I don’t love cold socks or too much quiet.']],
+    [/sound|mute|quiet|noise/, ['There’s a speaker button at the top if you need quiet. I’ll hum very softly instead.']],
+    // greetings only win when nothing more specific matched
+    [/\b(hi|hello|hey|hiya|howdy|yo|good (morning|evening|afternoon))\b/, ['Hi! *yawn* I’m Toby. Ask me about my toys, Snorbit, or my story.', 'Hello hello! You found my chat window. Very few people do.']],
+    [/thank|thx|\bty\b|cheers/, ['You’re welcome! *happy bone rattle*']],
+    [/bye|goodnight|good night|see (you|ya)|later|gotta go/, ['Goodnight! Sleep tight, and don’t let the alarm clocks bite.']]
+  ];
+  var FALLBACKS = [
+    'Hmm, I’m a baby, so I only know some words. Try asking about Snorbit, my toys, or a secret!',
+    'I didn’t quite get that. I was probably half asleep. Ask me about my music box?',
+    '*tilts head* Could you say that in baby? Try “tell me a joke”.'
+  ];
+
+  function pickReply(text) {
+    var said = text.toLowerCase();
+    for (var i = 0; i < CHAT_RULES.length; i++) {
+      var rule = CHAT_RULES[i];
+      if (!rule[0].test(said)) continue;
+      var turn = replyTurns[i] || 0; // take the replies in turn, so they don't repeat back to back
+      replyTurns[i] = turn + 1;
+      return { text: rule[1][turn % rule[1].length], link: rule[2] || null, action: rule[3] || null };
+    }
+    var t = replyTurns.fallback || 0;
+    replyTurns.fallback = t + 1;
+    return { text: FALLBACKS[t % FALLBACKS.length] };
+  }
+
+  function addMessage(from, text, link) {
+    var item = document.createElement('div');
+    item.className = 'chat-msg' + (from === 'you' ? ' from-you' : '');
+    var who = document.createElement('span');
+    who.className = 'chat-who';
+    who.textContent = from === 'you' ? 'You' : 'Toby';
+    item.appendChild(who);
+    item.appendChild(document.createTextNode(text));
+    if (link) {
+      item.appendChild(document.createElement('br'));
+      var go = document.createElement('a');
+      go.className = 'chat-go';
+      go.href = link.href;
+      go.textContent = link.label;
+      // on phones the chat covers the page, so close it to show where we went
+      go.addEventListener('click', function () { if (window.innerWidth <= 640) closeChat(false); });
+      item.appendChild(go);
+    }
+    chatLog.appendChild(item);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  function tobySays(reply) {
+    chatBusy = true;
+    chatTyping.hidden = false;
+    var delay = Math.min(1600, 450 + reply.text.length * 12);
+    setTimeout(function () {
+      chatTyping.hidden = true;
+      addMessage('toby', reply.text, reply.link);
+      ping(PENTATONIC[Math.floor(Math.random() * PENTATONIC.length)], { duration: 0.4, volume: 0.1 });
+      if (reply.action) reply.action();
+      chatBusy = false;
+    }, delay);
+  }
+
+  function sendToToby(text) {
+    text = text.trim();
+    if (!text || chatBusy) return;
+    addMessage('you', text);
+    tobySays(pickReply(text));
+  }
+
+  function openChat() {
+    chatPanel.hidden = false;
+    chatLauncher.setAttribute('aria-expanded', 'true');
+    if (!chatGreeted) {
+      chatGreeted = true;
+      var back = (parseInt(load('toby-visits'), 10) || 0) > 1;
+      tobySays({ text: (back ? 'Welcome back! ' : 'Hi! I’m Toby. ') + 'Ask me anything about my toys, Snorbit, my story… or my secrets.' });
+    }
+    chatInput.focus();
+  }
+
+  function closeChat(returnFocus) {
+    chatPanel.hidden = true;
+    chatLauncher.setAttribute('aria-expanded', 'false');
+    if (returnFocus !== false) chatLauncher.focus();
+  }
+
+  chatLauncher.setAttribute('data-sound', 'own');
+  chatLauncher.addEventListener('click', function () { openChat(); ping(1046.5, { duration: 0.3, volume: 0.1 }); });
+  document.getElementById('chat-close').addEventListener('click', function () { closeChat(); });
+  chatPanel.addEventListener('keydown', function (event) { if (event.key === 'Escape') closeChat(); });
+  chatForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    sendToToby(chatInput.value);
+    chatInput.value = '';
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.chat-chip'), function (chip) {
+    chip.setAttribute('data-sound', 'own');
+    chip.addEventListener('click', function () { sendToToby(chip.textContent); });
+  });
 
   /* ------------------------------------------------------------------------
      Returning visitors: Toby remembers how many times you've visited, when

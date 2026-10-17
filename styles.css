@@ -267,7 +267,7 @@ main { overflow-x: clip; }
   position: relative;
   margin: 0;
   justify-self: center;
-  width: min(100%, 440px);
+  width: min(100%, 390px);
 }
 
 /* The artwork sits in a thick sticker frame so the cream paper reads as a card at night too */
@@ -325,7 +325,8 @@ main { overflow-x: clip; }
   color: var(--cocoa);
   pointer-events: none;
 }
-.view-3d { display: flex; width: fit-content; margin: 1.2rem auto 0; }
+/* .portrait > raises specificity above .button, which is declared later */
+.portrait > .view-3d { display: flex; width: fit-content; margin: 1.2rem auto 0; }
 :root[data-chaos="on"] .toby-3d {
   background-color: #000;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='6' cy='8' r='1' fill='%23fff'/%3E%3Ccircle cx='28' cy='22' r='1.4' fill='%23ffe600'/%3E%3Ccircle cx='18' cy='34' r='.8' fill='%2366ffff'/%3E%3C/svg%3E");
@@ -643,8 +644,9 @@ main { overflow-x: clip; }
 :root[data-chaos="on"] .shelf-card { border: 4px outset #e8e8e8; border-radius: 0; background: #000048; }
 
 /* Inside a project: a way back to the shelf, and previous/next project */
-.project-back { grid-column: 1 / -1; justify-self: start; }
-.project-turner { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 1rem; }
+/* order keeps these at the very top and bottom, even in projects whose picture is moved to the right */
+.project-back { grid-column: 1 / -1; justify-self: start; order: -1; }
+.project-turner { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 1rem; order: 3; }
 .project-turner .turn-next { margin-left: auto; }
 .work:not(.is-shelf) .work-intro,
 .work:not(.is-shelf) > .page-turner { display: none; }
@@ -708,7 +710,7 @@ main { overflow-x: clip; }
 
 /* Lantern glows in the picked colour */
 .lantern-media { background: radial-gradient(circle at 50% 55%, color-mix(in srgb, var(--glow) 35%, #fbf3e6), #f3eadb 70%); }
-.lantern { transition: filter 0.4s ease; }
+.lantern { max-height: min(72svh, 600px); width: auto; margin-inline: auto; transition: filter 0.4s ease; }
 /* Tint the light inside the lantern with the picked glow */
 .lantern-media::after {
   content: "";
@@ -789,7 +791,8 @@ main { overflow-x: clip; }
     radial-gradient(circle at 78% 26%, #fff3c4 0 13%, transparent 14%),
     radial-gradient(ellipse 60% 30% at 30% 105%, #2a2358 0 98%, transparent 100%),
     radial-gradient(ellipse 70% 32% at 85% 108%, #221c4a 0 98%, transparent 100%),
-    radial-gradient(circle at 22% 30%, #e4d8f8 0 9%, transparent 10%),
+    radial-gradient(circle at 24% 30%, #fff 0 1.5%, transparent 2%),
+    radial-gradient(circle at 48% 18%, #fff 0 1.2%, transparent 1.7%),
     linear-gradient(#14103a, #3b2f73);
 }
 
@@ -1019,7 +1022,9 @@ main { overflow-x: clip; }
   line-height: 1.6rem;
   box-shadow: var(--shadow);
 }
-.notebook p { margin: 0; }
+/* .project-copy p sets a theme text colour; the notebook is always cream paper, so its ink stays dark */
+.project-copy .notebook p { margin: 0; max-width: none; color: var(--cocoa); }
+.project-copy .notebook .notebook-height { color: var(--lavender-deep); }
 .notebook-title { font: 700 1.25rem/1.6rem var(--font-display); }
 .notebook-height { min-height: 1.6rem; font-family: var(--font-retro); font-size: 1.3rem; color: var(--lavender-deep); }
 
@@ -1070,7 +1075,8 @@ main { overflow-x: clip; }
 
 .book-stage {
   position: relative;
-  width: min(100%, 940px);
+  /* fits the screen height too, so the whole book and its buttons are visible */
+  width: min(100%, 940px, calc((100svh - 240px) * 1.538));
   margin: 0 auto;
   aspect-ratio: 2 / 1.3;
   perspective: 2400px;
@@ -1080,7 +1086,7 @@ main { overflow-x: clip; }
 }
 .book-stage.is-closed-front { transform: translateX(-25%); }
 .book-stage.is-closed-back  { transform: translateX(25%); }
-.book-stage.is-single { width: min(100%, 420px); aspect-ratio: 1 / 1.3; overflow: hidden; border-radius: 18px; }
+.book-stage.is-single { width: min(100%, 420px, calc((100svh - 240px) / 1.3)); aspect-ratio: 1 / 1.3; overflow: hidden; border-radius: 18px; }
 .book-stage.is-single.is-closed-front,
 .book-stage.is-single.is-closed-back { transform: none; }
 

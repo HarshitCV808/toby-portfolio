@@ -459,7 +459,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .project-media img { width: 100%; }
 
-/* Music box notes float up when wound */
+/* Music box: notes float up while it plays, Snorbit's snores drift off as z's */
 .notes { position: absolute; inset: 0; pointer-events: none; }
 .note {
   position: absolute;
@@ -469,11 +469,52 @@ button { font: inherit; color: inherit; cursor: pointer; }
   text-shadow: 0 0 10px rgba(255, 211, 110, 0.9);
   animation: float-note 2.4s ease-out forwards;
 }
+.note-snore {
+  bottom: 62%;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--lavender);
+  text-shadow: 0 0 8px #fff;
+}
 @keyframes float-note {
   from { transform: translate(0, 0) scale(0.6); opacity: 0; }
   20% { opacity: 1; }
   to { transform: translate(var(--drift, 20px), -180px) scale(1.1); opacity: 0; }
 }
+
+.box-media.is-playing img { animation: box-bob 1.6s ease-in-out infinite; transform-origin: 50% 90%; }
+@keyframes box-bob {
+  50% { transform: rotate(-1.2deg) translateY(-3px); }
+}
+
+.box-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; }
+.box-actions .button { gap: 0.5rem; }
+.button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.wind-key {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  transform: rotate(var(--turn, 0deg));
+  transition: transform 0.35s var(--ease-soft);
+}
+
+/* Five dots show how many turns are left on the spring */
+.spring { display: flex; gap: 6px; margin-top: 1rem; }
+.spring span {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--cocoa);
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.3s ease;
+}
+[data-theme="night"] .spring span { border-color: var(--butter); }
+.spring span.is-wound { background: var(--butter); }
+.box-status { min-height: 1.6em; margin-top: 0.6rem; font-family: var(--font-display); font-weight: 600; color: var(--link); }
 
 /* Lantern glows in the picked colour */
 .lantern-media { background: radial-gradient(circle at 50% 55%, color-mix(in srgb, var(--glow) 35%, #fbf3e6), #f3eadb 70%); }
@@ -492,24 +533,26 @@ button { font: inherit; color: inherit; cursor: pointer; }
 [data-theme="night"] .lantern { filter: brightness(0.9); }
 [data-theme="night"] .lantern-media { background: radial-gradient(circle at 50% 55%, color-mix(in srgb, var(--glow) 45%, #2f2860), #1a1538 72%); }
 
-.glow-picker { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.25rem; }
-.glow-chip {
+/* Chips: the tune picker and the glow picker */
+.chip-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.25rem; }
+.chip {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   min-height: 44px;
-  padding: 0.45rem 1rem 0.45rem 0.6rem;
+  padding: 0.45rem 1rem;
   border: 2px solid var(--surface-edge);
   border-radius: var(--radius-chip);
   background: var(--surface);
   font-weight: 700;
 }
+.chip[aria-pressed="true"] { border-color: var(--cocoa); background: var(--lavender-pale); color: var(--cocoa); }
+[data-theme="night"] .chip[aria-pressed="true"] { border-color: var(--butter); background: #3a3175; color: var(--ink); }
+.glow-chip { padding-left: 0.6rem; }
 .glow-chip .dot { width: 1.3rem; height: 1.3rem; border-radius: 50%; box-shadow: 0 0 10px var(--chip); background: var(--chip); }
 .glow-chip[data-glow="honey"]     { --chip: #ffcf66; }
 .glow-chip[data-glow="bubblegum"] { --chip: #ff9ec4; }
 .glow-chip[data-glow="mint"]      { --chip: #8ff0cf; }
-.glow-chip[aria-pressed="true"] { border-color: var(--cocoa); background: var(--lavender-pale); color: var(--cocoa); }
-[data-theme="night"] .glow-chip[aria-pressed="true"] { border-color: var(--butter); background: #3a3175; color: var(--ink); }
 
 /* Rattle blocks */
 .blocks-media {
@@ -760,4 +803,5 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .bubble.is-new,
   .block.is-rattling { animation: none; }
   .note { animation-duration: 0.01s; }
+  .box-media.is-playing img { animation: none; }
 }

@@ -109,14 +109,27 @@
       <h2 id="work-title">Things I've made</h2>
 
       <article class="project" id="project-box">
-        <div class="project-media">
+        <div class="project-media box-media" id="box-media">
           <img src="assets/toby-music-box.webp" alt="A cream and lavender music box with Toby's name in gold, a wind-up key on the side and Snorbit asleep on top" width="1200" height="896" loading="lazy">
           <div class="notes" id="notes" aria-hidden="true"></div>
         </div>
         <div class="project-copy">
           <h3>The Toby Box</h3>
-          <p>My very first music box, built from a teacup, a spoon and a lot of patience. Snorbit sleeps on the lid and snores along in tune.</p>
-          <button class="button button-primary" id="wind" type="button">Wind it up</button>
+          <p>My very first music box, built from a teacup, a spoon and a lot of patience. Wind it up and it plays until the spring runs down. Snorbit snores along in tune.</p>
+          <div class="chip-row" role="group" aria-label="Choose a tune">
+            <button class="chip tune-chip" type="button" data-tune="twinkle" aria-pressed="true">Twinkle, Twinkle</button>
+            <button class="chip tune-chip" type="button" data-tune="toby" aria-pressed="false">Toby's Theme</button>
+            <button class="chip tune-chip" type="button" data-tune="dream" aria-pressed="false">Dream Machine</button>
+          </div>
+          <div class="box-actions">
+            <button class="button button-primary" id="wind" type="button">
+              <svg class="wind-key" viewBox="0 0 24 24" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><circle cx="17" cy="17" r="4.5"/><path d="M10 10l4 4"/></svg>
+              Wind it up
+            </button>
+            <button class="button button-quiet" id="box-stop" type="button" disabled>Stop</button>
+          </div>
+          <div class="spring" id="spring" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          <p class="box-status" id="box-status" role="status" aria-live="polite">The spring is loose. Wind it up to play.</p>
         </div>
       </article>
 
@@ -127,10 +140,10 @@
         <div class="project-copy">
           <h3>The Moonbell Lantern</h3>
           <p>Every creature likes a different glow. The owls want honey, the mice want bubblegum. Pick one, and my eyes change too.</p>
-          <div class="glow-picker" role="group" aria-label="Lantern glow">
-            <button class="glow-chip" type="button" data-glow="honey" aria-pressed="true"><span class="dot" aria-hidden="true"></span>Honey</button>
-            <button class="glow-chip" type="button" data-glow="bubblegum" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Bubblegum</button>
-            <button class="glow-chip" type="button" data-glow="mint" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Mint</button>
+          <div class="chip-row" role="group" aria-label="Lantern glow">
+            <button class="chip glow-chip" type="button" data-glow="honey" aria-pressed="true"><span class="dot" aria-hidden="true"></span>Honey</button>
+            <button class="chip glow-chip" type="button" data-glow="bubblegum" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Bubblegum</button>
+            <button class="chip glow-chip" type="button" data-glow="mint" aria-pressed="false"><span class="dot" aria-hidden="true"></span>Mint</button>
           </div>
         </div>
       </article>

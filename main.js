@@ -37,7 +37,7 @@
     if (muted) return;
     var ctx = getAudio();
     if (!ctx) return;
-    var t = ctx.currentTime + (opts.delay || 0);
+    var t = opts.at != null ? opts.at : ctx.currentTime + (opts.delay || 0);
     var dur = opts.duration || 0.9;
     var volume = opts.volume || 0.22;
 
@@ -76,6 +76,31 @@
     gain.gain.value = 0.5;
     src.connect(filter).connect(gain).connect(master);
     src.start();
+  }
+
+  // Snorbit's snore: low filtered noise that swells and fades.
+  var noiseBuffer = null;
+  function snore(at) {
+    if (muted) return;
+    var ctx = getAudio();
+    if (!ctx) return;
+    if (!noiseBuffer) {
+      noiseBuffer = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.9), ctx.sampleRate);
+      var data = noiseBuffer.getChannelData(0);
+      for (var i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    }
+    var src = ctx.createBufferSource();
+    var filter = ctx.createBiquadFilter();
+    var gain = ctx.createGain();
+    src.buffer = noiseBuffer;
+    filter.type = 'lowpass';
+    filter.frequency.value = 480;
+    filter.Q.value = 6;
+    gain.gain.setValueAtTime(0.0001, at);
+    gain.gain.linearRampToValueAtTime(0.08, at + 0.35);
+    gain.gain.linearRampToValueAtTime(0.0001, at + 0.85);
+    src.connect(filter).connect(gain).connect(master);
+    src.start(at);
   }
 
   var PENTATONIC = [523.25, 587.33, 659.25, 783.99, 880, 1046.5];
@@ -242,31 +267,223 @@
   }
 
   /* ------------------------------------------------------------------------
-     Project 1: wind up the Toby Box (Tier 1: a short tune and floating notes)
+     Project 1: the Toby Box, a wind-up music box
+     Notes are scheduled a moment ahead on the audio clock, so the timing
+     stays steady even when the page is busy. Each wind adds one turn to the
+     spring; the tune slows over the last turn, like a real music box.
      ------------------------------------------------------------------------ */
 
   var notes = document.getElementById('notes');
+  var boxMedia = document.getElementById('box-media');
   var windButton = document.getElementById('wind');
+  var windKey = windButton.querySelector('.wind-key');
+  var stopButton = document.getElementById('box-stop');
+  var springDots = Array.prototype.slice.call(document.querySelectorAll('#spring span'));
+  var boxStatus = document.getElementById('box-status');
+  var tuneChips = Array.prototype.slice.call(document.querySelectorAll('.tune-chip'));
   windButton.setAttribute('data-sound', 'own');
+  stopButton.setAttribute('data-sound', 'own');
 
-  windButton.addEventListener('click', function () {
-    // "Twinkle, twinkle" opening, music-box style
-    var tune = [523.25, 523.25, 783.99, 783.99, 880, 880, 783.99];
-    tune.forEach(function (f, i) { ping(f, { delay: i * 0.38, duration: 1.1 }); });
-    for (var i = 0; i < 6; i++) {
-      setTimeout(spawnNote, i * 320);
+  var SECONDS_PER_TURN = 7;
+  var MAX_TURNS = 5;
+
+  function midi(n) { return 440 * Math.pow(2, (n - 69) / 12); }
+
+  // melody: [MIDI note, length in beats]. bass: one note every `bassEvery` beats.
+  var TUNES = {
+    twinkle: {
+      name: 'Twinkle, Twinkle', bpm: 100, bassEvery: 2,
+      melody: [
+        [72, 1], [72, 1], [79, 1], [79, 1], [81, 1], [81, 1], [79, 2],
+        [77, 1], [77, 1], [76, 1], [76, 1], [74, 1], [74, 1], [72, 2],
+        [79, 1], [79, 1], [77, 1], [77, 1], [76, 1], [76, 1], [74, 2],
+        [79, 1], [79, 1], [77, 1], [77, 1], [76, 1], [76, 1], [74, 2],
+        [72, 1], [72, 1], [79, 1], [79, 1], [81, 1], [81, 1], [79, 2],
+        [77, 1], [77, 1], [76, 1], [76, 1], [74, 1], [74, 1], [72, 2]
+      ],
+      bass: [48, 48, 53, 48, 53, 48, 55, 48, 48, 53, 48, 55, 48, 53, 48, 55, 48, 48, 53, 48, 53, 48, 55, 48]
+    },
+    toby: {
+      // an original waltz, in 3/4
+      name: "Toby's Theme", bpm: 88, bassEvery: 3,
+      melody: [
+        [76, 1], [79, 1], [81, 1], [79, 2], [76, 1], [74, 1], [76, 1], [79, 1], [76, 3],
+        [76, 1], [79, 1], [81, 1], [84, 2], [81, 1], [79, 1], [81, 1], [76, 1], [74, 3],
+        [72, 1], [74, 1], [76, 1], [79, 2], [81, 1], [79, 1], [76, 1], [74, 1], [72, 3]
+      ],
+      bass: [48, 48, 43, 48, 48, 53, 48, 43, 48, 48, 43, 48]
     }
-  });
+  };
 
-  function spawnNote() {
+  // Dream Machine: a fresh four-bar waltz phrase every time round, so it never repeats.
+  var SCALE = [72, 74, 76, 79, 81, 84, 86];
+  function dreamTune() {
+    var melody = [];
+    var step = 2;
+    var beats = 0;
+    while (beats < 12) {
+      var len = Math.random() < 0.3 ? 2 : 1;
+      if (beats + len > 11) len = 11 - beats;
+      if (len <= 0) break;
+      step = Math.max(0, Math.min(SCALE.length - 1, step + [-2, -1, -1, 0, 1, 1, 2][Math.floor(Math.random() * 7)]));
+      melody.push([SCALE[step], len]);
+      beats += len;
+    }
+    melody.push([72, 12 - beats]); // always come home to C
+    return { name: 'Dream Machine', bpm: 80, bassEvery: 3, melody: melody, bass: [48, 53, 45, 43] };
+  }
+
+  function buildLoop(name) {
+    var tune = name === 'dream' ? dreamTune() : TUNES[name];
+    var events = [];
+    var beat = 0;
+    tune.melody.forEach(function (n) {
+      events.push({ beat: beat, freq: midi(n[0]), bass: false });
+      beat += n[1];
+    });
+    tune.bass.forEach(function (m, i) {
+      events.push({ beat: i * tune.bassEvery, freq: midi(m), bass: true, snore: i % 2 === 1 });
+    });
+    events.sort(function (a, b) { return a.beat - b.beat || a.bass - b.bass; });
+    return { name: tune.name, bpm: tune.bpm, length: beat, events: events };
+  }
+
+  var box = { tune: 'twinkle', spring: 0, playing: false, loop: null, index: 0, beat: 0, time: 0, timer: 0, turnsShown: -1 };
+
+  function turnsLeft() { return Math.ceil(box.spring / SECONDS_PER_TURN - 0.001); }
+
+  // Full speed until the last turn, then slowing to just over half speed.
+  function speed() {
+    return box.spring >= SECONDS_PER_TURN ? 1 : 0.55 + 0.45 * Math.max(0, box.spring) / SECONDS_PER_TURN;
+  }
+
+  function timeAt(beat) { return box.time + (beat - box.beat) * 60 / box.loop.bpm / speed(); }
+
+  function moveTo(beat, time) {
+    box.spring -= time - box.time;
+    box.beat = beat;
+    box.time = time;
+  }
+
+  function tick() {
+    // Background tabs only run timers about once a second, so look further ahead there.
+    var horizon = audio.currentTime + (document.hidden ? 1.5 : 0.2);
+    while (box.playing) {
+      if (box.index >= box.loop.events.length) {
+        var end = timeAt(box.loop.length);
+        if (end > horizon) break;
+        moveTo(box.loop.length, end);
+        box.loop = buildLoop(box.tune);
+        box.index = 0;
+        box.beat = 0;
+        continue;
+      }
+      var event = box.loop.events[box.index];
+      var at = timeAt(event.beat);
+      if (at > horizon) break;
+      moveTo(event.beat, at);
+      if (box.spring <= 0) { stopBox('The spring ran down. Snorbit is fast asleep.'); return; }
+      playEvent(event, at);
+      box.index++;
+    }
+    renderBox();
+  }
+
+  function playEvent(event, at) {
+    var wait = Math.max(0, (at - audio.currentTime) * 1000);
+    if (event.bass) {
+      ping(event.freq, { at: at, duration: 1.6, volume: 0.09 });
+      if (event.snore) {
+        snore(at);
+        setTimeout(function () { floatUp('z', 'note note-snore'); }, wait);
+      }
+    } else {
+      ping(event.freq, { at: at, duration: 1.3, volume: 0.15 + 0.07 * speed() });
+      setTimeout(function () { floatUp(Math.random() < 0.5 ? '♪' : '♫', 'note'); }, wait);
+    }
+  }
+
+  function floatUp(text, className) {
+    if (!box.playing) return;
     var note = document.createElement('span');
-    note.className = 'note';
-    note.textContent = Math.random() < 0.5 ? '♪' : '♫';
-    note.style.left = (35 + Math.random() * 30) + '%';
+    note.className = className;
+    note.textContent = text;
+    note.style.left = (className === 'note' ? 30 + Math.random() * 40 : 44 + Math.random() * 12) + '%';
     note.style.setProperty('--drift', (Math.random() * 80 - 40).toFixed(0) + 'px');
     note.addEventListener('animationend', function () { note.remove(); });
     notes.appendChild(note);
   }
+
+  function renderBox() {
+    var turns = Math.max(0, turnsLeft());
+    springDots.forEach(function (dot, i) { dot.classList.toggle('is-wound', i < turns); });
+    stopButton.disabled = !box.playing;
+    boxMedia.classList.toggle('is-playing', box.playing);
+    if (box.playing && turns !== box.turnsShown) {
+      box.turnsShown = turns;
+      boxStatus.textContent = 'Playing ' + box.loop.name + '. ' + (turns === 1 ? 'Last turn, slowing down…' : turns + ' turns left.');
+    }
+  }
+
+  function startBox() {
+    box.loop = buildLoop(box.tune);
+    box.index = 0;
+    box.beat = 0;
+    box.time = audio.currentTime + 0.12;
+    box.playing = true;
+    box.turnsShown = -1;
+    clearInterval(box.timer);
+    box.timer = setInterval(tick, 40);
+    tick();
+  }
+
+  function stopBox(message) {
+    box.playing = false;
+    box.spring = 0;
+    clearInterval(box.timer);
+    boxStatus.textContent = message;
+    renderBox();
+  }
+
+  windButton.addEventListener('click', function () {
+    var ctx = getAudio();
+    if (!ctx) { boxStatus.textContent = "This browser can't play music, sorry."; return; }
+
+    if (turnsLeft() >= MAX_TURNS) {
+      boxStatus.textContent = 'Fully wound! Any tighter and the spring goes boing.';
+      ping(1568, { duration: 0.25, volume: 0.08 });
+      return;
+    }
+
+    box.spring = Math.min(MAX_TURNS * SECONDS_PER_TURN, Math.max(0, box.spring) + SECONDS_PER_TURN);
+    rattle(); // the ratchet click
+    var turn = (parseFloat(windKey.style.getPropertyValue('--turn')) || 0) + 90;
+    windKey.style.setProperty('--turn', turn + 'deg');
+
+    if (!box.playing) startBox();
+    else box.turnsShown = -1;
+    renderBox();
+  });
+
+  stopButton.addEventListener('click', function () {
+    stopBox('Stopped. Wind it up to play again.');
+    ping(392, { duration: 0.4, volume: 0.1 });
+  });
+
+  tuneChips.forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      box.tune = chip.dataset.tune;
+      tuneChips.forEach(function (c) { c.setAttribute('aria-pressed', String(c === chip)); });
+      if (box.playing) {
+        // switch on the next beat
+        box.loop = buildLoop(box.tune);
+        box.index = 0;
+        box.beat = 0;
+        box.time = Math.max(box.time, audio.currentTime + 0.08);
+        box.turnsShown = -1;
+      }
+    });
+  });
 
   /* ------------------------------------------------------------------------
      Project 2: Moonbell Lantern glow picker (also tints Toby's eyes)

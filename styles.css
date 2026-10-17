@@ -509,41 +509,219 @@ main { overflow-x: clip; }
   padding: clamp(3rem, 8vw, 6rem) clamp(1rem, 4vw, 2.5rem);
 }
 
-.id-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: 1.5rem 2.5rem;
-  padding: clamp(1.25rem, 3vw, 2.5rem);
-  background: var(--surface);
-  border: 3px dashed var(--surface-edge);
-  border-radius: 28px;
+/* An open page of Toby's baby book: printed prompts in Fredoka, the answers
+   written in by hand (Patrick Hand), photos taped in, and stickers. */
+.who {
+  --paper: #fffdf7;
+  --paper-rule: #e3d8f2;
+  --pen: var(--lavender-deep);
+  --cover: var(--lavender);
+  --spine: rgba(74, 53, 48, 0.13);
+  --font-hand: "Patrick Hand", "Segoe Print", "Bradley Hand", cursive;
+}
+:root[data-theme="night"] .who {
+  --paper: #2b2459;
+  --paper-rule: #4a4188;
+  --pen: #dccdff;
+  --cover: #4b3f96;
+  --spine: rgba(0, 0, 0, 0.35);
 }
 
-.sheet { margin: 0; grid-row: span 2; }
+.baby-book {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin-bottom: 2rem;
+  padding: 12px;
+  background: var(--cover);
+  border-radius: 16px 24px 24px 16px;
+  box-shadow: var(--shadow);
+}
+/* The ribbon bookmark, tucked between the cover and the pages */
+.baby-book::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: calc(50% + 18px);
+  bottom: -30px;
+  width: 16px;
+  height: 60px;
+  background: var(--mint);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+}
+
+.baby-page {
+  container-type: inline-size;
+  min-width: 0;
+  padding: clamp(1.25rem, 3vw, 2.25rem);
+  background: var(--paper);
+}
+.baby-left {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1.75rem;
+  border-radius: 8px 3px 3px 8px;
+  background: linear-gradient(to left, var(--spine), transparent 2.5rem), var(--paper);
+}
+.baby-right {
+  border-radius: 3px 8px 8px 3px;
+  background: linear-gradient(to right, var(--spine), transparent 2.5rem), var(--paper);
+}
+
+/* Photos: white-bordered prints. They stay white at night, like real ones. */
+.photo {
+  position: relative;
+  margin: 0;
+  padding: 10px 10px 0;
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(74, 53, 48, 0.08), 0 12px 20px -12px rgba(74, 53, 48, 0.55);
+}
+.photo svg { display: block; width: 100%; height: auto; border-radius: 2px; }
+.photo figcaption,
+.photo-caption {
+  display: block;
+  padding: 0.45rem 0.25rem 0.6rem;
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--cocoa);
+}
+.photo-toby { flex: 0 1 12.5rem; transform: rotate(-3deg); }
+/* Two strips of washi tape hold Toby's photo in */
+.photo-toby::before,
+.photo-toby::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  width: 64px;
+  height: 20px;
+  opacity: 0.8;
+}
+.photo-toby::before { left: -18px; background: var(--butter); transform: rotate(-35deg); }
+.photo-toby::after { right: -18px; background: var(--mint); transform: rotate(32deg); }
+
+.announcement {
+  flex: 1 1 14rem;
+  padding: 1rem 1.15rem 1.15rem;
+  border: 2px dashed var(--paper-rule);
+  border-radius: 18px;
+}
+.announcement h2 { margin: 0 0 0.6rem; font-size: 1.5rem; }
+.facts { display: grid; gap: 0.55rem; margin: 0; }
+.facts dt { font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; line-height: 1.2; color: var(--ink-soft); }
+.facts dd { margin: 0; font-family: var(--font-hand); font-size: 1.3rem; line-height: 1.25; color: var(--pen); }
+
+/* Stickers with a white die-cut edge, stuck on slightly crooked */
+.baby-stickers {
+  flex: 1 1 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.baby-sticker {
+  flex: 1 1 12rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  border: 3px solid #fff;
+  border-radius: 20px 26px 22px 28px;
+  color: var(--cocoa);
+  font-size: 1rem;
+  line-height: 1.35;
+  box-shadow: 0 6px 12px -8px rgba(74, 53, 48, 0.6);
+}
+[data-theme="night"] .baby-sticker { border-color: #f5eee6; }
+.baby-sticker svg { flex: none; width: 1.5rem; height: 1.5rem; margin-top: 0.1rem; }
+.baby-sticker strong { display: block; font-family: var(--font-display); font-weight: 600; }
+.baby-sticker-loves { background: #ffe6a8; transform: rotate(-1.5deg); }
+.baby-sticker-loves svg { fill: #e66f8e; }
+.baby-sticker-not { background: #fbd5df; transform: rotate(1.2deg); }
+.baby-sticker-not svg { fill: #7cc8af; }
+.baby-sticker-quirk { background: #d2efe5; transform: rotate(-0.8deg); }
+.baby-sticker-quirk svg { fill: #f0b43a; }
+
+/* All about me: printed prompts with handwritten answers on ruled lines */
+.baby-heading { margin: 0 0 0.75rem; font-size: clamp(1.5rem, 1.2rem + 1vw, 1.9rem); }
+.sheet { margin: 0 0 2rem; }
 .sheet-row {
   display: grid;
-  grid-template-columns: 8.5rem 1fr;
-  gap: 1rem;
-  padding: 0.85rem 0;
-  border-bottom: 2px dotted var(--surface-edge);
+  grid-template-columns: 7.25rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0 1rem;
+  padding: 0.3rem 0;
 }
-.sheet-row:last-child { border-bottom: 0; }
-.sheet dt { font-family: var(--font-display); font-weight: 600; color: var(--link); }
-.sheet dd { margin: 0; }
-
-.quirks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
-.quirks li { padding: 0.75rem 1rem; background: var(--bg); border-radius: 16px; }
-.quirks strong { display: block; font-family: var(--font-display); font-weight: 600; color: var(--link); }
+.sheet dt { font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; color: var(--ink-soft); }
+.sheet dd {
+  --line: 2.1rem;
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: 1.35rem;
+  line-height: var(--line);
+  color: var(--pen);
+  background-image: linear-gradient(transparent calc(var(--line) - 2px), var(--paper-rule) 0);
+  background-size: 100% var(--line);
+}
+.sheet-tagline dd { --line: 2.6rem; font-size: 1.75rem; }
+/* On a narrow page the prompt sits above its answer */
+@container (max-width: 25rem) {
+  .sheet-row { grid-template-columns: minmax(0, 1fr); }
+}
 
 .sidekick {
-  padding: 1rem 1.15rem;
-  background: var(--lavender-pale);
-  color: var(--cocoa);
-  border-radius: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem 1.75rem;
 }
-[data-theme="night"] .sidekick { background: #3a3175; color: var(--ink); }
-.sidekick h2 { font-size: 1.2rem; margin-bottom: 0.4rem; }
-.sidekick p { margin: 0; }
+.photo-snorbit {
+  flex: 0 1 14.5rem;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transform: rotate(2.5deg);
+  transition: transform 0.2s var(--ease-soft);
+}
+.photo-snorbit:hover { transform: rotate(0.5deg) translateY(-3px); }
+.photo-snorbit:active { transform: rotate(2.5deg) scale(0.98); }
+.sidekick-note { flex: 1 1 12rem; }
+.sidekick-note h2 { margin: 0 0 0.35rem; font-size: 1.3rem; }
+.sidekick-note p { margin: 0; color: var(--ink-soft); }
+
+/* Snorbit breathes in his sleep; a tap makes him snore */
+.snorbit-breathe {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: snorbit-breathe 3.6s ease-in-out infinite;
+}
+.photo-zzz text { transform-box: fill-box; }
+.photo-snorbit.is-snoring { animation: photo-wiggle 0.6s ease; }
+.photo-snorbit.is-snoring .snorbit-breathe { animation: snorbit-snore 1.2s ease-in-out; }
+.photo-snorbit.is-snoring .z1 { animation: z-rise 1.5s ease-out; }
+.photo-snorbit.is-snoring .z2 { animation: z-rise 1.5s 0.15s ease-out backwards; }
+.photo-snorbit.is-snoring .z3 { animation: z-rise 1.5s 0.3s ease-out backwards; }
+@keyframes snorbit-breathe { 50% { transform: scale(1.02, 1.045); } }
+@keyframes snorbit-snore { 40% { transform: scale(1.06, 1.12); } }
+@keyframes photo-wiggle {
+  30% { transform: rotate(-1deg); }
+  60% { transform: rotate(4deg); }
+}
+@keyframes z-rise {
+  0% { transform: none; opacity: 1; }
+  55% { transform: translate(8px, -18px); opacity: 0; }
+  56% { transform: translate(0, 6px); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
 
 /* --------------------------------------------------------------------------
    Work: three toys
@@ -1903,8 +2081,10 @@ main { overflow-x: clip; }
   .hero-copy { order: -1; }
   .intro { margin-inline: auto; }
   .hero-actions { justify-content: center; }
-  .id-card { grid-template-columns: minmax(0, 1fr); }
-  .sheet { grid-row: auto; }
+  .baby-book { grid-template-columns: minmax(0, 1fr); border-radius: 20px; }
+  .baby-book::after { left: auto; right: 2.5rem; }
+  .baby-left { border-radius: 8px 8px 3px 3px; background: linear-gradient(to top, var(--spine), transparent 2rem), var(--paper); }
+  .baby-right { border-radius: 3px 3px 8px 8px; background: linear-gradient(to bottom, var(--spine), transparent 2rem), var(--paper); }
   .project { grid-template-columns: minmax(0, 1fr); }
   .guestbook-grid { grid-template-columns: minmax(0, 1fr); }
   .project-flip .project-media { order: 0; }
@@ -1930,7 +2110,6 @@ main { overflow-x: clip; }
   .nav a { padding-inline: 0.45rem; }
   .topbar { flex-wrap: wrap; gap: 0.5rem; }
   .nav { order: 3; width: 100%; justify-content: space-between; }
-  .sheet-row { grid-template-columns: 1fr; gap: 0.15rem; }
   .portrait { width: min(100%, 340px); }
 }
 
@@ -1947,6 +2126,12 @@ main { overflow-x: clip; }
   .project.is-entering { animation: none; }
   /* the story stage shows each scene's final picture */
   .story-stage *, .story-stage *::before { animation: none !important; }
+  /* Snorbit's photo keeps still; a tap still plays his snore */
+  .snorbit-breathe,
+  .photo-snorbit.is-snoring,
+  .photo-snorbit.is-snoring .snorbit-breathe,
+  .photo-snorbit.is-snoring text { animation: none; }
+  .photo-snorbit { transition: none; }
   .story-stage[data-scene="1"] .baby-toby { opacity: 1; }
   .story-stage[data-scene="1"] .sock-b { opacity: 0; }
   .story-stage[data-scene="2"] .hello { opacity: 1; }
@@ -2064,9 +2249,11 @@ main { overflow-x: clip; }
 
 :root[data-chaos="on"] .project-media,
 :root[data-chaos="on"] .portrait-art,
-:root[data-chaos="on"] .id-card,
+:root[data-chaos="on"] .baby-book,
 :root[data-chaos="on"] .wish-form,
 :root[data-chaos="on"] .wish-wall { border: 5px ridge #ff66b2; border-radius: 0; }
+:root[data-chaos="on"] .who { --paper: var(--surface); --paper-rule: #5c5cb0; --pen: #ffe600; --cover: #ff66b2; --spine: transparent; --font-hand: var(--font-display); }
+:root[data-chaos="on"] .baby-page { border-radius: 0; }
 :root[data-chaos="on"] .project:nth-of-type(odd) .project-media { transform: rotate(-1.5deg); }
 :root[data-chaos="on"] .project:nth-of-type(even) .project-media { transform: rotate(1.5deg); }
 :root[data-chaos="on"] .marquee { background: #000; color: #3dff4a; border-block: 3px ridge #c0c0c0; }

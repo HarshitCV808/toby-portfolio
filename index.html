@@ -19,9 +19,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- Fonts load without blocking the first paint; the page shows in fallback fonts for a moment -->
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:wght@400..800&family=VT323&display=swap">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:wght@400..800&family=VT323&display=swap" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:wght@400..800&family=VT323&display=swap"></noscript>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:wght@400..800&family=Patrick+Hand&family=VT323&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:wght@400..800&family=Patrick+Hand&family=VT323&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:wght@400..800&family=Patrick+Hand&family=VT323&display=swap"></noscript>
   <link rel="stylesheet" href="styles.css">
   <script src="main.js" defer></script>
 </head>
@@ -106,25 +106,124 @@
       </div>
     </section>
 
-    <!-- WHO: the 5-point character sheet Track 2 asks for, as a nursery ID card -->
+    <!-- WHO: the 5-point character sheet Track 2 asks for, as an open page of Toby's baby book -->
     <section class="who" id="who" aria-labelledby="who-title" data-page="Who is Toby?">
       <h1 class="section-title" id="who-title">Who is Toby?</h1>
-      <div class="id-card">
-        <dl class="sheet">
-          <div class="sheet-row"><dt>Name</dt><dd>Toby</dd></div>
-          <div class="sheet-row"><dt>What I am</dt><dd>A skull baby with little fangs, soft bones and two stars where my eyes should be.</dd></div>
-          <div class="sheet-row"><dt>What I do</dt><dd>Lullaby Tinkerer at the Cloud Cradle Workshop</dd></div>
-          <div class="sheet-row"><dt>My story</dt><dd>A falling star, a warm sock and a dragon in the laundry. <a href="#story">The whole thing</a></dd></div>
-          <div class="sheet-row"><dt>Tagline</dt><dd>I tuck the whole sky in.</dd></div>
-        </dl>
-        <ul class="quirks">
-          <li><strong>Loves</strong> warm milk, humming, glow-in-the-dark stickers</li>
-          <li><strong>Doesn't love</strong> cold socks and too much quiet</li>
-          <li><strong>Quirk</strong> my eyes twinkle brighter the sleepier I get</li>
-        </ul>
-        <div class="sidekick">
-          <h2>My sidekick, Snorbit</h2>
-          <p>A pocket-sized dragon who has been asleep since we met. Snorbit snores in tune and keeps my head warm.</p>
+      <div class="baby-book">
+        <div class="baby-page baby-left">
+          <figure class="photo photo-toby">
+            <svg viewBox="16 18 170 176" role="img" aria-label="A drawing of baby Toby in his striped nightcap, peeking out of a mint-green sock">
+              <defs>
+                <clipPath id="cap-clip"><path d="M58 72 C56 40 80 26 104 27 C130 28 146 46 143 72 Z M66 44 C44 50 30 72 29 98 L42 98 C43 84 50 74 60 70 Z"/></clipPath>
+                <path id="who-star" d="M0 -5 L1.5 -1.5 L5 0 L1.5 1.5 L0 5 L-1.5 1.5 L-5 0 L-1.5 -1.5Z"/>
+              </defs>
+              <rect width="200" height="200" fill="#ece4fa"/>
+              <g fill="#ffd36e">
+                <use href="#who-star" transform="translate(28 30)"/><use href="#who-star" transform="translate(172 44) scale(1.3)"/>
+                <use href="#who-star" transform="translate(170 118) scale(.8)"/><use href="#who-star" transform="translate(24 150) scale(1.1)"/>
+              </g>
+              <g fill="#b9a3e3"><circle cx="150" cy="22" r="2"/><circle cx="18" cy="96" r="1.6"/><circle cx="186" cy="84" r="1.8"/></g>
+              <!-- the sock Toby arrived in -->
+              <path d="M52 128 V176 Q52 192 70 192 H158 Q182 192 182 172 Q182 154 162 154 H148 V128 Z" fill="#a8e2cf"/>
+              <path d="M158 192 Q182 192 182 172 Q182 158 168 155 Q172 176 158 192 Z" fill="#8fd3bd"/>
+              <!-- pyjamas and hands -->
+              <path d="M66 132 Q66 112 100 112 Q134 112 134 132 Z" fill="#b9a3e3"/>
+              <path d="M84 113 L100 124 L116 113" stroke="#a8e2cf" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="46" y="122" width="108" height="18" rx="9" fill="#8fd3bd"/>
+              <path d="M58 124 v14 M70 124 v14 M82 124 v14 M94 124 v14 M106 124 v14 M118 124 v14 M130 124 v14 M142 124 v14" stroke="#a8e2cf" stroke-width="3"/>
+              <g fill="#fbf3e6" stroke="#d9c9b4" stroke-width="1.2">
+                <ellipse cx="74" cy="124" rx="9" ry="7"/><ellipse cx="126" cy="124" rx="9" ry="7"/>
+              </g>
+              <!-- head -->
+              <path d="M60 86 A40 40 0 0 1 140 86 Q140 108 126 118 Q114 126 100 126 Q86 126 74 118 Q60 108 60 86 Z" fill="#fbf3e6" stroke="#e6d8c4" stroke-width="1.5"/>
+              <ellipse cx="72" cy="104" rx="7" ry="4.5" fill="#f5b5c6"/><ellipse cx="128" cy="104" rx="7" ry="4.5" fill="#f5b5c6"/>
+              <ellipse cx="84" cy="91" rx="11" ry="12" fill="#2c1a17"/><ellipse cx="116" cy="91" rx="11" ry="12" fill="#2c1a17"/>
+              <g class="photo-eyes" fill="#ffd36e">
+                <use href="#who-star" transform="translate(85 92) scale(1.15)"/><use href="#who-star" transform="translate(117 92) scale(1.15)"/>
+              </g>
+              <circle cx="80" cy="86" r="1.6" fill="#fff"/><circle cx="112" cy="86" r="1.6" fill="#fff"/>
+              <path d="M96.5 103 Q100 100 103.5 103 L100 107.5 Z" fill="#2c1a17"/>
+              <path d="M88 111 Q100 120 112 111" stroke="#2c1a17" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+              <path d="M92.5 113.5 l2 4.5 l2 -3.4 Z M103.5 114.6 l2 3.4 l2 -4.5 Z" fill="#fff" stroke="#2c1a17" stroke-width="1" stroke-linejoin="round"/>
+              <!-- nightcap -->
+              <g clip-path="url(#cap-clip)">
+                <rect x="20" y="20" width="140" height="90" fill="#b9a3e3"/>
+                <path d="M30 40 l130 -20 M26 60 l140 -22 M22 80 l140 -22 M18 100 l140 -22" stroke="#a8e2cf" stroke-width="7"/>
+              </g>
+              <g fill="#ffd36e"><use href="#who-star" transform="translate(96 40) scale(.6)"/><use href="#who-star" transform="translate(124 52) scale(.55)"/><use href="#who-star" transform="translate(46 76) scale(.55)"/></g>
+              <rect x="56" y="64" width="90" height="15" rx="7.5" fill="#a8e2cf"/>
+              <path d="M66 66 v11 M78 66 v11 M90 66 v11 M102 66 v11 M114 66 v11 M126 66 v11 M138 66 v11" stroke="#b9a3e3" stroke-width="3"/>
+              <circle cx="35" cy="102" r="11" fill="#f6efe6" stroke="#e6d8c4" stroke-width="1.5" stroke-dasharray="2 2.5"/>
+            </svg>
+            <figcaption>Day one, still sparkly</figcaption>
+          </figure>
+          <div class="announcement">
+            <h2>It's a Toby!</h2>
+            <dl class="facts">
+              <div><dt>Arrived</dt><dd>the softest night of the year</dd></div>
+              <div><dt>Weighed</dt><dd>one star and one sock</dd></div>
+              <div><dt>Bedtime</dt><dd>whenever the moon yawns</dd></div>
+              <div><dt>Favourite lullaby</dt><dd>Twinkle, Twinkle, very slowly</dd></div>
+            </dl>
+          </div>
+          <ul class="baby-stickers">
+            <li class="baby-sticker baby-sticker-loves">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20 C4 14 2 10 4 6.5 C6 3.5 10 4 12 7.5 C14 4 18 3.5 20 6.5 C22 10 20 14 12 20 Z"/></svg>
+              <span><strong>Loves</strong> warm milk, humming, glow-in-the-dark stickers</span>
+            </li>
+            <li class="baby-sticker baby-sticker-not">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3 h6 v9 l4 3 q2 2 0 4 q-1.5 1.5 -3.5 1 l-6 -3 q-1.5 -1 -0.5 -3 Z"/></svg>
+              <span><strong>Not keen on</strong> cold socks and too much quiet</span>
+            </li>
+            <li class="baby-sticker baby-sticker-quirk">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.7 L17.9 20.6 L12 16.9 L6.1 20.6 L7.8 13.7 L2.5 9.2 L9.4 8.6 Z"/></svg>
+              <span><strong>Quirk</strong> my eyes twinkle brighter the sleepier I get</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="baby-page baby-right">
+          <h2 class="baby-heading">All about me</h2>
+          <dl class="sheet">
+            <div class="sheet-row"><dt>My name is</dt><dd>Toby</dd></div>
+            <div class="sheet-row"><dt>I am</dt><dd>a skull baby with little fangs, soft bones and two stars where my eyes should be</dd></div>
+            <div class="sheet-row"><dt>My job</dt><dd>Lullaby Tinkerer at the Cloud Cradle Workshop</dd></div>
+            <div class="sheet-row"><dt>My story</dt><dd>a falling star, a warm sock and a dragon in the laundry. <a href="#story">Read it all</a></dd></div>
+            <div class="sheet-row sheet-tagline"><dt>I always say</dt><dd>“I tuck the whole sky in.”</dd></div>
+          </dl>
+          <div class="sidekick">
+            <button class="photo photo-snorbit" type="button" id="snorbit-photo">
+              <svg viewBox="0 0 200 150" aria-hidden="true">
+                <rect width="200" height="150" fill="#dff3ec"/>
+                <rect x="22" y="104" width="156" height="36" rx="18" fill="#f5b5c6"/>
+                <rect x="30" y="110" width="140" height="24" rx="12" fill="none" stroke="#fbe1e9" stroke-width="2" stroke-dasharray="5 4"/>
+                <g class="snorbit-breathe">
+                  <path d="M60 100 C38 122 92 132 132 118" stroke="#b9a3e3" stroke-width="12" fill="none" stroke-linecap="round"/>
+                  <path d="M128 112 l16 -2 -8 12 Z" fill="#a8e2cf"/>
+                  <ellipse cx="100" cy="92" rx="48" ry="26" fill="#b9a3e3"/>
+                  <ellipse cx="106" cy="102" rx="30" ry="11" fill="#d8ccf3"/>
+                  <path d="M64 76 l6 -9 4 10 Z M78 69 l6 -9 4 10 Z M93 66 l6 -9 4 10 Z" fill="#a8e2cf"/>
+                  <path d="M82 80 Q92 52 120 62 Q104 64 102 82 Z" fill="#a8e2cf"/>
+                  <circle cx="146" cy="82" r="22" fill="#b9a3e3"/>
+                  <ellipse cx="161" cy="91" rx="13" ry="10" fill="#c7b6ec"/>
+                  <path d="M134 64 l-4 -12 10 7 Z M150 61 l2 -13 7 10 Z" fill="#a8e2cf"/>
+                  <path d="M137 80 Q142.5 85 148 80" stroke="#2c1a17" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                  <circle cx="166" cy="88" r="1.6" fill="#2c1a17"/>
+                  <ellipse cx="150" cy="93" rx="5" ry="3.2" fill="#f5b5c6"/>
+                </g>
+                <g class="photo-zzz" fill="#6a4fb0" font-family="Fredoka, sans-serif" font-weight="600">
+                  <text class="z1" x="168" y="56" font-size="16">z</text>
+                  <text class="z2" x="178" y="40" font-size="20">z</text>
+                  <text class="z3" x="186" y="22" font-size="24">z</text>
+                </g>
+              </svg>
+              <span class="photo-caption">Snorbit (tap to hear him snore)</span>
+            </button>
+            <div class="sidekick-note">
+              <h2>My sidekick, Snorbit</h2>
+              <p>A pocket-sized dragon who has been asleep since we met. He snores in tune and keeps my head warm.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -673,7 +772,7 @@
       <li>made with warm milk</li>
       <li>no grown-ups allowed</li>
     </ul>
-    <p class="credits" id="credits">Made by Toby's Night Shift for Baby's First Website 2026. Toby artwork generated with Google Gemini. Code built with help from <a href="https://claude.ai">Claude</a> by Anthropic. Made with <a href="https://threejs.org">Three.js</a>, <a href="https://github.com/catdad/canvas-confetti">canvas-confetti</a> and <a href="https://supabase.com">Supabase</a>, in the fonts Fredoka, Nunito and VT323 from <a href="https://fonts.google.com">Google Fonts</a>. The storybook is read by Cori, an AI voice made with <a href="https://github.com/OHF-Voice/piper1-gpl">Piper</a> and trained on public-domain LibriVox recordings. Every other sound is made live in your browser.</p>
+    <p class="credits" id="credits">Made by Toby's Night Shift for Baby's First Website 2026. Toby's paintings were generated with Google Gemini. Code built with help from <a href="https://claude.ai">Claude</a> by Anthropic, who also drew the little SVG pictures on the Who and Story pages. Made with <a href="https://threejs.org">Three.js</a>, <a href="https://github.com/catdad/canvas-confetti">canvas-confetti</a> and <a href="https://supabase.com">Supabase</a>, in the fonts Fredoka, Nunito, Patrick Hand and VT323 from <a href="https://fonts.google.com">Google Fonts</a>. The storybook is read by Cori, an AI voice made with <a href="https://github.com/OHF-Voice/piper1-gpl">Piper</a> and trained on public-domain LibriVox recordings. Every other sound is made live in your browser.</p>
   </footer>
 
   <!-- Chaos mode extras. Which ones show depends on screen size (see styles.css). -->
@@ -696,7 +795,7 @@
     <p class="chaos-small">Best viewed at 800&times;600 with the lights off.</p>
   </aside>
 
-  <div class="chaos-only chaos-taskbar">
+  <nav class="chaos-only chaos-taskbar" aria-label="Toby 98 taskbar">
     <button class="chaos-start" id="chaos-start" type="button" aria-expanded="false" aria-controls="chaos-menu">Start</button>
     <ul class="chaos-menu" id="chaos-menu" hidden>
       <li><a href="#who">Who is Toby</a></li>
@@ -707,13 +806,13 @@
     </ul>
     <span class="chaos-task">toby.exe</span>
     <span class="chaos-clock" id="chaos-clock"></span>
-  </div>
+  </nav>
 
-  <div class="chaos-only chaos-gotchi" role="group" aria-label="Tobygotchi buttons">
+  <aside class="chaos-only chaos-gotchi" aria-label="Tobygotchi buttons">
     <button type="button" id="gotchi-a" aria-label="A: back to the top">A</button>
     <button type="button" id="gotchi-b" aria-label="B: boop Toby">B</button>
     <button type="button" id="gotchi-c" aria-label="C: lights on or off">C</button>
-  </div>
+  </aside>
 
   <!-- TobyChat 99: a scripted chat with Toby, on every page -->
   <button class="chat-launcher" id="chat-launcher" type="button" aria-expanded="false" aria-controls="chat">

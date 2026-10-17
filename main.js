@@ -516,6 +516,23 @@
   }
 
   /* ------------------------------------------------------------------------
+     Who page: tap Snorbit's photo in the baby book and he snores
+     ------------------------------------------------------------------------ */
+
+  var snorbitPhoto = document.getElementById('snorbit-photo');
+  var snoreTimer = null;
+  snorbitPhoto.addEventListener('click', function () {
+    var ctx = getAudio();
+    if (ctx) snore(ctx.currentTime);
+    // Restart the animation even on quick repeat taps
+    snorbitPhoto.classList.remove('is-snoring');
+    void snorbitPhoto.offsetWidth;
+    snorbitPhoto.classList.add('is-snoring');
+    clearTimeout(snoreTimer);
+    snoreTimer = setTimeout(function () { snorbitPhoto.classList.remove('is-snoring'); }, 1900);
+  });
+
+  /* ------------------------------------------------------------------------
      Project 1: the Toby Box, a wind-up music box
      Notes are scheduled a moment ahead on the audio clock, so the timing
      stays steady even when the page is busy. Each wind adds one turn to the

@@ -25,6 +25,8 @@ The site has five pages (Home, Who, Work, Story, Guestbook). Each opens on its o
 
 **Home.** Toby's painted portrait. His star eyes follow your cursor (or your last tap on a phone), and you can boop him. **View in 3D** flips the card over to a Three.js Toby you can spin.
 
+**Who.** Toby's character sheet as an open page of his baby book: a taped-in photo of him on day one, an "It's a Toby!" card, stickers for what he loves and doesn't, and "All about me" answers handwritten on ruled lines. Tap Snorbit's photo to hear him snore.
+
 **Work: a toy shelf of seven projects that really work**
 - **The Toby Box**: a wind-up music box made with the Web Audio API. Wind it up to five turns and it slows as the spring runs down. It has three tunes (one is generated live and never repeats), a brass cylinder and comb that pluck each note, and a tempo slider.
 - **The Moonbell Lantern**: pick a glow colour, turn off the big light so your cursor becomes the lantern, charge glow-in-the-dark stickers, or switch on a star projector that turns slowly behind the whole site.
@@ -116,11 +118,11 @@ To use your own guestbook, follow [`supabase/SETUP.md`](supabase/SETUP.md) and p
 
 ## Credits
 
-- **Toby artwork:** generated with Google Gemini, art-directed by Toby's Night Shift. The pixel-art version is generated from it in the browser.
+- **Toby artwork:** the paintings were generated with Google Gemini, art-directed by Toby's Night Shift. The pixel-art version is generated from them in the browser. The small SVG drawings on the Who and Story pages were drawn in code with Claude.
 - **Code:** written by Toby's Night Shift with help from Claude by Anthropic.
 - **Storybook narration:** an AI voice generated with [Piper](https://github.com/OHF-Voice/piper1-gpl), using the *Cori* voice (trained on public-domain LibriVox recordings).
 - **Libraries:** [Three.js](https://threejs.org), [canvas-confetti](https://github.com/catdad/canvas-confetti), [Supabase](https://supabase.com).
-- **Fonts:** Fredoka, Nunito and VT323 from Google Fonts.
+- **Fonts:** Fredoka, Nunito, Patrick Hand and VT323 from Google Fonts.
 - **Lullabies:** "Twinkle, Twinkle, Little Star" is a traditional tune in the public domain; "Toby's Theme" and the Dream Machine are original.
 
 Made for Baby's First Website 2026 by haX.baby.

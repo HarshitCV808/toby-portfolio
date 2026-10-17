@@ -219,6 +219,7 @@
     else delete root.dataset.chaos;
     chaosSwitch.setAttribute('aria-pressed', String(on));
     save('toby-chaos', on ? '1' : '0');
+    document.dispatchEvent(new CustomEvent('toby:chaos', { detail: { on: on } }));
     clearInterval(clockTimer);
     if (on) { tickClock(); clockTimer = setInterval(tickClock, 20000); }
     closeStartMenu();
@@ -623,6 +624,7 @@
   function setGlow(name) {
     if (!GLOWS[name]) name = 'honey';
     root.style.setProperty('--glow', GLOWS[name]);
+    document.dispatchEvent(new CustomEvent('toby:glow', { detail: { color: GLOWS[name] } }));
     chips.forEach(function (chip) { chip.setAttribute('aria-pressed', String(chip.dataset.glow === name)); });
   }
 
@@ -1472,6 +1474,80 @@
   });
 
   /* ------------------------------------------------------------------------
+     3D Toby: the home card flips over to a Three.js model (toby3d.js).
+     Three.js only downloads the first time someone asks for it. If the
+     browser can't do 3D, the card flips back to the painting.
+     ------------------------------------------------------------------------ */
+
+  var flipCard = document.getElementById('flip-card');
+  var view3d = document.getElementById('view-3d');
+  var stage3d = document.getElementById('toby-3d');
+  var status3d = document.getElementById('toby-3d-status');
+  var toby3d = null;
+  var loading3d = null;
+  var showing3d = false;
+
+  stage3d.setAttribute('role', 'img');
+  stage3d.setAttribute('aria-label', '3D Toby sitting on a cloud. Use the left and right arrow keys to spin him, and Enter to boop him.');
+
+  function load3d() {
+    if (toby3d) return Promise.resolve(toby3d);
+    if (loading3d) return loading3d;
+    status3d.textContent = 'Building Toby in 3D\u2026';
+    loading3d = import('./toby3d.js')
+      .then(function (module) {
+        toby3d = module.createToby3D(stage3d, {
+          retro: root.dataset.chaos === 'on',
+          reduceMotion: reduceMotion.matches,
+          glow: getComputedStyle(root).getPropertyValue('--glow').trim() || '#ffcf66',
+          onBoop: function () { giggle(); say(boopLines[boopIndex++ % boopLines.length]); }
+        });
+        status3d.textContent = 'Drag to spin me. Tap to boop.';
+        return toby3d;
+      })
+      .catch(function () {
+        status3d.textContent = 'This browser can\u2019t show 3D, so here\u2019s my painting.';
+        loading3d = null;
+        setTimeout(function () { set3d(false); }, 2200);
+        return null;
+      });
+    return loading3d;
+  }
+
+  function set3d(on) {
+    showing3d = on;
+    flipCard.classList.toggle('is-flipped', on);
+    view3d.textContent = on ? 'Back to the painting' : 'View in 3D';
+    view3d.setAttribute('aria-pressed', String(on));
+    portrait.inert = on;
+    stage3d.inert = !on;
+    if (on) {
+      stage3d.tabIndex = 0;
+      load3d().then(function (model) { if (model && showing3d) model.start(); });
+    } else if (toby3d) {
+      toby3d.stop();
+    }
+  }
+
+  view3d.addEventListener('click', function () { set3d(!showing3d); });
+
+  stage3d.addEventListener('keydown', function (event) {
+    if (!toby3d) return;
+    if (event.key === 'ArrowLeft') { toby3d.spinBy(-0.12); event.preventDefault(); }
+    if (event.key === 'ArrowRight') { toby3d.spinBy(0.12); event.preventDefault(); }
+    if (event.key === 'Enter' || event.key === ' ') { toby3d.boop(); event.preventDefault(); }
+  });
+
+  document.addEventListener('toby:chaos', function (event) { if (toby3d) toby3d.setRetro(event.detail.on); });
+  document.addEventListener('toby:glow', function (event) { if (toby3d) toby3d.setGlow(event.detail.color); });
+  // Only animate while the home page is showing
+  document.addEventListener('toby:page', function (event) {
+    if (!toby3d || !showing3d) return;
+    if (event.detail.id === 'top') toby3d.start();
+    else toby3d.stop();
+  });
+
+  /* ------------------------------------------------------------------------
      Easter eggs
      ------------------------------------------------------------------------ */
 
@@ -1651,7 +1727,8 @@
     '\u2022 Sit very still for 45 seconds',
     '\u2022 Visit between midnight and 1am (or add ?midnight to the address)',
     '\u2022 Turn off the big light and charge every glow sticker',
-    '\u2022 Spell T-O-B-Y with the rattle blocks'
+    '\u2022 Spell T-O-B-Y with the rattle blocks',
+    '\u2022 Open 3D Toby, then switch on chaos mode'
   ].join('\n'));
 
   /* ------------------------------------------------------------------------

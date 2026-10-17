@@ -73,6 +73,8 @@
     <!-- HERO: Toby's eyes follow your cursor (on touch screens they follow your last tap) -->
     <section class="hero" id="top" aria-labelledby="hero-title" data-page="Home">
       <figure class="portrait">
+        <!-- A flip card: the painting on the front, 3D Toby on the back -->
+        <div class="flip-card" id="flip-card">
         <div class="portrait-art" id="portrait">
           <img src="assets/toby.webp" alt="Toby, a smiling skull baby in a lavender striped nightcap with a sleeping purple dragon on top, holding a glowing lantern and a music box while sitting on a pink cloud" width="848" height="1264" fetchpriority="high">
           <!-- Eye overlays: positions are percentages of the artwork, measured from the image -->
@@ -81,6 +83,11 @@
           <button class="hotspot hotspot-face" id="boop" type="button" aria-label="Boop Toby"></button>
           <button class="hotspot hotspot-snorbit" id="snorbit" type="button" aria-label="Snorbit, sleeping on Toby's hat"></button>
         </div>
+        <div class="toby-3d" id="toby-3d" inert>
+          <p class="toby-3d-status" id="toby-3d-status" aria-live="polite"></p>
+        </div>
+        </div>
+        <button class="button button-quiet view-3d" id="view-3d" type="button" aria-pressed="false" aria-controls="flip-card">View in 3D</button>
         <figcaption class="bubble" id="bubble" role="status" aria-live="polite">Oh! Hi. I was only resting my eyes.</figcaption>
       </figure>
 

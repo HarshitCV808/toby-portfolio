@@ -117,6 +117,7 @@
                 <clipPath id="cap-clip"><path d="M58 72 C56 40 80 26 104 27 C130 28 146 46 143 72 Z M66 44 C44 50 30 72 29 98 L42 98 C43 84 50 74 60 70 Z"/></clipPath>
                 <path id="who-star" d="M0 -5 L1.5 -1.5 L5 0 L1.5 1.5 L0 5 L-1.5 1.5 L-5 0 L-1.5 -1.5Z"/>
               </defs>
+              <g class="pixel-art">
               <rect width="200" height="200" fill="#ece4fa"/>
               <g fill="#ffd36e">
                 <use href="#who-star" transform="translate(28 30)"/><use href="#who-star" transform="translate(172 44) scale(1.3)"/>
@@ -154,6 +155,7 @@
               <rect x="56" y="64" width="90" height="15" rx="7.5" fill="#a8e2cf"/>
               <path d="M66 66 v11 M78 66 v11 M90 66 v11 M102 66 v11 M114 66 v11 M126 66 v11 M138 66 v11" stroke="#b9a3e3" stroke-width="3"/>
               <circle cx="35" cy="102" r="11" fill="#f6efe6" stroke="#e6d8c4" stroke-width="1.5" stroke-dasharray="2 2.5"/>
+              </g>
             </svg>
             <figcaption>Day one, still sparkly</figcaption>
           </figure>
@@ -194,6 +196,7 @@
           <div class="sidekick">
             <button class="photo photo-snorbit" type="button" id="snorbit-photo">
               <svg viewBox="0 0 200 150" aria-hidden="true">
+              <g class="pixel-art">
                 <rect width="200" height="150" fill="#dff3ec"/>
                 <rect x="22" y="104" width="156" height="36" rx="18" fill="#f5b5c6"/>
                 <rect x="30" y="110" width="140" height="24" rx="12" fill="none" stroke="#fbe1e9" stroke-width="2" stroke-dasharray="5 4"/>
@@ -215,6 +218,7 @@
                   <text class="z1" x="168" y="56" font-size="16">z</text>
                   <text class="z2" x="178" y="40" font-size="20">z</text>
                   <text class="z3" x="186" y="22" font-size="24">z</text>
+                </g>
                 </g>
               </svg>
               <span class="photo-caption">Snorbit (tap to hear him snore)</span>
@@ -586,6 +590,7 @@
               </g>
               <path id="tiny-star" d="M0 -6 L1.8 -1.8 L6 0 L1.8 1.8 L0 6 L-1.8 1.8 L-6 0 L-1.8 -1.8Z"/>
             </defs>
+            <g class="pixel-art">
 
             <g class="st-stars" fill="#fff8f1">
               <circle cx="40" cy="40" r="1.4"/><circle cx="110" cy="22" r="1"/><circle cx="160" cy="60" r="1.5"/>
@@ -711,6 +716,7 @@
                   <circle cx="-14" cy="26" r="5" fill="#ffd36e" class="carried-lamp"/>
                 </g>
               </g>
+            </g>
             </g>
           </svg>
         </div>
@@ -840,6 +846,18 @@
       <button class="button button-primary chat-send" type="submit">Send</button>
     </form>
   </section>
+
+  <!-- Chaos mode's pixel filter for the little drawings: keep one dot from each
+       4x4 block of the drawing, then grow every dot to fill its block -->
+  <svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <filter id="pixelate" x="0" y="0" width="400" height="320" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood x="1.5" y="1.5" width="1" height="1"/>
+      <feOffset x="0" y="0" width="4" height="4"/>
+      <feTile result="dots"/>
+      <feComposite in="SourceGraphic" in2="dots" operator="in"/>
+      <feMorphology operator="dilate" radius="1.5"/>
+    </filter>
+  </svg>
 
   <!-- Lantern star projector: shapes turning slowly behind the whole site -->
   <div class="projector" id="projector-layer" aria-hidden="true" hidden></div>

@@ -13,7 +13,7 @@ We wanted the site to feel like a real cosy place on the early web rather than a
 - **Dream Delivery Routes:** sends Snorbit flying over a map of Hushbury.
 - **Rattle blocks and growth chart:** a block game with secret words, and a growth chart of Toby's skills.
 
-For full 1999 energy there's a marquee, a real visitor odometer, a live guestbook, and **Chaos Mode**, which reshapes the whole site for each screen size: a pink Tobygotchi gadget on phones, a Toby 98 desktop window on tablets, and a webring homepage on desktops. In chaos mode Toby's painting turns into 16-bit pixel art and his 3D model goes low-poly.
+For full 1999 energy there's a marquee, a real visitor odometer, a live guestbook, and **Chaos Mode**, which reshapes the whole site for each screen size: a pink Tobygotchi gadget on phones, a Toby 98 desktop window on tablets, and a webring homepage on desktops. In chaos mode Toby's painting and drawings turn into pixel art, the buttons and menus switch to a pixel font, and his 3D model goes low-poly.
 
 Toby is also a character you can talk to. TobyChat 99 lets him answer questions in his own voice, he remembers returning visitors, and the site is full of secrets: a Konami code, a midnight visitor surprise, secret words, a nap if you sit still, and a note in the developer console. It's built with plain HTML, CSS and JavaScript with no build step. The 3D model uses Three.js, loaded only when you ask for it. The guestbook and visitor counter run on Supabase with read-and-add-only security rules. Every page passes axe accessibility checks in day, night and chaos modes, works by keyboard, respects reduced motion, and keeps sound behind a visible mute switch.
 

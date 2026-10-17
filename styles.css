@@ -2035,7 +2035,7 @@ main { overflow-x: clip; }
 :root[data-chaos="on"] .chat-titlebar { background: linear-gradient(90deg, #000080, #1084d0); font-family: var(--chaos-ui); }
 :root[data-chaos="on"] .chat-close { border: 2px outset #e8e8e8; border-radius: 0; background: #c0c0c0; color: #000; width: 36px; height: 32px; font-size: 1.2rem; }
 :root[data-chaos="on"] .chat-log { margin: 0.5rem; border: 2px inset #e8e8e8; background: #fff; }
-:root[data-chaos="on"] .chat-msg { border-radius: 0; background: transparent; padding: 0.15rem 0; font-family: var(--chaos-ui); }
+:root[data-chaos="on"] .chat-msg { border-radius: 0; background: transparent; padding: 0.15rem 0; font-family: var(--chaos-text); }
 :root[data-chaos="on"] .chat-msg .chat-who { color: #c2006f; opacity: 1; }
 :root[data-chaos="on"] .chat-msg.from-you .chat-who { color: #000080; }
 :root[data-chaos="on"] .chat-msg.from-you { align-self: stretch; background: transparent; }
@@ -2182,7 +2182,8 @@ main { overflow-x: clip; }
   --chaos-rainbow: linear-gradient(90deg, #ff3b3b, #ff9d00, #ffe600, #3dff4a, #00d0ff, #b54bff);
   --font-display: "Comic Sans MS", "Comic Neue", "Chalkboard SE", cursive;
   --font-body: "Times New Roman", Times, serif;
-  --chaos-ui: Tahoma, Verdana, sans-serif;
+  --chaos-ui: var(--font-retro);           /* pixel font for the chrome */
+  --chaos-text: Tahoma, Verdana, sans-serif; /* readable UI text, like chat */
 }
 
 :root[data-chaos="on"] body {
@@ -2242,6 +2243,21 @@ main { overflow-x: clip; }
 :root[data-chaos="on"] .switch[aria-pressed="true"].chaos-switch { border-style: inset; transform: none; background: #a8a8a8; }
 :root[data-chaos="on"] .button:hover { transform: none; }
 
+/* Pixel chrome: everything that frames the page or gets clicked is set in the
+   VT323 pixel font. WordArt headings and paragraphs keep their 1999 fonts, so
+   they stay easy to read. VT323 draws small, so font-size-adjust brings it up
+   to the size of the old Tahoma, and there's no fake bold to smear it. */
+:root[data-chaos="on"] :is(.brand, .nav a, .button, .switch, .chip, .shelf-name, .counter-label,
+  .chaos-banner, .chaos-start, .chaos-menu a, .chaos-menu button, .chaos-task, .chaos-clock,
+  .chaos-winbtns span, .chaos-panel, .chaos-panel-title, .chaos-gotchi button,
+  .chat-launcher, .chat-titlebar, .chat-title, .chat-chip),
+:root[data-chaos="on"] .project-title::after {
+  font-family: var(--font-retro);
+  font-size-adjust: 0.5;
+  font-weight: 400;
+  -webkit-font-smoothing: none;
+}
+
 :root[data-chaos="on"] a { color: var(--link); }
 :root[data-chaos="on"] .nav a { color: #ffe600; text-decoration: underline; }
 :root[data-chaos="on"] .nav a:hover { background: #c2006f; color: #fff; }
@@ -2254,6 +2270,10 @@ main { overflow-x: clip; }
 :root[data-chaos="on"] .wish-wall { border: 5px ridge #ff66b2; border-radius: 0; }
 :root[data-chaos="on"] .who { --paper: var(--surface); --paper-rule: #5c5cb0; --pen: #ffe600; --cover: #ff66b2; --spine: transparent; --font-hand: var(--font-display); }
 :root[data-chaos="on"] .baby-page { border-radius: 0; }
+/* The little SVG drawings (Who photos, the story stage) turn into chunky pixels,
+   like the pixel-art portrait. Their animations keep running underneath. */
+.svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+:root[data-chaos="on"] .pixel-art { filter: url(#pixelate); }
 :root[data-chaos="on"] .project:nth-of-type(odd) .project-media { transform: rotate(-1.5deg); }
 :root[data-chaos="on"] .project:nth-of-type(even) .project-media { transform: rotate(1.5deg); }
 :root[data-chaos="on"] .marquee { background: #000; color: #3dff4a; border-block: 3px ridge #c0c0c0; }
@@ -2289,6 +2309,13 @@ main { overflow-x: clip; }
     box-shadow: inset 0 0 0 4px #fff;
   }
   :root[data-chaos="on"] .topbar { border-radius: 30px 30px 0 0; }
+  /* Like a virtual pet's screen: headings, labels and captions are pixel text too */
+  :root[data-chaos="on"] main :is(h2, h3, dt, label, legend, figcaption, .photo-caption, .baby-sticker strong) {
+    font-family: var(--font-retro);
+    font-size-adjust: 0.5;
+    font-weight: 400;
+    -webkit-font-smoothing: none;
+  }
   :root[data-chaos="on"] .topbar { padding-inline: 0.6rem; }
   :root[data-chaos="on"] .brand { font-size: 0.85rem; }
   :root[data-chaos="on"] .switch { min-width: 44px; padding: 0.3rem 0.4rem; }
@@ -2369,8 +2396,10 @@ main { overflow-x: clip; }
   .chaos-menu[hidden] { display: none; }
   .chaos-menu a,
   .chaos-menu button { display: block; width: 100%; padding: 0.6rem 0.8rem; color: #000; text-align: left; text-decoration: none; font: 700 0.95rem var(--chaos-ui); }
-  .chaos-menu a:hover,
-  .chaos-menu a:focus-visible { background: #000080; color: #fff; }
+  /* beats the general chaos link colour, which is unreadable on grey */
+  :root[data-chaos="on"] .chaos-menu a { color: #000; }
+  :root[data-chaos="on"] .chaos-menu a:hover,
+  :root[data-chaos="on"] .chaos-menu a:focus-visible { background: #000080; color: #fff; }
 }
 
 /* ---------- Desktop: Homepage Deluxe ---------- */

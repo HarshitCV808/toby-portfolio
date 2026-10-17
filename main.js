@@ -1498,7 +1498,8 @@
     }
     face.className += ' ' + source.className;
     face.innerHTML = source.innerHTML;
-    face.dataset.page = pageSources.indexOf(source); // which recording reads this page
+    // which recording reads this page (not data-page: the page router uses that)
+    face.dataset.recording = pageSources.indexOf(source);
     if (number) {
       var num = document.createElement('p');
       num.className = 'page-number';
@@ -1637,8 +1638,8 @@
 
   // Page numbers (0 = cover) of the pages open right now, left page first
   function openPageNumbers() {
-    var faces = book.stage.querySelectorAll('.face[aria-hidden="false"][data-page]');
-    return Array.prototype.map.call(faces, function (face) { return Number(face.dataset.page); })
+    var faces = book.stage.querySelectorAll('.face[aria-hidden="false"][data-recording]');
+    return Array.prototype.map.call(faces, function (face) { return Number(face.dataset.recording); })
       .sort(function (x, y) { return x - y; });
   }
 

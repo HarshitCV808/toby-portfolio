@@ -78,7 +78,11 @@
         <!-- A flip card: the painting on the front, 3D Toby on the back -->
         <div class="flip-card" id="flip-card">
         <div class="portrait-art" id="portrait">
-          <img src="assets/toby.webp" alt="Toby, a smiling skull baby in a lavender striped nightcap with a sleeping purple dragon on top, holding a glowing lantern and a music box while sitting on a pink cloud" width="848" height="1264" fetchpriority="high">
+          <!-- Phones get a smaller AVIF; browsers without AVIF get the WebP -->
+          <picture>
+            <source type="image/avif" srcset="assets/toby-600.avif 600w, assets/toby-848.avif 848w" sizes="(max-width: 640px) 340px, 390px">
+            <img src="assets/toby.webp" alt="Toby, a smiling skull baby in a lavender striped nightcap with a sleeping purple dragon on top, holding a glowing lantern and a music box while sitting on a pink cloud" width="848" height="1264" fetchpriority="high">
+          </picture>
           <!-- Chaos mode: a 16-bit pixel version of the painting, generated from it in main.js -->
           <canvas class="pixel-toby" id="pixel-toby" aria-hidden="true"></canvas>
           <!-- Eye overlays: positions are percentages of the artwork, measured from the image -->

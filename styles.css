@@ -282,6 +282,7 @@ main { overflow-x: clip; }
   transition: transform 0.4s var(--ease-soft);
 }
 .portrait-art img { border-radius: 18px; }
+.portrait-art picture { display: block; }
 .portrait-art.is-booped { animation: squish 0.5s var(--ease-soft); }
 @keyframes squish {
   30% { transform: rotate(-2deg) scale(1.04, 0.95); }

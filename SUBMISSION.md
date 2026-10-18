@@ -1,20 +1,35 @@
-# Submission write-up (draft)
+# Toby's Homepage
 
-_A starting point for the haX.baby submission form. Edit it into your own words before you paste it in; judges read these, and they should sound like your team._
+**Team:** Toby's Night Shift
+**Track:** 2, Your Own Baby
+**Live site:** https://harshitcv808.github.io/toby-portfolio/
+**Code:** https://github.com/HarshitCV808/toby-portfolio
 
----
+## Who's Toby?
 
-**Toby's Homepage** is a portfolio for Toby, a sleepy skull baby with two stars where his eyes should be. He works as the Lullaby Tinkerer at the Cloud Cradle Workshop, and every night he tucks the whole sky in. His sidekick Snorbit is a tiny purple dragon who has been asleep since the day they met. We entered Track 2 with an original character: his own world (Hushbury), his own job, an origin story told in four scroll-driven scenes, and a full character sheet.
+Toby is a skull baby with two stars where his eyes should be, a couple of tiny fangs and a lavender and mint striped nightcap. He's the Lullaby Tinkerer at the Cloud Cradle Workshop in a sleepy little town called Hushbury, so his job is building music boxes, nightlights and toys that help everyone fall asleep. His sidekick is Snorbit, a pocket-sized purple dragon who has been asleep since the day they met. Toby's motto is "I tuck the whole sky in."
 
-We wanted the site to feel like a real cosy place on the early web rather than a modern landing page with a cute skin. His toys really work:
-- **Music box:** winds down like a real spring, with notes synthesised live in the browser.
-- **Lantern:** turns your cursor into a nightlight.
-- **Storybook:** turns its pages in 3D, and a cosy AI voice can read it aloud over a quiet lullaby.
-- **Dream Delivery Routes:** sends Snorbit flying over a map of Hushbury.
-- **Rattle blocks and growth chart:** a block game with secret words, and a growth chart of Toby's skills.
+I didn't want a landing page with a cute mascot on top. I wanted it to feel like a place Toby actually lives. So every toy on his shelf really works, and if you press the sparkle button the whole site turns into his 1999 homepage.
 
-For full 1999 energy there's a marquee, a real visitor odometer, a live guestbook, and **Chaos Mode**, which reshapes the whole site for each screen size: a pink Tobygotchi gadget on phones, a Toby 98 desktop window on tablets, and a webring homepage on desktops. In chaos mode Toby's painting and drawings turn into pixel art, the buttons and menus switch to a pixel font, and his 3D model goes low-poly.
+## If you only have a minute
 
-Toby is also a character you can talk to. TobyChat 99 lets him answer questions in his own voice, he remembers returning visitors, and the site is full of secrets: a Konami code, a midnight visitor surprise, secret words, a nap if you sit still, and a note in the developer console. It's built with plain HTML, CSS and JavaScript with no build step. The 3D model uses Three.js, loaded only when you ask for it. The guestbook and visitor counter run on Supabase with read-and-add-only security rules. Every page passes axe accessibility checks in day, night and chaos modes, works by keyboard, respects reduced motion, and keeps sound behind a visible mute switch.
+- Boop Toby on the home page, then press **View in 3D** and spin him around.
+- Press the sparkle button for **chaos mode**, then switch between day and night. Try it on your phone too, it turns into a little Tobygotchi.
+- On the Work page, wind up the **Toby Box** and press **Read it to me** in Snorbit's storybook.
+- Send Snorbit on a **dream delivery** across Hushbury.
+- Pin a wish in the guestbook, then scroll to the end of the Story page. Your wish is one of the stars in **Tonight's sky**.
+- Open TobyChat and ask him to "wake up Snorbit". There are more secrets hidden around. Sitting very still is one of them.
 
-**Honesty note:** Toby's artwork was generated with Google Gemini under our art direction, the storybook narration is an AI voice made with the open-source Piper, and we built the code with help from Claude by Anthropic. All three are credited in the site footer and the README.
+## What's in it
+
+There are five pages: Home, Who (Toby's character sheet, done as a page from his baby book), Work (seven toys), Story (his origin in four scenes, acted out in a little picture-book window while you scroll) and the Guestbook. I tried to cover all three tiers: eyes that follow your cursor, the scroll story, day and night, a Web Audio music box with a mute switch, a nightlight cursor, a page-turning storybook, a mini-game, a Three.js model, a live guestbook, a chatbot, and a site that remembers you when you come back. Chaos mode has its own layout for phones, tablets and laptops.
+
+It's plain HTML, CSS and JavaScript with no build step. I checked every page with axe in day, night and chaos mode, and PageSpeed gives it 100 for accessibility, best practices and SEO, with 99 performance on desktop and 87 on mobile.
+
+## What I learned
+
+The big features weren't really the hard part. The small stuff was. Switching the theme made Toby say a shorter sentence, which shrank his speech bubble, which made the whole home page jump by 14 pixels. Snorbit also refused to fly on my phone, and it turned out Reduce Motion was switched on, so the site was being polite and skipping the animation. I kept a slower, gentler flight for that case, because on that page the flight is the whole point. Testing on a real phone caught things my laptop never showed me.
+
+## Credits
+
+Toby's paintings were generated with Google Gemini from my descriptions and art direction. The storybook is read by Cori, an AI voice made with Piper and trained on public-domain LibriVox recordings. I built the code with help from Claude by Anthropic, which also drew the small SVG pictures and the pixel-art wallpapers. Also used: Three.js, canvas-confetti, Supabase, and the fonts Fredoka, Nunito, Patrick Hand and VT323. Everything is credited in the site footer and the README too.

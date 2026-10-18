@@ -2500,6 +2500,9 @@ main { overflow-x: clip; }
 :root[data-chaos="on"][data-theme="day"] main,
 :root[data-chaos="on"][data-theme="day"] .footer { background-color: rgba(255, 255, 255, 0.94); }
 :root[data-chaos="on"][data-theme="day"] .who { --pen: #0000aa; --paper-rule: #a8a8e0; }
+/* At night a soft navy veil sits behind the text on every screen size, so the
+   bright pixel sparkles never land right behind a letter */
+:root[data-chaos="on"][data-theme="night"] main { background-color: rgba(0, 0, 40, 0.55); }
 :root[data-chaos="on"][data-theme="day"] .chaos-panel { background: #ffffcc; border-color: #0000aa; color: #000; }
 :root[data-chaos="on"][data-theme="day"] .chaos-panel-title { color: #c2006f; }
 :root[data-chaos="on"][data-theme="day"] .chaos-small { color: #333; }

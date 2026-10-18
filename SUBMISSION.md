@@ -1,8 +1,8 @@
 # Toby's Homepage
 
-**Team:** Toby's Night Shift
-**Track:** 2, Your Own Baby
-**Live site:** https://harshitcv808.github.io/toby-portfolio/
+**Team:** Toby's Night Shift  
+**Track:** 2, Your Own Baby  
+**Live site:** https://harshitcv808.github.io/toby-portfolio/  
 **Code:** https://github.com/HarshitCV808/toby-portfolio
 
 ## Who's Toby?
@@ -24,7 +24,7 @@ I didn't want a landing page with a cute mascot on top. I wanted it to feel like
 
 There are five pages: Home, Who (Toby's character sheet, done as a page from his baby book), Work (seven toys), Story (his origin in four scenes, acted out in a little picture-book window while you scroll) and the Guestbook. I tried to cover all three tiers: eyes that follow your cursor, the scroll story, day and night, a Web Audio music box with a mute switch, a nightlight cursor, a page-turning storybook, a mini-game, a Three.js model, a live guestbook, a chatbot, and a site that remembers you when you come back. Chaos mode has its own layout for phones, tablets and laptops.
 
-It's plain HTML, CSS and JavaScript with no build step. I checked every page with axe in day, night and chaos mode, and PageSpeed gives it 100 for accessibility, best practices and SEO, with 99 performance on desktop and 87 on mobile.
+It's plain HTML, CSS and JavaScript with no build step. I checked every page with axe in day, night and chaos mode, and PageSpeed gives it 100 for accessibility, best practices and SEO, with 99 performance on desktop and the mid-80s on mobile.
 
 ## What I learned
 

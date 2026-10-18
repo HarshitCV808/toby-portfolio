@@ -93,16 +93,16 @@ The site is plain **HTML, CSS and JavaScript**, with no framework and no build s
 ### How the main features work
 
 - **Pages:** a small router reads the address-bar hash (`#who`, `#music-box`…) and shows one section at a time. Links, bookmarks and the back button all work.
-- **Sound:** every effect and tune is synthesised with the Web Audio API, so there are no music files. The music box schedules notes slightly ahead on the audio clock to keep timing steady.
+- **Sound:** every effect and tune is synthesised with the Web Audio API, so there are no music files (the storybook narration is the only recording). The music box schedules notes slightly ahead on the audio clock to keep timing steady.
 - **Storybook narration:** recorded ahead of time, so every visitor hears the same voice and no AI service runs on the live site. `tools/make_story_audio.py` reads the storybook text from `index.html` and has [Piper](https://github.com/OHF-Voice/piper1-gpl), a free open-source AI voice, read it in the Cori voice (`en_GB-cori-high`). The script then saves one small AAC file per page in `assets/story/`. Re-run it if the story text changes.
 - **Eyes:** star-shaped overlays sit exactly on the painted eye sockets (positions measured from the artwork) and glide towards the pointer in under a tenth of a second.
-- **Pixel wallpapers:** chaos mode's clouds and stars are drawn as text sprites in `tools/make_pixel_tiles.py`, which turns them into tiny SVG tiles of square pixels (about 600 bytes each) with crisp edges. Re-run it to redraw them.
+- **Chaos wallpapers:** chaos mode's background clouds and stars are drawn as text sprites in `tools/make_pixel_tiles.py`, which turns them into tiny SVG tiles of square pixels (about 600 bytes each) with crisp edges. Re-run it to redraw them.
 - **MIDI jukebox:** no MIDI files at all. The same melodies as the music box are played with square and triangle waves, a little faster, with an 8-bit echo. It only plays when pressed, stops when the sound is muted or chaos mode ends, and never plays over the music box or the storybook.
-- **Pixel wallpaper:** drawn on a canvas in the browser from the pixel Toby and the same sprites as the chaos wallpaper, then saved as a PNG. Nothing is uploaded.
+- **Save pixel Toby wallpaper:** drawn on a canvas in the browser from the pixel Toby and the same sprites as the chaos wallpaper, then saved as a PNG. Nothing is uploaded.
 - **Pixel-art Toby:** generated in the browser from the painting. It's shrunk to 104px wide, each pixel is matched to a 16-colour pastel palette with Bayer dithering, then scaled up with crisp pixels.
 - **Guestbook and counter:** read and written through Supabase's REST API with the public "anon" key. Row-level security lets visitors read and add wishes and add one to the counter. Visitors can only send a name and a message; the database sets each wish's time. Nobody can edit or delete through the site. Wishes are rendered with `textContent`, so no HTML can be injected.
 - **Tonight's sky:** the Story page fetches the latest 30 wishes once (shared with the guestbook wall) and places each star on a loose grid, nudged by a hash of the wish so it keeps its spot. Every star is a 44px button, so they're easy to tap on a phone.
-- **Screensavers:** built only when they start and removed when you wake the page. They never start while the storybook is reading, the music box is playing, Star Catcher is running or the nightlight is on, and they hold still for visitors who prefer reduced motion.
+- **Screensavers:** built only when they start and removed when you wake the page. They never start while the storybook is reading, the music box or the jukebox is playing, Star Catcher is running or the nightlight is on, and they hold still for visitors who prefer reduced motion.
 - **Memory:** the theme, glow colour, chaos mode, best score, found words and visit history are saved in `localStorage`, in your browser only.
 
 ### Accessibility and speed
@@ -113,7 +113,7 @@ The site is plain **HTML, CSS and JavaScript**, with no framework and no build s
 - Fonts load without blocking the first paint, and Three.js and the confetti library load only when needed.
 - Sharing the link shows a preview card (Open Graph tags and `assets/og-card.jpg`).
 - The portrait is served as AVIF (36 KB on phones instead of 145 KB), with WebP for older browsers.
-- PageSpeed Insights on the live site, 18 October 2026: **desktop** 99 performance, 100 accessibility, 100 best practices, 100 SEO; **mobile** (simulated slow 4G) 100 for accessibility, best practices and SEO, with performance at 87 (up from 82 before the smaller portrait).
+- PageSpeed Insights on the live site, 18 October 2026: **desktop** 99 performance, 100 accessibility, 100 best practices, 100 SEO; **mobile** (simulated slow 4G) 100 for accessibility, best practices and SEO, with performance between 84 and 87 across runs (it was 82 before the smaller portrait).
 
 ## Run it yourself
 
@@ -138,4 +138,4 @@ To use your own guestbook, follow [`supabase/SETUP.md`](supabase/SETUP.md) and p
 - **Fonts:** Fredoka, Nunito, Patrick Hand and VT323 from Google Fonts.
 - **Lullabies:** "Twinkle, Twinkle, Little Star" is a traditional tune in the public domain; "Toby's Theme" and the Dream Machine are original.
 
-Made for Baby's First Website 2026 by haX.baby.
+Made for Baby's First Website 2026, hosted by haX.baby.

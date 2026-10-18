@@ -121,6 +121,8 @@ python3 -m http.server 5173
 
 Then open http://localhost:5173. Use a local server rather than opening the file directly, because the 3D model is a JavaScript module and browsers won't load modules from a plain file.
 
+After changing `styles.css`, `main.js` or `toby3d.js`, bump the `?v=` number on their links in `index.html` (and on the `toby3d.js` import in `main.js`). GitHub Pages lets browsers reuse files for 10 minutes, and the new number makes them fetch the update straight away.
+
 To use your own guestbook, follow [`supabase/SETUP.md`](supabase/SETUP.md) and put your project URL and anon key at the top of the guestbook section in `main.js`.
 
 ## Credits

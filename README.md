@@ -42,6 +42,7 @@ The site has five pages (Home, Who, Work, Story, Guestbook). Each opens on its o
 
 **Everywhere:**
 - A day/night switch and a sound switch with mute.
+- Soft clouds drift slowly behind the pages, with a faint sprinkle of stars at night. They hold still for visitors who prefer reduced motion.
 - A sparkle trail of stars and tiny bones.
 - A real visitor counter odometer and a 1999 marquee.
 - **TobyChat 99**, a chat window where Toby answers in character.

@@ -2160,7 +2160,7 @@
     if (toby3d) return Promise.resolve(toby3d);
     if (loading3d) return loading3d;
     status3d.textContent = 'Building Toby in 3D\u2026';
-    loading3d = import('./toby3d.js?v=20261018e')
+    loading3d = import('./toby3d.js?v=20261018f')
       .then(function (module) {
         toby3d = module.createToby3D(stage3d, {
           retro: root.dataset.chaos === 'on',

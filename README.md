@@ -106,6 +106,8 @@ The site is plain **HTML, CSS and JavaScript**, with no framework and no build s
 - All controls are keyboard-friendly and labelled, and touch targets are at least 44px.
 - The site respects reduced motion, and sound only plays after you interact, with a mute switch always visible.
 - Fonts load without blocking the first paint, and Three.js and the confetti library load only when needed.
+- The portrait is served as AVIF (36 KB on phones instead of 145 KB), with WebP for older browsers.
+- PageSpeed Insights on the live site, 18 October 2026: **desktop** 99 performance, 100 accessibility, 100 best practices, 100 SEO; **mobile** (simulated slow 4G) 100 for accessibility, best practices and SEO, with performance at 87 (up from 82 before the smaller portrait).
 
 ## Run it yourself
 

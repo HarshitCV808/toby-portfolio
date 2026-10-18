@@ -109,7 +109,7 @@ The site is plain **HTML, CSS and JavaScript**, with no framework and no build s
 ### Accessibility and speed
 
 - Every page passes the axe-core accessibility checks (the engine Lighthouse uses) in day, night and chaos modes.
-- All controls are keyboard-friendly and labelled, and touch targets are at least 44px.
+- All controls are keyboard-friendly and labelled, and every button and menu link is at least 44px for easy tapping.
 - The site respects reduced motion (animations stop or hold still; Dream Delivery Routes keeps a slow, gentle flight), and sound only plays after you interact, with a mute switch always visible.
 - Fonts load without blocking the first paint, and Three.js and the confetti library load only when needed.
 - Sharing the link shows a preview card (Open Graph tags and `assets/og-card.jpg`).

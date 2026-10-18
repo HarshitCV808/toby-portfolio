@@ -236,6 +236,8 @@ main { overflow-x: clip; }
 .nav a {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-width: 44px;
   min-height: 44px;
   padding: 0.5rem 0.8rem;
   border-radius: var(--radius-chip);

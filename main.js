@@ -2694,6 +2694,7 @@
   var chatTyping = document.getElementById('chat-typing');
   var chatGreeted = false;
   var chatBusy = false;
+  var chatWaiting = []; // messages sent while Toby was still typing
   var replyTurns = {};
 
   var SECRET_HINTS = [
@@ -2791,14 +2792,17 @@
       ping(PENTATONIC[Math.floor(Math.random() * PENTATONIC.length)], { duration: 0.4, volume: 0.1 });
       if (reply.action) reply.action();
       chatBusy = false;
+      // Answer anything sent while he was typing, one message at a time
+      if (chatWaiting.length) tobySays(pickReply(chatWaiting.shift()));
     }, delay);
   }
 
   function sendToToby(text) {
     text = text.trim();
-    if (!text || chatBusy) return;
+    if (!text) return;
     addMessage('you', text);
-    tobySays(pickReply(text));
+    if (chatBusy) chatWaiting.push(text);
+    else tobySays(pickReply(text));
   }
 
   function openChat() {

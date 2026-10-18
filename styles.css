@@ -452,6 +452,12 @@ main { overflow-x: clip; }
   transform: translateX(-50%) rotate(45deg);
 }
 .bubble.is-new { animation: pop 0.35s var(--ease-soft); }
+/* Side by side, the headline is centred against the portrait's column, so the
+   bubble keeps a steady height (room for three lines) and the page doesn't jump
+   when Toby says something shorter or longer */
+@media (min-width: 901px) {
+  .bubble { display: flex; align-items: center; justify-content: center; min-height: 7.2rem; }
+}
 @keyframes pop { from { transform: scale(0.9); opacity: 0.4; } }
 
 .hero-copy h1 {
@@ -819,7 +825,7 @@ main { overflow-x: clip; }
 }
 .shelf-name { font: 600 1.15rem/1.2 var(--font-display); }
 .shelf-blurb { font-size: 0.92rem; color: var(--ink-soft); }
-:root[data-chaos="on"] .shelf-card { border: 4px outset #e8e8e8; border-radius: 0; background: #000048; }
+:root[data-chaos="on"] .shelf-card { border: 4px outset #e8e8e8; border-radius: 0; background: var(--surface); }
 
 /* Inside a project: a way back to the shelf, and previous/next project */
 /* order keeps these at the very top and bottom, even in projects whose picture is moved to the right */
@@ -2379,6 +2385,25 @@ main { overflow-x: clip; }
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M3 25L17 11' stroke='%23ffffff' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M20 2l1.6 4.4L26 8l-4.4 1.6L20 14l-1.6-4.4L14 8l4.4-1.6z' fill='%23ffe600' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") 3 25, auto;
 }
 :root[data-chaos="on"] .chaos-only { display: revert; }
+
+/* Lights on in chaos mode: a bright 1999 GeoCities page. Sky-blue clouds,
+   white boxes, black Times New Roman and classic blue links. Lights off keeps
+   the starry navy above. */
+:root[data-chaos="on"][data-theme="day"] {
+  --bg: #8fd0ff;
+  --ink: #000;
+  --ink-soft: #1c1c3c;
+  --link: #0000ee;
+  --surface: #fff;
+  --surface-edge: #808080;
+}
+:root[data-chaos="on"][data-theme="day"] body { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='150'%3E%3Cg fill='%23fff'%3E%3Cellipse cx='52' cy='42' rx='36' ry='13'/%3E%3Cellipse cx='40' cy='34' rx='17' ry='13'/%3E%3Cellipse cx='64' cy='30' rx='21' ry='16'/%3E%3Cellipse cx='172' cy='112' rx='40' ry='14'/%3E%3Cellipse cx='158' cy='103' rx='19' ry='14'/%3E%3Cellipse cx='186' cy='97' rx='24' ry='17'/%3E%3C/g%3E%3Cpath d='M200 26l2 5 5 2-5 2-2 5-2-5-5-2 5-2z' fill='%23ffe600'/%3E%3C/svg%3E"); }
+:root[data-chaos="on"][data-theme="day"] main,
+:root[data-chaos="on"][data-theme="day"] .footer { background-color: rgba(255, 255, 255, 0.94); }
+:root[data-chaos="on"][data-theme="day"] .who { --pen: #0000aa; --paper-rule: #a8a8e0; }
+:root[data-chaos="on"][data-theme="day"] .chaos-panel { background: #ffffcc; border-color: #0000aa; color: #000; }
+:root[data-chaos="on"][data-theme="day"] .chaos-panel-title { color: #c2006f; }
+:root[data-chaos="on"][data-theme="day"] .chaos-small { color: #333; }
 :root[data-chaos="on"] .chaos-gotchi,
 :root[data-chaos="on"] .chaos-taskbar,
 :root[data-chaos="on"] .chaos-panel,
@@ -2552,6 +2577,7 @@ main { overflow-x: clip; }
     font: 700 0.9rem/1 var(--chaos-ui);
   }
   :root[data-chaos="on"] main { margin: 12px; border: 4px outset #e8e8e8; }
+  :root[data-chaos="on"][data-theme="day"] body { background-color: #008080; background-image: none; }
   :root[data-chaos="on"] .chaos-taskbar {
     position: fixed;
     inset: auto 0 0 0;

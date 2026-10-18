@@ -45,7 +45,7 @@ The site has five pages (Home, Who, Work, Story, Guestbook). Each opens on its o
 - A sparkle trail of stars and tiny bones.
 - A real visitor counter odometer and a 1999 marquee.
 - **TobyChat 99**, a chat window where Toby answers in character.
-- **Chaos Mode**, a 1999 version of the site that reshapes itself for each screen size: a pink *Tobygotchi* gadget on phones, a *Toby 98* desktop window on tablets, and a *Homepage Deluxe* with webring panels on desktops. In chaos mode the portrait becomes 16-bit pixel art, the little drawings on the Who and Story pages turn into chunky pixels, the menus and buttons switch to a pixel font, and 3D Toby turns low-poly. Headings stay in rainbow WordArt and paragraphs stay easy to read.
+- **Chaos Mode**, a 1999 version of the site that reshapes itself for each screen size: a pink *Tobygotchi* gadget on phones, a *Toby 98* desktop window on tablets, and a *Homepage Deluxe* with webring panels on desktops. With the lights on, chaos mode is a bright GeoCities page (sky-blue cloud wallpaper, white page, blue links; Toby 98 gets the classic teal desktop); with the lights off it's the starry navy night version. In chaos mode the portrait becomes 16-bit pixel art, the little drawings on the Who and Story pages turn into chunky pixels, the menus and buttons switch to a pixel font, and 3D Toby turns low-poly. Headings stay in rainbow WordArt and paragraphs stay easy to read.
 
 ### Brief checklist
 

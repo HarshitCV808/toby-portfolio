@@ -364,7 +364,8 @@
       var dx = pointer.x - cx;
       var dy = pointer.y - cy;
       var distance = Math.hypot(dx, dy) || 1;
-      var reach = box.width * 0.24 * Math.min(1, distance / 220);
+      // full reach once the pointer is a short way off, so small movements show
+      var reach = box.width * 0.27 * Math.min(1, distance / 120);
       var pupil = eye.firstElementChild;
       pupil.style.transform = 'translate(' + (dx / distance * reach).toFixed(1) + 'px,' + (dy / distance * reach).toFixed(1) + 'px)';
     });
@@ -1985,8 +1986,20 @@
     wishWall.appendChild(li);
   }
 
+  // The latest wishes, fetched once and shared by the wall and the story's sky
+  var wishList = null;
+  var wishesRequest = null;
+  function fetchWishes() {
+    if (!wishesRequest) {
+      wishesRequest = supabase('guestbook?select=name,message,created_at&order=created_at.desc&limit=30')
+        .then(function (wishes) { wishList = wishes; return wishes; })
+        .catch(function (error) { wishesRequest = null; throw error; }); // let a later visit try again
+    }
+    return wishesRequest;
+  }
+
   function loadWishes() {
-    supabase('guestbook?select=name,message,created_at&order=created_at.desc&limit=30')
+    fetchWishes()
       .then(function (wishes) {
         wishWall.setAttribute('aria-busy', 'false');
         if (!wishes.length) { wallMessage('No wishes yet. Pin the very first one!'); return; }
@@ -2033,6 +2046,11 @@
         var empty = wishWall.querySelector('.wish-empty');
         if (empty) empty.remove();
         wishWall.insertBefore(wishNote(rows[0], true), wishWall.firstChild);
+        if (wishList) {
+          wishList.unshift(rows[0]);
+          wishList.length = Math.min(wishList.length, 30);
+          if (skyLoaded) renderSky(wishList);
+        }
         wishForm.reset();
         updateWishCount();
         wishStatus.textContent = 'Pinned! Toby will try to dream it tonight.';
@@ -2043,6 +2061,80 @@
       })
       .then(function () { wishSubmit.disabled = false; });
   });
+
+  /* ------------------------------------------------------------------------
+     Tonight's sky: at the end of the Story page every guestbook wish is a
+     star. Tap or hover one to read it. Stars sit on a loose grid (one per
+     cell, nudged by a hash of the wish) so they never pile up on a phone.
+     ------------------------------------------------------------------------ */
+
+  var storyOutro = document.getElementById('story-outro');
+  var skyStars = document.getElementById('wish-stars');
+  var skyReading = document.getElementById('wish-sky-reading');
+  var wideSky = window.matchMedia('(min-width: 600px)');
+  var SKY_COLOURS = ['#ffd36e', '#fff3c4', '#cdb9ff', '#a8e2cf'];
+  var skyLoaded = false;
+  storyOutro.hidden = false;
+
+  // A small number from a string that's always the same, so each wish keeps its spot
+  function hashText(text) {
+    var h = 2166136261;
+    for (var i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+
+  function readStar(star, wish, out) {
+    Array.prototype.forEach.call(skyStars.querySelectorAll('.wish-star'), function (other) {
+      other.setAttribute('aria-pressed', String(other === star));
+    });
+    skyReading.textContent = '\u201c' + wish.message + '\u201d \u2014 ' + wish.name + ', ' + whenText(wish.created_at);
+    if (out) ping(PENTATONIC[hashText(wish.message) % PENTATONIC.length] * 2, { duration: 0.8, volume: 0.1 });
+  }
+
+  function renderSky(wishes) {
+    skyLoaded = true;
+    skyStars.textContent = '';
+    if (!wishes.length) {
+      skyStars.hidden = true;
+      skyReading.textContent = 'The sky is waiting for its first wish.';
+      return;
+    }
+    var columns = Math.min(wishes.length, wideSky.matches ? 10 : 6);
+    var rows = Math.ceil(wishes.length / columns);
+    skyStars.style.setProperty('--rows', rows);
+    wishes.forEach(function (wish, i) {
+      var h = hashText(wish.name + wish.created_at);
+      var x = (i % columns + 0.35 + (h % 30) / 100) / columns * 100;
+      var y = (Math.floor(i / columns) + 0.35 + ((h >>> 8) % 30) / 100) / rows * 100;
+      var star = document.createElement('button');
+      star.type = 'button';
+      star.className = 'wish-star';
+      star.setAttribute('aria-label', 'Wish from ' + wish.name);
+      star.setAttribute('aria-pressed', 'false');
+      star.setAttribute('data-sound', 'own');
+      star.style.setProperty('--x', x.toFixed(2) + '%');
+      star.style.setProperty('--y', y.toFixed(2) + '%');
+      star.style.setProperty('--size', (14 + (h >>> 16) % 12) + 'px');
+      star.style.setProperty('--colour', SKY_COLOURS[(h >>> 4) % SKY_COLOURS.length]);
+      star.style.setProperty('--delay', -((h >>> 12) % 40) / 10 + 's');
+      star.addEventListener('click', function () { readStar(star, wish, true); });
+      star.addEventListener('pointerenter', function (event) { if (event.pointerType === 'mouse') readStar(star, wish, false); });
+      var item = document.createElement('li');
+      item.appendChild(star);
+      skyStars.appendChild(item);
+    });
+    skyStars.hidden = false;
+    skyReading.textContent = wishes.length === 1 ? 'One wish is shining. Tap it to read it.' : wishes.length + ' wishes are shining. Tap one to read it.';
+  }
+
+  // Look up at the sky the first time the Story page opens
+  document.addEventListener('toby:page', function (event) {
+    if (event.detail.id !== 'story' || skyLoaded) return;
+    fetchWishes()
+      .then(renderSky)
+      .catch(function () { skyReading.textContent = 'It\u2019s too cloudy to see the wishes right now. Try again later.'; });
+  });
+  if (wideSky.addEventListener) wideSky.addEventListener('change', function () { if (skyLoaded && wishList) renderSky(wishList); });
 
   /* ------------------------------------------------------------------------
      3D Toby: the home card flips over to a Three.js model (toby3d.js).
@@ -2122,9 +2214,17 @@
      Easter eggs
      ------------------------------------------------------------------------ */
 
-  // 1. Leave the page alone for 45 seconds and Toby dozes off.
+  // 1. Leave the page alone for 45 seconds and Toby dozes off. Stay still
+  //    another 45 and a screensaver comes on: a cosy night sky normally, or in
+  //    chaos mode (straight away, instead of the nap) a 1999 one with Snorbits
+  //    flapping across like flying toasters. Add ?screensaver to the address
+  //    to see it without waiting.
   var IDLE_MS = 45000;
+  var SAVER_AFTER_NAP_MS = 45000;
   var idleTimer = 0;
+  var saverTimer = 0;
+  var saver = null;
+  var saverShownAt = 0;
   var zTimer = 0;
   var asleep = false;
   var brandText = document.getElementById('brand-text');
@@ -2157,7 +2257,6 @@
   }
 
   function fallAsleep() {
-    if (document.hidden) { resetIdle(); return; }
     asleep = true;
     root.classList.add('toby-asleep');
     brandText.textContent = 'toby is napping\u2026';
@@ -2175,15 +2274,112 @@
     yawn();
   }
 
-  function resetIdle() {
+  // Nothing sleepy while the visitor is listening, watching or playing
+  function busy() {
+    return reading || box.playing || game.state === 'playing' || nightlightOn;
+  }
+
+  function onIdle() {
+    if (document.hidden || busy()) { resetIdle(); return; }
+    if (root.dataset.chaos === 'on') { startScreensaver('1999'); return; }
+    fallAsleep();
+    saverTimer = setTimeout(function () {
+      if (!document.hidden && !busy()) startScreensaver('cosy');
+    }, SAVER_AFTER_NAP_MS);
+  }
+
+  function resetIdle(event) {
+    if (saver) {
+      // Ignore the first moment, and pointer "moves" that didn't move, so the
+      // screensaver doesn't vanish the instant it appears
+      if (performance.now() - saverShownAt < 800) return;
+      if (event && event.type === 'pointermove' && event.movementX === 0 && event.movementY === 0) return;
+      stopScreensaver();
+    }
     if (asleep) wakeUp();
     clearTimeout(idleTimer);
-    idleTimer = setTimeout(fallAsleep, IDLE_MS);
+    clearTimeout(saverTimer);
+    idleTimer = setTimeout(onIdle, IDLE_MS);
+  }
+
+  function saverBit(className, left, top) {
+    var bit = document.createElement('span');
+    bit.className = className;
+    bit.style.left = left + '%';
+    bit.style.top = top + '%';
+    return bit;
+  }
+
+  function startScreensaver(kind) {
+    if (saver) return;
+    var still = reduceMotion.matches;
+    var small = window.innerWidth < 640;
+    var i;
+    saver = document.createElement('div');
+    saver.className = 'screensaver screensaver-' + kind;
+    saver.setAttribute('aria-hidden', 'true');
+
+    if (kind === '1999') {
+      // Snorbits fly from top right to bottom left; negative delays fill the screen at once
+      for (i = 0; i < (small ? 9 : 16); i++) {
+        // start along the top and right edges, so each path crosses the screen
+        var flyer = saverBit('saver-flyer', still ? 5 + Math.random() * 75 : 20 + Math.random() * 120, still ? 5 + Math.random() * 70 : -40 + Math.random() * 60);
+        flyer.innerHTML = SNORBIT_SVG;
+        flyer.style.animationDuration = (9 + Math.random() * 6).toFixed(1) + 's';
+        flyer.style.animationDelay = (-Math.random() * 15).toFixed(1) + 's';
+        saver.appendChild(flyer);
+      }
+      for (i = 0; i < 40; i++) {
+        var pixel = saverBit('saver-pixel', Math.random() * 140, -60 + Math.random() * 160);
+        pixel.style.setProperty('--hue', Math.floor(Math.random() * 360));
+        pixel.style.animationDuration = (16 + Math.random() * 14).toFixed(1) + 's';
+        pixel.style.animationDelay = (-Math.random() * 30).toFixed(1) + 's';
+        saver.appendChild(pixel);
+      }
+      var logo = document.createElement('div');
+      logo.className = 'saver-logo';
+      logo.innerHTML = '<span>toby.exe</span>';
+      saver.appendChild(logo);
+    } else {
+      for (i = 0; i < (small ? 30 : 60); i++) {
+        var star = saverBit('saver-star', Math.random() * 100, Math.random() * 100);
+        star.style.setProperty('--s', (1 + Math.random() * 2.5).toFixed(1) + 'px');
+        star.style.animationDelay = (-Math.random() * 6).toFixed(1) + 's, ' + (-Math.random() * 80).toFixed(1) + 's';
+        saver.appendChild(star);
+      }
+      saver.appendChild(saverBit('saver-moon', 74, 12));
+      // Snorbit asleep on his pillow, borrowed from his photo on the Who page
+      var sleeper = document.createElement('div');
+      sleeper.className = 'saver-snorbit';
+      var drawing = snorbitPhoto.querySelector('svg').cloneNode(true);
+      drawing.querySelector('rect').remove(); // the photo's backdrop
+      sleeper.appendChild(drawing);
+      saver.appendChild(sleeper);
+    }
+
+    var hint = document.createElement('p');
+    hint.className = 'saver-hint';
+    hint.textContent = kind === '1999'
+      ? 'Toby 98 screensaver. Move the mouse or tap to wake it up.'
+      : 'Shh\u2026 Toby and Snorbit are fast asleep. Move or tap to wake them.';
+    saver.appendChild(hint);
+    document.body.appendChild(saver);
+    saverShownAt = performance.now();
+  }
+
+  function stopScreensaver() {
+    var leaving = saver;
+    saver = null;
+    leaving.classList.add('is-leaving'); // it keeps catching taps while it fades
+    setTimeout(function () { leaving.remove(); }, 450);
   }
   ['pointermove', 'pointerdown', 'keydown', 'scroll', 'wheel', 'touchstart'].forEach(function (type) {
     window.addEventListener(type, resetIdle, { passive: true });
   });
   resetIdle();
+  if (new URLSearchParams(location.search).has('screensaver')) {
+    startScreensaver(root.dataset.chaos === 'on' ? '1999' : 'cosy');
+  }
 
   // 2. Konami code: Snorbit sleep-flies loop-the-loops across the screen.
   var KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
@@ -2495,7 +2691,7 @@
     turner.setAttribute('aria-label', 'More pages');
     if (i > 0) turner.appendChild(turnLink(pages[i - 1], 'Previous: ', 'button-quiet'));
     if (i < pages.length - 1) turner.appendChild(turnLink(pages[i + 1], 'Next: ', 'button-primary turn-next'));
-    (page.querySelector('.story-inner') || page).appendChild(turner);
+    (page.querySelector('.story-outro') || page).appendChild(turner);
   });
 
   // Which page holds this id? (The id may be the page itself or something inside it.)

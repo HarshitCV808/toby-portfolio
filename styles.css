@@ -30,6 +30,7 @@
   --font-display: "Fredoka", "Trebuchet MS", sans-serif;
   --font-body: "Nunito", system-ui, sans-serif;
   --font-retro: "VT323", "Courier New", monospace;
+  --font-hand: "Patrick Hand", "Segoe Print", "Bradley Hand", cursive;
 
   --radius-toy: 22px;
   --radius-chip: 999px;
@@ -398,7 +399,6 @@ main { overflow-x: clip; }
   aspect-ratio: 1;
   margin: -20% 0 0 -20%;
   filter: drop-shadow(0 0 4px var(--glow)) drop-shadow(0 0 10px var(--glow));
-  transition: transform 0.12s ease-out;
 }
 .pupil .star {
   display: block;
@@ -517,7 +517,6 @@ main { overflow-x: clip; }
   --pen: var(--lavender-deep);
   --cover: var(--lavender);
   --spine: rgba(74, 53, 48, 0.13);
-  --font-hand: "Patrick Hand", "Segoe Print", "Bradley Hand", cursive;
 }
 :root[data-theme="night"] .who {
   --paper: #2b2459;
@@ -1582,6 +1581,187 @@ main { overflow-x: clip; }
 .scene h2 { margin-bottom: 0.6rem; }
 .scene p:last-child { margin: 0; }
 
+/* Tonight's sky: after the last scene, every guestbook wish is a star.
+   It sits outside the story grid so the pinned picture-book stage on
+   phones has scrolled away before it. */
+.story-outro {
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 2.5rem) clamp(3rem, 8vw, 5rem);
+}
+.wish-sky {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: rgba(18, 14, 43, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 26px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.wish-sky h2 { margin: 0 0 0.35rem; }
+.wish-sky-intro { max-width: 40rem; margin: 0 0 1rem; color: #cfc6e6; }
+.wish-stars {
+  position: relative;
+  height: calc(var(--rows, 2) * 64px + 12px);
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 85% 0%, rgba(255, 243, 196, 0.16), transparent 45%),
+    linear-gradient(#120e2b, #2a2358);
+}
+.wish-star {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  filter: drop-shadow(0 0 5px var(--colour)); /* on the button, so the star's clip doesn't cut the glow */
+}
+.wish-star::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--size);
+  height: var(--size);
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  background: var(--colour);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  animation: wish-twinkle 4s ease-in-out infinite;
+  animation-delay: var(--delay);
+  transition: transform 0.2s var(--ease-soft);
+}
+@keyframes wish-twinkle {
+  50% { transform: scale(0.7) rotate(15deg); opacity: 0.75; }
+}
+.wish-star:hover::before,
+.wish-star[aria-pressed="true"]::before { animation: none; transform: scale(1.4); }
+.wish-star[aria-pressed="true"] { box-shadow: inset 0 0 0 2px rgba(255, 243, 196, 0.6); }
+.wish-sky-reading {
+  min-height: 3.2em;
+  margin: 0 0 1rem;
+  font-family: var(--font-hand);
+  font-size: 1.3rem;
+  line-height: 1.35;
+  color: #fff3c4;
+}
+:root[data-chaos="on"] .wish-sky { border: 5px ridge #ff66b2; border-radius: 0; background: #000048; }
+:root[data-chaos="on"] .wish-stars { border-radius: 0; }
+
+/* --------------------------------------------------------------------------
+   Screensavers: an Easter egg for very still visitors. A cosy night sky
+   normally; in chaos mode, Snorbits flap across like 1999's flying toasters
+   with a bouncing logo. Any move, tap or key wakes the page.
+   -------------------------------------------------------------------------- */
+
+.screensaver {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  overflow: hidden;
+  cursor: none;
+  animation: saver-in 1.2s ease;
+  transition: opacity 0.4s ease;
+}
+.screensaver.is-leaving { opacity: 0; }
+@keyframes saver-in { from { opacity: 0; } }
+.saver-hint {
+  position: absolute;
+  left: 50%;
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  margin: 0;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.screensaver-cosy {
+  background: radial-gradient(ellipse at 50% 120%, #4a3c8c 0%, #231d47 50%, #0e0b24 100%);
+}
+.saver-star {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: #fff8f1;
+  box-shadow: 0 0 6px 1px rgba(255, 243, 196, 0.8);
+  animation: saver-twinkle 3s ease-in-out infinite alternate, saver-drift 80s linear infinite;
+}
+@keyframes saver-twinkle { from { opacity: 0.2; } to { opacity: 1; } }
+@keyframes saver-drift { to { transform: translate(-6vw, -10vh); } }
+.saver-moon {
+  position: absolute;
+  width: clamp(56px, 9vw, 104px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  box-shadow: inset -18px 8px 0 0 #fff3c4;
+  filter: drop-shadow(0 0 18px rgba(255, 243, 196, 0.45));
+}
+.saver-snorbit {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: min(78vw, 380px);
+  transform: translate(-50%, -50%);
+  animation: saver-bob 6s ease-in-out infinite;
+}
+.saver-snorbit svg { display: block; width: 100%; height: auto; }
+.saver-snorbit .photo-zzz { fill: #cdb9ff; }
+.saver-snorbit .photo-zzz text { animation: saver-z 3.2s ease-in-out infinite; }
+.saver-snorbit .photo-zzz .z2 { animation-delay: 0.5s; }
+.saver-snorbit .photo-zzz .z3 { animation-delay: 1s; }
+@keyframes saver-bob { 50% { transform: translate(-50%, calc(-50% - 14px)); } }
+@keyframes saver-z {
+  0%, 100% { opacity: 0.3; transform: none; }
+  50% { opacity: 1; transform: translate(4px, -6px); }
+}
+.screensaver-cosy .saver-hint { font-family: var(--font-hand); font-size: 1.3rem; color: #cfc6e6; }
+
+.screensaver-1999 { background: #000; }
+.saver-flyer {
+  position: absolute;
+  width: clamp(70px, 9vw, 110px);
+  animation: saver-toaster 12s linear infinite;
+}
+.saver-flyer svg { display: block; transform: scaleX(-1); } /* facing down-left, the way it flies */
+.saver-flyer .wing { transform-origin: 52px 42px; animation: flap 0.3s ease-in-out infinite alternate; }
+@keyframes saver-toaster { to { transform: translate(-140vw, 140vh); } }
+.saver-pixel {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: hsl(var(--hue) 100% 70%);
+  animation: saver-toaster 24s linear infinite;
+}
+/* The bouncing logo: across and down on separate timers, so it wanders into every corner */
+.saver-logo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation: saver-bounce-x 9.3s linear infinite alternate;
+}
+.saver-logo span {
+  display: block;
+  padding: 0.15em 0.5em;
+  font: 2.2rem/1 var(--font-retro);
+  color: #000;
+  background: #ffe600;
+  animation: saver-bounce-y 6.7s linear infinite alternate, saver-hue 16s steps(8) infinite;
+}
+@keyframes saver-bounce-x { to { transform: translateX(calc(100vw - 100%)); } }
+@keyframes saver-bounce-y { to { transform: translateY(calc(100svh - 100%)); } }
+@keyframes saver-hue { to { filter: hue-rotate(360deg); } }
+.screensaver-1999 .saver-hint { font: 1.4rem var(--font-retro); color: #3dff4a; }
+
 /* Phones and narrow tablets: the stage pins to the top, the text scrolls under it */
 @media (max-width: 900px) {
   .story-inner { grid-template-columns: minmax(0, 1fr); }
@@ -1811,9 +1991,11 @@ main { overflow-x: clip; }
    -------------------------------------------------------------------------- */
 
 /* Toby falls asleep: the star pupils fade and each eye becomes a sleepy curve */
-.pupil,
-.eye::after { transition: opacity 0.6s ease, transform 0.6s ease; }
-.toby-asleep .pupil { opacity: 0; transform: scale(0.3) !important; }
+/* Following the pointer stays quick (the .pupil rule above); only falling
+   asleep and waking up are slow */
+.eye::after { transition: opacity 0.6s ease; }
+.pupil { transition: transform 0.08s ease-out, opacity 0.6s ease; }
+.toby-asleep .pupil { opacity: 0; transform: scale(0.3) !important; transition: transform 0.6s ease, opacity 0.6s ease; }
 .toby-asleep .eye::after { opacity: 0; }
 .eye::before {
   content: "";
@@ -2126,6 +2308,9 @@ main { overflow-x: clip; }
   .project.is-entering { animation: none; }
   /* the story stage shows each scene's final picture */
   .story-stage *, .story-stage *::before { animation: none !important; }
+  /* Screensavers and wish-stars hold still */
+  .screensaver, .screensaver * { animation: none !important; }
+  .wish-star::before { animation: none; }
   /* Snorbit's photo keeps still; a tap still plays his snore */
   .snorbit-breathe,
   .photo-snorbit.is-snoring,
@@ -2184,6 +2369,7 @@ main { overflow-x: clip; }
   --font-body: "Times New Roman", Times, serif;
   --chaos-ui: var(--font-retro);           /* pixel font for the chrome */
   --chaos-text: Tahoma, Verdana, sans-serif; /* readable UI text, like chat */
+  --font-hand: var(--font-display);          /* handwriting becomes Comic Sans */
 }
 
 :root[data-chaos="on"] body {
@@ -2268,7 +2454,7 @@ main { overflow-x: clip; }
 :root[data-chaos="on"] .baby-book,
 :root[data-chaos="on"] .wish-form,
 :root[data-chaos="on"] .wish-wall { border: 5px ridge #ff66b2; border-radius: 0; }
-:root[data-chaos="on"] .who { --paper: var(--surface); --paper-rule: #5c5cb0; --pen: #ffe600; --cover: #ff66b2; --spine: transparent; --font-hand: var(--font-display); }
+:root[data-chaos="on"] .who { --paper: var(--surface); --paper-rule: #5c5cb0; --pen: #ffe600; --cover: #ff66b2; --spine: transparent; }
 :root[data-chaos="on"] .baby-page { border-radius: 0; }
 /* The little SVG drawings (Who photos, the story stage) turn into chunky pixels,
    like the pixel-art portrait. Their animations keep running underneath. */

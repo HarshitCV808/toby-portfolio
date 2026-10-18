@@ -743,6 +743,18 @@
           </li>
         </ol>
       </div>
+
+      <!-- Tonight's sky: every star is a wish from the guestbook. main.js adds the
+           stars and shows this part (it would be empty without JavaScript). -->
+      <div class="story-outro" id="story-outro" hidden>
+        <section class="wish-sky" aria-labelledby="wish-sky-title">
+          <h2 id="wish-sky-title">Tonight's sky</h2>
+          <p class="wish-sky-intro">Every star up here is a wish someone pinned to my wall. Tap one to read it.</p>
+          <ul class="wish-stars" id="wish-stars" aria-label="Wishes" hidden></ul>
+          <p class="wish-sky-reading" id="wish-sky-reading" aria-live="polite">Looking up at the sky…</p>
+          <a class="button button-primary" href="#guestbook">Add your wish</a>
+        </section>
+      </div>
     </section>
 
     <!-- GUESTBOOK: live, stored in Supabase -->

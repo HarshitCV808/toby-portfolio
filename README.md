@@ -23,7 +23,7 @@ His sidekick **Snorbit** is a pocket-sized purple dragon who has been asleep sin
 
 The site has five pages (Home, Who, Work, Story, Guestbook). Each opens on its own and has a link you can share, such as `#story` or `#music-box`.
 
-**Home.** Toby's painted portrait. His star eyes follow your cursor (or your last tap on a phone), and you can boop him. **View in 3D** flips the card over to a Three.js Toby you can spin.
+**Home.** Toby's painted portrait. His star eyes follow your cursor closely and quickly (or your last tap on a phone), and you can boop him. **View in 3D** flips the card over to a Three.js Toby you can spin.
 
 **Who.** Toby's character sheet as an open page of his baby book: a taped-in photo of him on day one, an "It's a Toby!" card, stickers for what he loves and doesn't, and "All about me" answers handwritten on ruled lines. Tap Snorbit's photo to hear him snore.
 
@@ -36,9 +36,9 @@ The site has five pages (Home, Who, Work, Story, Guestbook). Each opens on its o
 - **Toby's Growth Chart**: skills measured in pencil on the nursery wall, each with a note.
 - **Snorbit's Storybook**: a 3D page-turning flipbook. **Read it to me** has Cori, an AI voice, read each page and turn it, with a quiet lullaby underneath.
 
-**Story.** Toby's origin in four scenes, with a picture-book window that acts out whichever scene you're reading as you scroll: a star falls into a sock on the washing line and becomes Toby, he says hello to Snorbit in the laundry basket, his teacup music box lulls the restless moon and owls to sleep, and a starry quilt tucks in the sky while lanterns light up over Hushbury.
+**Story.** Toby's origin in four scenes, with a picture-book window that acts out whichever scene you're reading as you scroll: a star falls into a sock on the washing line and becomes Toby, he says hello to Snorbit in the laundry basket, his teacup music box lulls the restless moon and owls to sleep, and a starry quilt tucks in the sky while lanterns light up over Hushbury. It ends with **Tonight's sky**, where every guestbook wish is a star: tap or hover one to read it.
 
-**Guestbook.** Visitors pin dream wishes to a nursery wall, saved in Supabase.
+**Guestbook.** Visitors pin dream wishes to a nursery wall, saved in Supabase. Each wish also shines as a star in Tonight's sky at the end of the Story page.
 
 **Everywhere:**
 - A day/night switch and a sound switch with mute.
@@ -65,7 +65,8 @@ The site has five pages (Home, Who, Work, Story, Guestbook). Each opens on its o
 - Tap Snorbit on Toby's hat three times.
 - Type `1999` anywhere to toggle Chaos Mode.
 - Konami code (↑ ↑ ↓ ↓ ← → ← → B A): Snorbit sleep-flies loop-the-loops.
-- Sit still for 45 seconds and Toby dozes off.
+- Sit still for 45 seconds and Toby dozes off. Stay still another 45 and a cosy screensaver fades in: a starry sky with Snorbit asleep on his pillow.
+- In Chaos Mode, sitting still for 45 seconds starts the **Toby 98 screensaver** instead: Snorbits flapping across the screen like flying toasters, pixel stars and a bouncing `toby.exe` logo. Add `?screensaver` to the address to see a screensaver straight away. Any move, tap or key wakes the page.
 - Visit between midnight and 1am, or add `?midnight` to the address, for a night-owl greeting and shooting stars.
 - Charge all twelve glow stickers in the dark.
 - Find all four secret words in the rattle blocks. SHH makes everything go quiet.
@@ -92,9 +93,11 @@ The site is plain **HTML, CSS and JavaScript**, with no framework and no build s
 - **Pages:** a small router reads the address-bar hash (`#who`, `#music-box`…) and shows one section at a time. Links, bookmarks and the back button all work.
 - **Sound:** every effect and tune is synthesised with the Web Audio API, so there are no music files. The music box schedules notes slightly ahead on the audio clock to keep timing steady.
 - **Storybook narration:** recorded ahead of time, so every visitor hears the same voice and no AI service runs on the live site. `tools/make_story_audio.py` reads the storybook text from `index.html` and has [Piper](https://github.com/OHF-Voice/piper1-gpl), a free open-source AI voice, read it in the Cori voice (`en_GB-cori-high`). The script then saves one small AAC file per page in `assets/story/`. Re-run it if the story text changes.
-- **Eyes:** star-shaped overlays sit exactly on the painted eye sockets (positions measured from the artwork) and move towards the pointer.
+- **Eyes:** star-shaped overlays sit exactly on the painted eye sockets (positions measured from the artwork) and glide towards the pointer in under a tenth of a second.
 - **Pixel-art Toby:** generated in the browser from the painting. It's shrunk to 104px wide, each pixel is matched to a 16-colour pastel palette with Bayer dithering, then scaled up with crisp pixels.
-- **Guestbook and counter:** read and written through Supabase's REST API with the public "anon" key. Row-level security lets visitors read and add wishes and add one to the counter. Nobody can edit or delete through the site. Wishes are rendered with `textContent`, so no HTML can be injected.
+- **Guestbook and counter:** read and written through Supabase's REST API with the public "anon" key. Row-level security lets visitors read and add wishes and add one to the counter. Visitors can only send a name and a message; the database sets each wish's time. Nobody can edit or delete through the site. Wishes are rendered with `textContent`, so no HTML can be injected.
+- **Tonight's sky:** the Story page fetches the latest 30 wishes once (shared with the guestbook wall) and places each star on a loose grid, nudged by a hash of the wish so it keeps its spot. Every star is a 44px button, so they're easy to tap on a phone.
+- **Screensavers:** built only when they start and removed when you wake the page. They never start while the storybook is reading, the music box is playing, Star Catcher is running or the nightlight is on, and they hold still for visitors who prefer reduced motion.
 - **Memory:** the theme, glow colour, chaos mode, best score, found words and visit history are saved in `localStorage`, in your browser only.
 
 ### Accessibility and speed

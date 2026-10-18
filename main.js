@@ -1936,7 +1936,7 @@
   function playJukebox() {
     var ctx = getAudio();
     if (!ctx) { jukeboxLcd.textContent = 'This browser can’t play music.'; return; }
-    if (muted) { jukeboxLcd.textContent = 'Sound is off. Turn it on to listen.'; return; }
+    if (muted) { jukeboxLcd.textContent = 'Turn the sound on to listen.'; return; }
     stopJukebox(true);
     if (box.playing) stopBox('The jukebox is playing now. Wind me up again later.');
     if (reading) stopReading('The jukebox started, so I stopped reading.');
@@ -1948,7 +1948,7 @@
     jukebox.time = ctx.currentTime + 0.1;
     jukebox.playing = true;
     jukeboxEl.classList.add('is-playing');
-    showTrack('♪ Now playing: ');
+    showTrack('♪ Playing: ');
     jukebox.timer = setInterval(function () { tickJukebox(ctx); }, 40);
     tickJukebox(ctx);
   }
@@ -1977,7 +1977,7 @@
     else showTrack('Next up: ');
   });
   document.addEventListener('toby:sound', function (event) {
-    if (event.detail.muted && jukebox.playing) { stopJukebox(true); jukeboxLcd.textContent = 'Muted. Turn the sound on to listen.'; }
+    if (event.detail.muted && jukebox.playing) { stopJukebox(true); jukeboxLcd.textContent = 'Muted. Unmute to listen.'; }
   });
   document.addEventListener('toby:chaos', function (event) { if (!event.detail.on) stopJukebox(); });
 

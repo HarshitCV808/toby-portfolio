@@ -1055,6 +1055,12 @@ main { overflow-x: clip; }
 .home-z { opacity: 0; font: 700 18px var(--font-display); fill: #fff8f1; transition: opacity 0.6s ease; }
 .home.is-dreaming .home-z { opacity: 0.9; }
 .map-label { font: 600 14px var(--font-display); fill: #fff8f1; opacity: 0.85; pointer-events: none; }
+/* On phones the map is small, so the place names grow to stay readable;
+   the long workshop name starts at the left edge instead of centring */
+@media (max-width: 640px) {
+  .map-label { font-size: 22px; }
+  .map-label-workshop { text-anchor: start; transform: translateX(-114px); }
+}
 .route { fill: none; stroke: #ffd36e; stroke-width: 4; stroke-linecap: round; stroke-dasharray: 0.1 12; }
 .routes-flyer {
   position: absolute;
@@ -1390,7 +1396,8 @@ main { overflow-x: clip; }
 
 .face p { margin: 0; font-family: var(--font-display); font-size: clamp(1.05rem, 0.9rem + 0.7vw, 1.35rem); line-height: 1.45; }
 .page-art {
-  flex: none;
+  flex: 0 1 auto; /* gives up a little height when the words need more room */
+  min-height: 0;
   width: 100%;
   aspect-ratio: 4 / 3;
   border-radius: 14px;
@@ -1936,7 +1943,8 @@ main { overflow-x: clip; }
   display: grid;
   justify-items: center;
   gap: 1.25rem;
-  padding: 4rem clamp(1rem, 4vw, 2.5rem) 3rem;
+  /* room at the bottom so the chat button never sits on the last line */
+  padding: 4rem clamp(1rem, 4vw, 2.5rem) 5.5rem;
   text-align: center;
 }
 
@@ -2295,7 +2303,7 @@ main { overflow-x: clip; }
 @media (min-width: 641px) and (max-width: 1100px) {
   /* clear the Toby 98 taskbar */
   :root[data-chaos="on"] .chat-launcher,
-  :root[data-chaos="on"] .chat { bottom: 56px; }
+  :root[data-chaos="on"] .chat { bottom: 66px; }
 }
 
 /* --------------------------------------------------------------------------
@@ -2508,7 +2516,7 @@ main { overflow-x: clip; }
 :root[data-chaos="on"] .jukebox { display: flex; }
 .jukebox-title { margin: 0; color: #d4d4d4; font-size: 1.1rem; }
 .jukebox-lcd {
-  flex: 1 1 13rem;
+  flex: 1 1 20rem; /* wide enough for every message; the buttons wrap below when space is short */
   min-width: 0;
   margin: 0;
   padding: 2px 8px;
@@ -2638,6 +2646,7 @@ main { overflow-x: clip; }
    square speech bubble for Toby's hello */
 :root[data-chaos="on"] .st-words text.st-text { font-family: var(--font-retro); font-weight: 400; font-size: 20px; }
 :root[data-chaos="on"] .st-words .hello rect { rx: 0; }
+:root[data-chaos="on"] .photo-zzz { font-family: var(--font-retro); font-weight: 400; }
 :root[data-chaos="on"] .project:nth-of-type(odd) .project-media { transform: rotate(-1.5deg); }
 :root[data-chaos="on"] .project:nth-of-type(even) .project-media { transform: rotate(1.5deg); }
 :root[data-chaos="on"] .marquee { background: #000; color: #3dff4a; border-block: 3px ridge #c0c0c0; }
@@ -2721,7 +2730,7 @@ main { overflow-x: clip; }
 /* ---------- Tablet: Toby 98 ---------- */
 @media (min-width: 641px) and (max-width: 1100px) {
   .chaos-mode-name::after { content: "Now in Toby 98 mode"; }
-  :root[data-chaos="on"] body { padding-bottom: 46px; }
+  :root[data-chaos="on"] body { padding-bottom: 56px; }
   :root[data-chaos="on"] .topbar { background: linear-gradient(90deg, #000080, #1084d0); }
   :root[data-chaos="on"] .brand { color: #fff; font-family: var(--chaos-ui); }
   :root[data-chaos="on"] .brand::after { content: " - toby.exe"; font-weight: 400; }
@@ -2746,19 +2755,19 @@ main { overflow-x: clip; }
     display: flex;
     align-items: center;
     gap: 8px;
-    height: 44px;
+    height: 54px; /* room for a 44px Start button */
     padding: 4px 6px;
     background: #c0c0c0;
     border-top: 2px solid #fff;
     font-family: var(--chaos-ui);
     color: #000;
   }
-  .chaos-start { min-height: 34px; padding: 0 0.9rem; }
+  .chaos-start { min-height: 44px; padding: 0 0.9rem; }
   .chaos-task { padding: 4px 12px; border: 2px inset #e8e8e8; font-size: 0.9rem; }
   .chaos-clock { margin-left: auto; padding: 4px 12px; border: 2px inset #e8e8e8; font-size: 0.9rem; }
   .chaos-menu {
     position: absolute;
-    bottom: 44px;
+    bottom: 54px;
     left: 4px;
     min-width: 230px;
     margin: 0;
@@ -2769,7 +2778,7 @@ main { overflow-x: clip; }
   }
   .chaos-menu[hidden] { display: none; }
   .chaos-menu a,
-  .chaos-menu button { display: block; width: 100%; padding: 0.6rem 0.8rem; color: #000; text-align: left; text-decoration: none; font: 700 0.95rem var(--chaos-ui); }
+  .chaos-menu button { display: block; width: 100%; min-height: 44px; padding: 0.6rem 0.8rem; color: #000; text-align: left; text-decoration: none; font: 700 0.95rem var(--chaos-ui); }
   /* beats the general chaos link colour, which is unreadable on grey */
   :root[data-chaos="on"] .chaos-menu a { color: #000; }
   :root[data-chaos="on"] .chaos-menu a:hover,

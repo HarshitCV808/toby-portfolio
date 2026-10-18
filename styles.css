@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Toby's homepage
+   Toby's Portfolio
    Colours come straight from Toby's artwork: cream paper, lavender cap,
    mint cuffs, butter-yellow stars, blush cheeks and the cocoa "Toby" lettering.
    ========================================================================== */
@@ -2351,6 +2351,15 @@ main { overflow-x: clip; }
   .topbar { flex-wrap: wrap; gap: 0.5rem; }
   .nav { order: 3; width: 100%; justify-content: space-between; }
   .portrait { width: min(100%, 340px); }
+}
+
+/* Small phones (360px Androids, older iPhones): the five links still fit on one row */
+@media (max-width: 380px) {
+  .nav { gap: 0; }
+  .nav a { padding-inline: 0.32rem; font-size: 0.92rem; }
+}
+@media (max-width: 340px) {
+  .nav a { padding-inline: 0.22rem; font-size: 0.84rem; }
 }
 
 /* --------------------------------------------------------------------------

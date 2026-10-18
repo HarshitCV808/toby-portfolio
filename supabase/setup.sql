@@ -1,4 +1,4 @@
--- Toby's homepage: guestbook + visitor counter
+-- Toby's Portfolio: guestbook + visitor counter
 -- Paste this whole file into Supabase > SQL Editor > New query, then click Run.
 
 -- Guestbook ------------------------------------------------------------------

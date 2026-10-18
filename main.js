@@ -1004,23 +1004,44 @@
   lightsOutButton.addEventListener('click', lightsOut);
   lightsOnButton.addEventListener('click', lightsOn);
 
-  // Star projector: stars and moons in the glow colour, turning slowly behind the whole site
+  // Star projector: stars and moons in the glow colour, turning slowly behind
+  // the whole site (in chaos mode, blinking pixel stars shine over the page).
+  // The field is a circle as wide as the screen's diagonal, so it always
+  // covers the screen as it turns, and a phone shows about as many shapes as
+  // a laptop. It's rebuilt when the screen width changes.
   var projectorButton = document.getElementById('projector');
   var projectorLayer = document.getElementById('projector-layer');
   var lanternMedia = document.querySelector('.lantern-media');
+  var projectorWidth = 0;
   projectorButton.setAttribute('data-sound', 'own');
 
-  for (var shape = 0; shape < 34; shape++) {
-    var bit = document.createElement('span');
-    bit.className = shape % 5 === 0 ? 'p-moon' : 'p-star';
-    bit.style.left = (Math.random() * 96) + '%';
-    bit.style.top = (Math.random() * 96) + '%';
-    bit.style.setProperty('--size', (shape % 5 === 0 ? 34 + Math.random() * 30 : 14 + Math.random() * 26).toFixed(0) + 'px');
-    projectorLayer.appendChild(bit);
+  function buildProjector() {
+    var w = window.innerWidth;
+    var h = window.innerHeight * 1.15; // room for phone toolbars sliding away
+    var span = Math.ceil(Math.hypot(w, h));
+    var inView = Math.max(14, Math.min(36, Math.round(w * h / 19000)));
+    var count = Math.round(inView * (Math.PI / 4) * span * span / (w * h));
+    projectorWidth = w;
+    projectorLayer.style.setProperty('--span', span + 'px');
+    projectorLayer.textContent = '';
+    for (var i = 0; i < count; i++) {
+      var moon = i % 6 === 0;
+      var bit = document.createElement('span');
+      bit.className = moon ? 'p-moon' : 'p-star';
+      var reach = Math.sqrt(Math.random()) * 48; // even spread over the circle
+      var angle = Math.random() * Math.PI * 2;
+      bit.style.left = (50 + reach * Math.cos(angle)).toFixed(2) + '%';
+      bit.style.top = (50 + reach * Math.sin(angle)).toFixed(2) + '%';
+      bit.style.setProperty('--size', Math.round(moon ? 46 + Math.random() * 30 : 26 + Math.random() * 30) + 'px');
+      bit.style.setProperty('--px', moon ? 4 + Math.floor(Math.random() * 2) : 3 + Math.floor(Math.random() * 2)); // chaos pixel size
+      bit.style.animationDelay = (-Math.random() * 2).toFixed(2) + 's';
+      projectorLayer.appendChild(bit);
+    }
   }
 
   projectorButton.addEventListener('click', function () {
     var on = projectorLayer.hidden;
+    if (on && projectorWidth !== window.innerWidth) buildProjector();
     projectorLayer.hidden = !on;
     projectorButton.setAttribute('aria-pressed', String(on));
     projectorButton.textContent = 'Star projector: ' + (on ? 'on' : 'off');
@@ -1029,6 +1050,7 @@
     else ping(392, { duration: 0.4, volume: 0.1 });
   });
   window.addEventListener('resize', function () {
+    if (!projectorLayer.hidden && window.innerWidth !== projectorWidth) buildProjector();
     if (!nightlightOn) return;
     light.radius = lightRadius();
     darkness.style.setProperty('--r', light.radius + 'px');

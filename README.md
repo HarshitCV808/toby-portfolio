@@ -32,7 +32,7 @@ The site has five pages (Home, Who, Work, Story, Guestbook). Each opens on its o
 - **The Moonbell Lantern**: pick a glow colour, turn off the big light so your cursor becomes the lantern, charge glow-in-the-dark stickers, or switch on a star projector that turns slowly behind the whole site.
 - **Rattle Blocks**: eleven blocks and four secret words, each with its own surprise. Stuck? Toby gives two hints per word: a riddle, then a letter clue.
 - **Star Catcher**: a canvas mini-game. Catch stars in the dream jar and dodge alarm clocks.
-- **Dream Delivery Routes**: an SVG map of Hushbury. Snorbit flies the route you choose while the trail draws in behind him.
+- **Dream Delivery Routes**: an SVG map of Hushbury. Snorbit flies the route you choose while the trail draws in behind him. On devices set to reduce motion he still flies, just slower and without the sparkle trail, because the flight is the whole toy.
 - **Toby's Growth Chart**: skills measured in pencil on the nursery wall, each with a note.
 - **Snorbit's Storybook**: a 3D page-turning flipbook. **Read it to me** has Cori, an AI voice, read each page and turn it, with a quiet lullaby underneath.
 
@@ -106,7 +106,7 @@ The site is plain **HTML, CSS and JavaScript**, with no framework and no build s
 
 - Every page passes the axe-core accessibility checks (the engine Lighthouse uses) in day, night and chaos modes.
 - All controls are keyboard-friendly and labelled, and touch targets are at least 44px.
-- The site respects reduced motion, and sound only plays after you interact, with a mute switch always visible.
+- The site respects reduced motion (animations stop or hold still; Dream Delivery Routes keeps a slow, gentle flight), and sound only plays after you interact, with a mute switch always visible.
 - Fonts load without blocking the first paint, and Three.js and the confetti library load only when needed.
 - The portrait is served as AVIF (36 KB on phones instead of 145 KB), with WebP for older browsers.
 - PageSpeed Insights on the live site, 18 October 2026: **desktop** 99 performance, 100 accessibility, 100 best practices, 100 SEO; **mobile** (simulated slow 4G) 100 for accessibility, best practices and SEO, with performance at 87 (up from 82 before the smaller portrait).

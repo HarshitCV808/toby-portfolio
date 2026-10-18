@@ -1381,7 +1381,10 @@
     var route = routesMap.querySelector('.route[data-route="' + home + '"]');
     var reveal = routesMap.querySelector('.route-reveal[data-route="' + home + '"]');
     var length = route.getTotalLength();
-    var duration = reduceMotion.matches ? 0 : 2400;
+    // Flying to the home is the whole point of this toy, so it still happens when
+    // the visitor prefers less motion: slower, steadier and without sparkles
+    var gentle = reduceMotion.matches;
+    var duration = gentle ? 4000 : 2400;
     var started = performance.now();
     var lastSparkle = 0;
 
@@ -1391,15 +1394,15 @@
     swish();
 
     function step(now) {
-      var t = duration ? Math.min(1, (now - started) / duration) : 1;
-      var eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      var t = Math.min(1, (now - started) / duration);
+      var eased = gentle ? (1 - Math.cos(Math.PI * t)) / 2 : t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
       var point = route.getPointAtLength(length * eased);
       var ahead = route.getPointAtLength(Math.min(length, length * eased + 3));
       flyer.style.left = (point.x / 800 * 100) + '%';
       flyer.style.top = (point.y / 480 * 100) + '%';
       flyer.style.transform = 'translate(-50%, -62%) scaleX(' + (ahead.x < point.x - 0.1 ? -1 : 1) + ')';
       reveal.style.strokeDashoffset = String(1 - eased);
-      if (now - lastSparkle > 90 && t < 1) {
+      if (!gentle && now - lastSparkle > 90 && t < 1) {
         lastSparkle = now;
         var box = flyer.getBoundingClientRect();
         sparkleAt(box.left + box.width / 2, box.top + box.height / 2);
@@ -2157,7 +2160,7 @@
     if (toby3d) return Promise.resolve(toby3d);
     if (loading3d) return loading3d;
     status3d.textContent = 'Building Toby in 3D\u2026';
-    loading3d = import('./toby3d.js?v=20261018d')
+    loading3d = import('./toby3d.js?v=20261018e')
       .then(function (module) {
         toby3d = module.createToby3D(stage3d, {
           retro: root.dataset.chaos === 'on',

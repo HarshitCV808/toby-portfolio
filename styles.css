@@ -378,6 +378,8 @@ main { overflow-x: clip; }
 }
 /* .portrait > raises specificity above .button, which is declared later */
 .portrait > .view-3d { display: flex; width: fit-content; margin: 1.2rem auto 0; }
+.portrait > .save-wallpaper { width: fit-content; margin: 0.7rem auto 0; }
+:root[data-chaos="on"] .portrait > .save-wallpaper { display: flex; }
 :root[data-chaos="on"] .toby-3d {
   background-color: #000;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 20 20' shape-rendering='crispEdges'%3E%3Cpath fill='%23ffe600' d='M4 2h1v1h-1zM4 3h1v1h-1zM2 4h2v1h-2zM5 4h2v1h-2zM4 5h1v1h-1zM4 6h1v1h-1zM17 18h1v1h-1z'/%3E%3Cpath fill='%23fff7b0' d='M4 4h1v1h-1z'/%3E%3Cpath fill='%23ff9ec4' d='M14 11h1v1h-1zM13 12h3v1h-3zM14 13h1v1h-1z'/%3E%3Cpath fill='%23ffffff' d='M15 3h1v1h-1zM2 15h1v1h-1z'/%3E%3Cpath fill='%2366ffff' d='M8 16h1v1h-1z'/%3E%3Cpath fill='%23b9a3e3' d='M10 7h1v1h-1z'/%3E%3C/svg%3E");
@@ -2367,6 +2369,7 @@ main { overflow-x: clip; }
   /* The background clouds stay put, spread across the page */
   .drift span { animation: none; transform: translateX(var(--x)); }
   [data-theme="night"] .drift::before { animation: none; }
+  .jukebox.is-playing .jukebox-eq i { animation: none; height: 12px; }
   /* Screensavers and wish-stars hold still */
   .screensaver, .screensaver * { animation: none !important; }
   .wish-star::before { animation: none; }
@@ -2439,6 +2442,48 @@ main { overflow-x: clip; }
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M3 25L17 11' stroke='%23ffffff' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M20 2l1.6 4.4L26 8l-4.4 1.6L20 14l-1.6-4.4L14 8l4.4-1.6z' fill='%23ffe600' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") 3 25, auto;
 }
 :root[data-chaos="on"] .chaos-only { display: revert; }
+
+/* Toby's MIDI jukebox, styled like a 1999 desktop music player */
+.jukebox {
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem 0.75rem;
+  width: min(100% - 24px, 780px);
+  margin: 10px auto;
+  padding: 6px 8px;
+  background: #2b2b2b;
+  border: 3px outset #c0c0c0;
+  color: #3dff4a;
+  font-family: var(--font-retro);
+  font-size-adjust: 0.5;
+  -webkit-font-smoothing: none;
+}
+:root[data-chaos="on"] .jukebox { display: flex; }
+.jukebox-title { margin: 0; color: #d4d4d4; font-size: 1.1rem; }
+.jukebox-lcd {
+  flex: 1 1 13rem;
+  min-width: 0;
+  margin: 0;
+  padding: 2px 8px;
+  background: #000;
+  border: 2px inset #808080;
+  font-size: 1.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.jukebox-eq { display: flex; align-items: flex-end; gap: 2px; height: 20px; }
+.jukebox-eq i { width: 4px; height: 4px; background: #3dff4a; }
+.jukebox.is-playing .jukebox-eq i { animation: jukebox-eq 0.42s steps(4) infinite alternate; }
+.jukebox.is-playing .jukebox-eq i:nth-child(2) { animation-duration: 0.3s; }
+.jukebox.is-playing .jukebox-eq i:nth-child(3) { animation-duration: 0.55s; }
+.jukebox.is-playing .jukebox-eq i:nth-child(4) { animation-duration: 0.36s; }
+.jukebox.is-playing .jukebox-eq i:nth-child(5) { animation-duration: 0.48s; }
+@keyframes jukebox-eq { to { height: 20px; } }
+.jukebox-buttons { display: flex; gap: 4px; }
+:root[data-chaos="on"] .jukebox .button { min-height: 44px; padding: 0.2rem 0.75rem; font-size: 1.1rem; }
+@media (max-width: 640px) { .jukebox-lcd { white-space: normal; } } /* the song name wraps instead of being cut off */
 
 /* Lights on in chaos mode: a bright 1999 GeoCities page. Sky-blue clouds,
    white boxes, black Times New Roman and classic blue links. Lights off keeps

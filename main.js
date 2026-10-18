@@ -434,6 +434,110 @@
   }
 
   document.addEventListener('toby:chaos', function (event) { if (event.detail.on) makePixelToby(); });
+
+  /* A chaos-mode souvenir: pixel Toby as a phone wallpaper, on the same pixel
+     stars (night) or clouds (day) as the chaos wallpaper. Drawn on a canvas
+     from the sprites below, so it works offline and nothing is uploaded. */
+  var WALL_SPRITES = {
+    sparkle: ['..Y..', '..Y..', 'YYCYY', '..Y..', '..Y..'],
+    plus: ['.P.', 'PPP', '.P.'],
+    bigCloud: ['........WWWW..........', '.....WWWWWWWWW........', '....WWWWWWWWWWW.WWW...', '..WWWWWWWWWWWWWWWWWWW.',
+      '.WWWWWWWWWWWWWWWWWWWWW', 'WWWWWWWWWWWWWWWWWWWWWW', 'WWWWWWWWWWWWWWWWWWWWWW', 'SSSSSSSSSSSSSSSSSSSSSS', '.SSSSSSSSSSSSSSSSSSSS.'],
+    smallCloud: ['.....WWWW.......', '...WWWWWWWW.WW..', '.WWWWWWWWWWWWWWW', 'WWWWWWWWWWWWWWWW', 'WWWWWWWWWWWWWWWW', 'SSSSSSSSSSSSSSSS', '.SSSSSSSSSSSSSS.'],
+    sun: ['..Y..', '.YYY.', 'YYCYY', '.YYY.', '..Y..']
+  };
+  var WALL_COLOURS = { Y: '#ffe600', C: '#fff7b0', P: '#ff9ec4', W: '#ffffff', S: '#cfe6ff', B: '#66ffff', L: '#b9a3e3' };
+
+  function drawSprite(pen2, rows, x, y, px) {
+    rows.forEach(function (row, r) {
+      for (var c = 0; c < row.length; c++) {
+        if (row[c] === '.') continue;
+        pen2.fillStyle = WALL_COLOURS[row[c]];
+        pen2.fillRect(x + c * px, y + r * px, px, px);
+      }
+    });
+  }
+
+  // One tile of the wallpaper pattern, matching tools/make_pixel_tiles.py
+  function wallpaperTile(night, px) {
+    var tile = document.createElement('canvas');
+    var g = night ? [20, 20] : [64, 40];
+    tile.width = g[0] * px;
+    tile.height = g[1] * px;
+    var pen2 = tile.getContext('2d');
+    pen2.fillStyle = night ? '#10106b' : '#8fd0ff';
+    pen2.fillRect(0, 0, tile.width, tile.height);
+    if (night) {
+      drawSprite(pen2, WALL_SPRITES.sparkle, 2 * px, 2 * px, px);
+      drawSprite(pen2, WALL_SPRITES.plus, 13 * px, 11 * px, px);
+      [[15, 3, 'W'], [8, 16, 'B'], [2, 15, 'W'], [17, 18, 'Y'], [10, 7, 'L']].forEach(function (dot) {
+        drawSprite(pen2, [dot[2]], dot[0] * px, dot[1] * px, px);
+      });
+    } else {
+      drawSprite(pen2, WALL_SPRITES.bigCloud, 3 * px, 5 * px, px);
+      drawSprite(pen2, WALL_SPRITES.smallCloud, 38 * px, 25 * px, px);
+      drawSprite(pen2, WALL_SPRITES.sun, 52 * px, 6 * px, px);
+    }
+    return tile;
+  }
+
+  function saveWallpaper() {
+    if (!pixelCanvas.classList.contains('is-ready')) {
+      makePixelToby();
+      setTimeout(saveWallpaper, 300); // the pixel art is still being drawn
+      return;
+    }
+    var night = root.dataset.theme === 'night';
+    var W = 1170;
+    var H = 2532; // a tall phone screen; other phones crop the edges
+    var wall = document.createElement('canvas');
+    wall.width = W;
+    wall.height = H;
+    var pen2 = wall.getContext('2d');
+    pen2.imageSmoothingEnabled = false;
+    pen2.fillStyle = pen2.createPattern(wallpaperTile(night, 9), 'repeat');
+    pen2.fillRect(0, 0, W, H);
+
+    // Pixel Toby, eight times bigger, in a chunky frame below where the clock sits
+    var scale = 8;
+    var tw = pixelCanvas.width * scale;
+    var th = pixelCanvas.height * scale;
+    var x = Math.round((W - tw) / 2);
+    var y = Math.round((H - th) / 2 + 140);
+    pen2.fillStyle = night ? '#ff66b2' : '#0000aa';
+    pen2.fillRect(x - 40, y - 40, tw + 80, th + 80);
+    pen2.fillStyle = '#ffffff';
+    pen2.fillRect(x - 24, y - 24, tw + 48, th + 48);
+    pen2.drawImage(pixelCanvas, x, y, tw, th);
+    // the name on a little black LCD plate, so the wallpaper pattern doesn't get in the way
+    var plateY = y + th + 90;
+    pen2.fillStyle = '#c0c0c0';
+    pen2.fillRect(W / 2 - 230, plateY, 460, 130);
+    pen2.fillStyle = '#000';
+    pen2.fillRect(W / 2 - 214, plateY + 16, 428, 98);
+    pen2.font = '110px VT323, monospace';
+    pen2.textAlign = 'center';
+    pen2.textBaseline = 'middle';
+    pen2.fillStyle = night ? '#ffe600' : '#3dff4a';
+    pen2.fillText('toby.exe', W / 2, plateY + 68);
+
+    wall.toBlob(function (blob) {
+      if (!blob) return;
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = night ? 'pixel-toby-night.png' : 'pixel-toby-day.png';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(function () { URL.revokeObjectURL(link.href); }, 5000);
+      say('Saved! Now I can tuck in your phone too.');
+      [523.25, 659.25, 783.99].forEach(function (f, i) { ping(f, { delay: i * 0.08, duration: 0.5, volume: 0.12, type: 'square' }); });
+    }, 'image/png');
+  }
+
+  var wallpaperButton = document.getElementById('save-wallpaper');
+  wallpaperButton.setAttribute('data-sound', 'own');
+  wallpaperButton.addEventListener('click', saveWallpaper);
   if (root.dataset.chaos === 'on') makePixelToby();
 
   /* ------------------------------------------------------------------------
@@ -737,6 +841,7 @@
       return;
     }
 
+    if (jukebox.playing) stopJukebox();
     box.spring = Math.min(MAX_TURNS * SECONDS_PER_TURN, Math.max(0, box.spring) + SECONDS_PER_TURN);
     rattle(); // the ratchet click
     var turn = (parseFloat(windKey.style.getPropertyValue('--turn')) || 0) + 90;
@@ -1744,6 +1849,7 @@
   readButton.addEventListener('click', function () {
     if (reading) { stopReading(); return; }
     if (muted) { bookStatus.textContent = 'Turn the sound on to hear the story.'; return; }
+    if (jukebox.playing) stopJukebox();
     reading = true;
     readButton.setAttribute('aria-pressed', 'true');
     readButton.textContent = 'Stop reading';
@@ -1760,6 +1866,98 @@
   document.addEventListener('toby:sound', function (event) { if (event.detail.muted && reading) stopReading('Muted, so I stopped reading.'); });
   document.addEventListener('toby:project', function (event) { if (event.detail.id !== 'storybook' && reading) stopReading(); });
   document.addEventListener('toby:page', function (event) { if (event.detail.id !== 'work' && reading) stopReading(); });
+
+  /* ------------------------------------------------------------------------
+     Chaos mode's MIDI jukebox: chiptune versions of Toby's lullabies, made
+     live with square and triangle waves (no files). It only plays when
+     pressed, never over the music box or the storybook, and stops when the
+     sound is muted or chaos mode is switched off.
+     ------------------------------------------------------------------------ */
+
+  var jukeboxEl = document.getElementById('jukebox');
+  var jukeboxLcd = document.getElementById('jukebox-lcd');
+  var JUKEBOX_TRACKS = [
+    { file: 'tobys_theme.mid', tune: 'toby' },
+    { file: 'twinkle.mid', tune: 'twinkle' },
+    { file: 'dream_machine.mid', tune: 'dream' }
+  ];
+  var jukebox = { track: 0, playing: false, timer: 0, gain: null, loop: null, index: 0, time: 0, beat: 0 };
+
+  function showTrack(prefix) { jukeboxLcd.textContent = prefix + JUKEBOX_TRACKS[jukebox.track].file; }
+
+  function tickJukebox(ctx) {
+    var secondsPerBeat = 60 / (jukebox.loop.bpm * 1.45); // chiptunes are perkier than music boxes
+    var horizon = ctx.currentTime + (document.hidden ? 1.5 : 0.25);
+    while (jukebox.playing) {
+      if (jukebox.index >= jukebox.loop.events.length) {
+        jukebox.time += (jukebox.loop.length - jukebox.beat) * secondsPerBeat;
+        jukebox.loop = buildLoop(JUKEBOX_TRACKS[jukebox.track].tune); // the Dream Machine changes each time round
+        jukebox.index = 0;
+        jukebox.beat = 0;
+        continue;
+      }
+      var event = jukebox.loop.events[jukebox.index];
+      var at = jukebox.time + (event.beat - jukebox.beat) * secondsPerBeat;
+      if (at > horizon) break;
+      jukebox.time = at;
+      jukebox.beat = event.beat;
+      if (event.bass) {
+        ping(event.freq, { at: at, duration: 0.4, volume: 0.07, type: 'triangle', dest: jukebox.gain });
+      } else {
+        ping(event.freq, { at: at, duration: 0.22, volume: 0.035, type: 'square', dest: jukebox.gain });
+        ping(event.freq * 2, { at: at + secondsPerBeat / 2, duration: 0.12, volume: 0.015, type: 'square', dest: jukebox.gain }); // a little 8-bit echo
+      }
+      jukebox.index++;
+    }
+  }
+
+  function playJukebox() {
+    var ctx = getAudio();
+    if (!ctx) { jukeboxLcd.textContent = 'This browser can’t play music.'; return; }
+    if (muted) { jukeboxLcd.textContent = 'Sound is off. Turn it on to listen.'; return; }
+    stopJukebox(true);
+    if (box.playing) stopBox('The jukebox is playing now. Wind me up again later.');
+    if (reading) stopReading('The jukebox started, so I stopped reading.');
+    jukebox.gain = ctx.createGain();
+    jukebox.gain.connect(master);
+    jukebox.loop = buildLoop(JUKEBOX_TRACKS[jukebox.track].tune);
+    jukebox.index = 0;
+    jukebox.beat = 0;
+    jukebox.time = ctx.currentTime + 0.1;
+    jukebox.playing = true;
+    jukeboxEl.classList.add('is-playing');
+    showTrack('♪ Now playing: ');
+    jukebox.timer = setInterval(function () { tickJukebox(ctx); }, 40);
+    tickJukebox(ctx);
+  }
+
+  function stopJukebox(quietly) {
+    if (!jukebox.playing) return;
+    jukebox.playing = false;
+    clearInterval(jukebox.timer);
+    jukeboxEl.classList.remove('is-playing');
+    var fading = jukebox.gain;
+    jukebox.gain = null;
+    if (fading && audio) {
+      fading.gain.setTargetAtTime(0.0001, audio.currentTime, 0.05);
+      setTimeout(function () { fading.disconnect(); }, 400);
+    }
+    if (!quietly) showTrack('Stopped: ');
+  }
+
+  ['jukebox-play', 'jukebox-stop', 'jukebox-next'].forEach(function (id) { document.getElementById(id).setAttribute('data-sound', 'own'); });
+  document.getElementById('jukebox-play').addEventListener('click', playJukebox);
+  document.getElementById('jukebox-stop').addEventListener('click', function () { stopJukebox(); });
+  document.getElementById('jukebox-next').addEventListener('click', function () {
+    var wasPlaying = jukebox.playing;
+    jukebox.track = (jukebox.track + 1) % JUKEBOX_TRACKS.length;
+    if (wasPlaying) playJukebox();
+    else showTrack('Next up: ');
+  });
+  document.addEventListener('toby:sound', function (event) {
+    if (event.detail.muted && jukebox.playing) { stopJukebox(true); jukeboxLcd.textContent = 'Muted. Turn the sound on to listen.'; }
+  });
+  document.addEventListener('toby:chaos', function (event) { if (!event.detail.on) stopJukebox(); });
 
   /* ------------------------------------------------------------------------
      Story: scroll position drives the sky (--p) and highlights each scene
@@ -2160,7 +2358,7 @@
     if (toby3d) return Promise.resolve(toby3d);
     if (loading3d) return loading3d;
     status3d.textContent = 'Building Toby in 3D\u2026';
-    loading3d = import('./toby3d.js?v=20261018f')
+    loading3d = import('./toby3d.js?v=20261018g')
       .then(function (module) {
         toby3d = module.createToby3D(stage3d, {
           retro: root.dataset.chaos === 'on',
@@ -2279,7 +2477,7 @@
 
   // Nothing sleepy while the visitor is listening, watching or playing
   function busy() {
-    return reading || box.playing || game.state === 'playing' || nightlightOn;
+    return reading || box.playing || game.state === 'playing' || nightlightOn || jukebox.playing;
   }
 
   function onIdle() {

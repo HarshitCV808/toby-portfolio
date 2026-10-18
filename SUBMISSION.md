@@ -14,7 +14,7 @@ I didn't want a landing page with a cute mascot on top. I wanted it to feel like
 ## If you only have a minute
 
 - Boop Toby on the home page, then press **View in 3D** and spin him around.
-- Press the sparkle button for **chaos mode**, then switch between day and night. Try it on your phone too, it turns into a little Tobygotchi.
+- Press the sparkle button for **chaos mode**, then switch between day and night. Try it on your phone too, it turns into a little Tobygotchi. Chaos mode also has a MIDI jukebox at the top and a button that saves pixel Toby as a phone wallpaper.
 - On the Work page, wind up the **Toby Box** and press **Read it to me** in Snorbit's storybook.
 - Send Snorbit on a **dream delivery** across Hushbury.
 - Pin a wish in the guestbook, then scroll to the end of the Story page. Your wish is one of the stars in **Tonight's sky**.

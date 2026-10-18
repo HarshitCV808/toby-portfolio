@@ -5,6 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Toby, Lullaby Tinkerer</title>
   <meta name="description" content="Toby is a skull baby who builds music boxes, nightlights and toys at the Cloud Cradle Workshop. I tuck the whole sky in.">
+  <!-- Link preview card, for when the address is shared in chats and forms -->
+  <link rel="canonical" href="https://harshitcv808.github.io/toby-portfolio/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Toby's Homepage">
+  <meta property="og:title" content="Toby, Lullaby Tinkerer">
+  <meta property="og:description" content="A sleepy skull baby who builds music boxes, nightlights and toys at the Cloud Cradle Workshop. I tuck the whole sky in.">
+  <meta property="og:url" content="https://harshitcv808.github.io/toby-portfolio/">
+  <meta property="og:image" content="https://harshitcv808.github.io/toby-portfolio/assets/og-card.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Toby, a smiling skull baby in a striped nightcap, holding a glowing lantern and a music box">
+  <meta name="twitter:card" content="summary_large_image">
   <script>
     // Set the theme before first paint so the page never flashes the wrong colours.
     // Saved choice wins; otherwise follow the visitor's clock (7pm to 6am is night).
@@ -24,8 +36,8 @@
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:wght@400..800&family=Patrick+Hand&family=VT323&display=swap"></noscript>
   <!-- ?v= is bumped with each update, so a normal refresh fetches the new files
        (GitHub Pages lets browsers reuse them for 10 minutes) -->
-  <link rel="stylesheet" href="styles.css?v=20261018f">
-  <script src="main.js?v=20261018f" defer></script>
+  <link rel="stylesheet" href="styles.css?v=20261018g">
+  <script src="main.js?v=20261018g" defer></script>
 </head>
 <body>
   <!-- Soft clouds drifting slowly behind the pages (with a sprinkle of stars at night).
@@ -76,6 +88,19 @@
     </div>
   </div>
 
+  <!-- Chaos mode: Toby's MIDI jukebox. Chiptune lullabies made live in main.js;
+       it only plays when pressed, and the sound switch silences it. -->
+  <aside class="chaos-only jukebox" id="jukebox" aria-label="Toby's MIDI jukebox">
+    <p class="jukebox-title">Toby's MIDI Jukebox</p>
+    <p class="jukebox-lcd" id="jukebox-lcd" aria-live="polite">Press play: tobys_theme.mid</p>
+    <span class="jukebox-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    <span class="jukebox-buttons">
+      <button class="button" id="jukebox-play" type="button">Play</button>
+      <button class="button" id="jukebox-stop" type="button">Stop</button>
+      <button class="button" id="jukebox-next" type="button">Next</button>
+    </span>
+  </aside>
+
   <main id="main">
     <!-- HERO: Toby's eyes follow your cursor (on touch screens they follow your last tap) -->
     <section class="hero" id="top" aria-labelledby="hero-title" data-page="Home">
@@ -101,6 +126,8 @@
         </div>
         </div>
         <button class="button button-quiet view-3d" id="view-3d" type="button" aria-pressed="false" aria-controls="flip-card">View in 3D</button>
+        <!-- Chaos mode souvenir: pixel Toby as a phone wallpaper, drawn in main.js -->
+        <button class="button button-quiet chaos-only save-wallpaper" id="save-wallpaper" type="button">Save pixel Toby wallpaper</button>
         <p class="bubble" id="bubble" role="status" aria-live="polite">Oh! Hi. I was only resting my eyes.</p>
       </figure>
 

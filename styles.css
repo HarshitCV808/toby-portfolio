@@ -2523,6 +2523,9 @@ main { overflow-x: clip; }
     box-shadow: inset 0 0 0 4px #fff;
   }
   :root[data-chaos="on"] .topbar { border-radius: 30px 30px 0 0; }
+  /* By day the page is see-through, so the pixel clouds show behind the text */
+  :root[data-chaos="on"][data-theme="day"] main,
+  :root[data-chaos="on"][data-theme="day"] .footer { background-color: transparent; }
   /* Like a virtual pet's screen: headings, labels and captions are pixel text too */
   :root[data-chaos="on"] main :is(h2, h3, dt, label, legend, figcaption, .photo-caption, .baby-sticker strong) {
     font-family: var(--font-retro);
@@ -2579,7 +2582,6 @@ main { overflow-x: clip; }
     font: 700 0.9rem/1 var(--chaos-ui);
   }
   :root[data-chaos="on"] main { margin: 12px; border: 4px outset #e8e8e8; }
-  :root[data-chaos="on"][data-theme="day"] body { background-color: #008080; background-image: none; }
   :root[data-chaos="on"] .chaos-taskbar {
     position: fixed;
     inset: auto 0 0 0;

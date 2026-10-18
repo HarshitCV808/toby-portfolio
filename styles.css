@@ -331,7 +331,7 @@ main { overflow-x: clip; }
 .portrait > .view-3d { display: flex; width: fit-content; margin: 1.2rem auto 0; }
 :root[data-chaos="on"] .toby-3d {
   background-color: #000;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='6' cy='8' r='1' fill='%23fff'/%3E%3Ccircle cx='28' cy='22' r='1.4' fill='%23ffe600'/%3E%3Ccircle cx='18' cy='34' r='.8' fill='%2366ffff'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 20 20' shape-rendering='crispEdges'%3E%3Cpath fill='%23ffe600' d='M4 2h1v1h-1zM4 3h1v1h-1zM2 4h2v1h-2zM5 4h2v1h-2zM4 5h1v1h-1zM4 6h1v1h-1zM17 18h1v1h-1z'/%3E%3Cpath fill='%23fff7b0' d='M4 4h1v1h-1z'/%3E%3Cpath fill='%23ff9ec4' d='M14 11h1v1h-1zM13 12h3v1h-3zM14 13h1v1h-1z'/%3E%3Cpath fill='%23ffffff' d='M15 3h1v1h-1zM2 15h1v1h-1z'/%3E%3Cpath fill='%2366ffff' d='M8 16h1v1h-1z'/%3E%3Cpath fill='%23b9a3e3' d='M10 7h1v1h-1z'/%3E%3C/svg%3E");
   border: 5px ridge #ff66b2;
   border-radius: 0;
 }
@@ -2379,9 +2379,11 @@ main { overflow-x: clip; }
   --font-hand: var(--font-display);          /* handwriting becomes Comic Sans */
 }
 
+/* Wallpapers are pixel art (stars here, clouds by day), drawn on a grid and
+   scaled up with crisp edges. tools/make_pixel_tiles.py makes them. */
 :root[data-chaos="on"] body {
   background-color: var(--bg);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M12 5l1.6 4.4L18 11l-4.4 1.6L12 17l-1.6-4.4L6 11l4.4-1.6z' fill='%23fff36e'/%3E%3Ccircle cx='40' cy='34' r='1.6' fill='%23ffffff'/%3E%3Ccircle cx='30' cy='50' r='1.1' fill='%23ff9ec4'/%3E%3Ccircle cx='48' cy='8' r='1' fill='%2366ffff'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 20 20' shape-rendering='crispEdges'%3E%3Cpath fill='%23ffe600' d='M4 2h1v1h-1zM4 3h1v1h-1zM2 4h2v1h-2zM5 4h2v1h-2zM4 5h1v1h-1zM4 6h1v1h-1zM17 18h1v1h-1z'/%3E%3Cpath fill='%23fff7b0' d='M4 4h1v1h-1z'/%3E%3Cpath fill='%23ff9ec4' d='M14 11h1v1h-1zM13 12h3v1h-3zM14 13h1v1h-1z'/%3E%3Cpath fill='%23ffffff' d='M15 3h1v1h-1zM2 15h1v1h-1z'/%3E%3Cpath fill='%2366ffff' d='M8 16h1v1h-1z'/%3E%3Cpath fill='%23b9a3e3' d='M10 7h1v1h-1z'/%3E%3C/svg%3E");
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M3 25L17 11' stroke='%23ffffff' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M20 2l1.6 4.4L26 8l-4.4 1.6L20 14l-1.6-4.4L14 8l4.4-1.6z' fill='%23ffe600' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") 3 25, auto;
 }
 :root[data-chaos="on"] .chaos-only { display: revert; }
@@ -2397,7 +2399,7 @@ main { overflow-x: clip; }
   --surface: #fff;
   --surface-edge: #808080;
 }
-:root[data-chaos="on"][data-theme="day"] body { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='150'%3E%3Cg fill='%23fff'%3E%3Cellipse cx='52' cy='42' rx='36' ry='13'/%3E%3Cellipse cx='40' cy='34' rx='17' ry='13'/%3E%3Cellipse cx='64' cy='30' rx='21' ry='16'/%3E%3Cellipse cx='172' cy='112' rx='40' ry='14'/%3E%3Cellipse cx='158' cy='103' rx='19' ry='14'/%3E%3Cellipse cx='186' cy='97' rx='24' ry='17'/%3E%3C/g%3E%3Cpath d='M200 26l2 5 5 2-5 2-2 5-2-5-5-2 5-2z' fill='%23ffe600'/%3E%3C/svg%3E"); }
+:root[data-chaos="on"][data-theme="day"] body { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='160' viewBox='0 0 64 40' shape-rendering='crispEdges'%3E%3Cpath fill='%23ffffff' d='M11 5h4v1h-4zM8 6h9v1h-9zM7 7h11v1h-11zM19 7h3v1h-3zM5 8h19v1h-19zM4 9h21v1h-21zM3 10h22v1h-22zM3 11h22v1h-22zM43 25h4v1h-4zM41 26h8v1h-8zM50 26h2v1h-2zM39 27h15v1h-15zM38 28h16v1h-16zM38 29h16v1h-16z'/%3E%3Cpath fill='%23cfe6ff' d='M3 12h22v1h-22zM4 13h20v1h-20zM38 30h16v1h-16zM39 31h14v1h-14z'/%3E%3Cpath fill='%23ffe600' d='M54 6h1v1h-1zM53 7h3v1h-3zM52 8h2v1h-2zM55 8h2v1h-2zM53 9h3v1h-3zM54 10h1v1h-1z'/%3E%3Cpath fill='%23fff7b0' d='M54 8h1v1h-1z'/%3E%3C/svg%3E"); }
 :root[data-chaos="on"][data-theme="day"] main,
 :root[data-chaos="on"][data-theme="day"] .footer { background-color: rgba(255, 255, 255, 0.94); }
 :root[data-chaos="on"][data-theme="day"] .who { --pen: #0000aa; --paper-rule: #a8a8e0; }

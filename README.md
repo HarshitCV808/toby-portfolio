@@ -45,7 +45,7 @@ The site has five pages (Home, Who, Work, Story, Guestbook). Each opens on its o
 - A sparkle trail of stars and tiny bones.
 - A real visitor counter odometer and a 1999 marquee.
 - **TobyChat 99**, a chat window where Toby answers in character.
-- **Chaos Mode**, a 1999 version of the site that reshapes itself for each screen size: a pink *Tobygotchi* gadget on phones, a *Toby 98* desktop window on tablets, and a *Homepage Deluxe* with webring panels on desktops. With the lights on, chaos mode is a bright GeoCities page (sky-blue cloud wallpaper, white page, blue links; Toby 98 gets the classic teal desktop); with the lights off it's the starry navy night version. In chaos mode the portrait becomes 16-bit pixel art, the little drawings on the Who and Story pages turn into chunky pixels, the menus and buttons switch to a pixel font, and 3D Toby turns low-poly. Headings stay in rainbow WordArt and paragraphs stay easy to read.
+- **Chaos Mode**, a 1999 version of the site that reshapes itself for each screen size: a pink *Tobygotchi* gadget on phones, a *Toby 98* desktop window on tablets, and a *Homepage Deluxe* with webring panels on desktops. With the lights on, chaos mode is a bright GeoCities page (a sky-blue wallpaper of pixel-art clouds, white page, blue links; Toby 98 gets the classic teal desktop); with the lights off it's the navy night version with a wallpaper of pixel-art stars. In chaos mode the portrait becomes 16-bit pixel art, the little drawings on the Who and Story pages turn into chunky pixels, the menus and buttons switch to a pixel font, and 3D Toby turns low-poly. Headings stay in rainbow WordArt and paragraphs stay easy to read.
 
 ### Brief checklist
 
@@ -87,6 +87,7 @@ The site is plain **HTML, CSS and JavaScript**, with no framework and no build s
 | `main.js` | Every interactive feature, in labelled sections (sound, eyes, each project, Easter eggs, chat, pages). |
 | `toby3d.js` | The Three.js model. It's built from simple shapes and only downloaded when someone presses "View in 3D". |
 | `supabase/` | The SQL that creates the guestbook and counter tables and their security rules, plus setup steps. |
+| `tools/` | The scripts that made the storybook narration (`make_story_audio.py`) and chaos mode's pixel wallpapers (`make_pixel_tiles.py`). |
 
 ### How the main features work
 
@@ -94,6 +95,7 @@ The site is plain **HTML, CSS and JavaScript**, with no framework and no build s
 - **Sound:** every effect and tune is synthesised with the Web Audio API, so there are no music files. The music box schedules notes slightly ahead on the audio clock to keep timing steady.
 - **Storybook narration:** recorded ahead of time, so every visitor hears the same voice and no AI service runs on the live site. `tools/make_story_audio.py` reads the storybook text from `index.html` and has [Piper](https://github.com/OHF-Voice/piper1-gpl), a free open-source AI voice, read it in the Cori voice (`en_GB-cori-high`). The script then saves one small AAC file per page in `assets/story/`. Re-run it if the story text changes.
 - **Eyes:** star-shaped overlays sit exactly on the painted eye sockets (positions measured from the artwork) and glide towards the pointer in under a tenth of a second.
+- **Pixel wallpapers:** chaos mode's clouds and stars are drawn as text sprites in `tools/make_pixel_tiles.py`, which turns them into tiny SVG tiles of square pixels (about 600 bytes each) with crisp edges. Re-run it to redraw them.
 - **Pixel-art Toby:** generated in the browser from the painting. It's shrunk to 104px wide, each pixel is matched to a 16-colour pastel palette with Bayer dithering, then scaled up with crisp pixels.
 - **Guestbook and counter:** read and written through Supabase's REST API with the public "anon" key. Row-level security lets visitors read and add wishes and add one to the counter. Visitors can only send a name and a message; the database sets each wish's time. Nobody can edit or delete through the site. Wishes are rendered with `textContent`, so no HTML can be injected.
 - **Tonight's sky:** the Story page fetches the latest 30 wishes once (shared with the guestbook wall) and places each star on a loose grid, nudged by a hash of the wish so it keeps its spot. Every star is a 44px button, so they're easy to tap on a phone.
@@ -123,7 +125,7 @@ To use your own guestbook, follow [`supabase/SETUP.md`](supabase/SETUP.md) and p
 
 ## Credits
 
-- **Toby artwork:** the paintings were generated with Google Gemini, art-directed by Toby's Night Shift. The pixel-art version is generated from them in the browser. The small SVG drawings on the Who and Story pages were drawn in code with Claude.
+- **Toby artwork:** the paintings were generated with Google Gemini, art-directed by Toby's Night Shift. The pixel-art version is generated from them in the browser. The small SVG drawings (the Who and Story pages, the screensavers) and chaos mode's pixel-art wallpapers were drawn in code with Claude.
 - **Code:** written by Toby's Night Shift with help from Claude by Anthropic.
 - **Storybook narration:** an AI voice generated with [Piper](https://github.com/OHF-Voice/piper1-gpl), using the *Cori* voice (trained on public-domain LibriVox recordings).
 - **Libraries:** [Three.js](https://threejs.org), [canvas-confetti](https://github.com/catdad/canvas-confetti), [Supabase](https://supabase.com).

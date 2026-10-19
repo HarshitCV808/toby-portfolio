@@ -2814,6 +2814,7 @@ main { overflow-x: clip; }
   :root[data-chaos="on"] .chaos-panel-right { right: 20px; }
   .chaos-panel-title { margin: 0 0 0.6rem; font: 700 1.1rem var(--font-display); color: #ff66b2; }
   .chaos-ring { display: flex; justify-content: space-between; gap: 0.4rem; }
+  .chaos-panel a { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
   .chaos-badges { display: grid; gap: 0.4rem; margin: 0.8rem 0 0; padding: 0; list-style: none; }
   .chaos-badges li { padding: 0.2rem; border: 2px solid #fff; background: #000080; color: #fff; font-size: 0.8rem; }
   .chaos-small { margin: 0.6rem 0 0; font-size: 0.8rem; color: #c0c0c0; }

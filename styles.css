@@ -1727,6 +1727,26 @@ main { overflow-x: clip; }
 }
 :root[data-chaos="on"] .wish-sky { border: 5px ridge #ff66b2; border-radius: 0; background: #000048; }
 :root[data-chaos="on"] .wish-stars { border-radius: 0; }
+/* In chaos mode the wishes are 9x9 pixel stars (the projector's sprite) that
+   blink like a 1999 GIF; hovering or picking one grows it by whole pixels */
+:root[data-chaos="on"] .wish-star { border-radius: 0; filter: none; }
+:root[data-chaos="on"] .wish-star::before {
+  width: 27px;
+  height: 27px;
+  margin: -13px 0 0 -14px;
+  clip-path: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 9' shape-rendering='crispEdges'%3E%3Cpath d='M4 0h1v1h-1zM4 1h1v1h-1zM3 2h3v1h-3zM0 3h9v1h-9zM1 4h7v1h-7zM2 5h5v1h-5zM2 6h5v1h-5zM1 7h2v1h-2zM6 7h2v1h-2zM1 8h1v1h-1zM7 8h1v1h-1z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 9' shape-rendering='crispEdges'%3E%3Cpath d='M4 0h1v1h-1zM4 1h1v1h-1zM3 2h3v1h-3zM0 3h9v1h-9zM1 4h7v1h-7zM2 5h5v1h-5zM2 6h5v1h-5zM1 7h2v1h-2zM6 7h2v1h-2zM1 8h1v1h-1zM7 8h1v1h-1z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  animation: wish-blink 2.4s steps(1) infinite;
+  animation-delay: var(--delay);
+}
+@keyframes wish-blink { 50% { opacity: 0.45; } }
+:root[data-chaos="on"] .wish-star:hover::before,
+:root[data-chaos="on"] .wish-star[aria-pressed="true"]::before { animation: none; transform: scale(1.3333); }
+:root[data-chaos="on"] .wish-star[aria-pressed="true"] { box-shadow: inset 0 0 0 3px #ffe600; }
+@media (prefers-reduced-motion: reduce) {
+  :root[data-chaos="on"] .wish-star::before { animation: none; }
+}
 
 /* --------------------------------------------------------------------------
    Screensavers: an Easter egg for very still visitors. A cosy night sky

@@ -2565,8 +2565,10 @@ main { overflow-x: clip; }
   --surface-edge: #808080;
 }
 :root[data-chaos="on"][data-theme="day"] body { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='160' viewBox='0 0 64 40' shape-rendering='crispEdges'%3E%3Cpath fill='%23ffffff' d='M11 5h4v1h-4zM8 6h9v1h-9zM7 7h11v1h-11zM19 7h3v1h-3zM5 8h19v1h-19zM4 9h21v1h-21zM3 10h22v1h-22zM3 11h22v1h-22zM43 25h4v1h-4zM41 26h8v1h-8zM50 26h2v1h-2zM39 27h15v1h-15zM38 28h16v1h-16zM38 29h16v1h-16z'/%3E%3Cpath fill='%23cfe6ff' d='M3 12h22v1h-22zM4 13h20v1h-20zM38 30h16v1h-16zM39 31h14v1h-14z'/%3E%3Cpath fill='%23ffe600' d='M54 6h1v1h-1zM53 7h3v1h-3zM52 8h2v1h-2zM55 8h2v1h-2zM53 9h3v1h-3zM54 10h1v1h-1z'/%3E%3Cpath fill='%23fff7b0' d='M54 8h1v1h-1z'/%3E%3C/svg%3E"); }
+/* By day a soft white veil sits behind the text, like the navy one at night,
+   so the pixel clouds still show through the middle of the page */
 :root[data-chaos="on"][data-theme="day"] main,
-:root[data-chaos="on"][data-theme="day"] .footer { background-color: rgba(255, 255, 255, 0.94); }
+:root[data-chaos="on"][data-theme="day"] .footer { background-color: rgba(255, 255, 255, 0.55); }
 :root[data-chaos="on"][data-theme="day"] .who { --pen: #0000aa; --paper-rule: #a8a8e0; }
 /* At night a soft navy veil sits behind the text on every screen size, so the
    bright pixel sparkles never land right behind a letter */

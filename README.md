@@ -43,7 +43,7 @@ The site has five pages (Home, Who, Work, Story, Guestbook). Each opens on its o
 **Everywhere:**
 - A day/night switch and a sound switch with mute.
 - Soft clouds drift slowly behind the pages, with a faint sprinkle of stars at night. They hold still for visitors who prefer reduced motion.
-- A sparkle trail of stars and tiny bones.
+- A sparkle trail of stars and tiny bones behind the mouse, and a little burst of them wherever you tap on a phone or tablet.
 - A real visitor counter odometer and a 1999 marquee.
 - **TobyChat 99**, a chat window where Toby answers in character.
 - **Toby remembers you.** Come back later (a new tab or another day) and he greets you in his speech bubble on the Home page with your visit number, how long ago you last came, and something you did: how many secret words you've found, your best Star Catcher score, or that you once woke Snorbit. TobyChat says "Welcome back!" too. To try it, visit, close the tab, and open the site again.

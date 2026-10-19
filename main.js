@@ -2036,7 +2036,8 @@
   });
 
   /* ------------------------------------------------------------------------
-     Sparkle trail: stars and tiny bones behind a mouse pointer
+     Sparkle trail: stars and tiny bones behind a mouse pointer, and a little
+     burst of them wherever a finger taps on a phone or tablet
      ------------------------------------------------------------------------ */
 
   var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -2045,12 +2046,17 @@
   var lastSparkle = 0;
   var liveSparkles = 0;
 
-  // One sparkle (a star, sometimes a tiny bone) at a screen position
-  function sparkleAt(x, y) {
+  // One sparkle (a star, sometimes a tiny bone) at a screen position;
+  // `fling` ([dx, dy] in px) sends it flying outwards instead of falling
+  function sparkleAt(x, y, fling) {
     if (reduceMotion.matches || liveSparkles > 40) return;
     var bit = document.createElement('span');
     var isBone = Math.random() < 0.18;
-    bit.className = 'trail ' + (isBone ? 'trail-bone' : 'trail-star');
+    bit.className = 'trail ' + (isBone ? 'trail-bone' : 'trail-star') + (fling ? ' is-flung' : '');
+    if (fling) {
+      bit.style.setProperty('--dx', fling[0].toFixed(1) + 'px');
+      bit.style.setProperty('--dy', fling[1].toFixed(1) + 'px');
+    }
     bit.setAttribute('aria-hidden', 'true');
     if (isBone) bit.innerHTML = BONE;
     else bit.style.setProperty('--c', root.dataset.chaos === 'on'
@@ -2069,6 +2075,21 @@
     if (now - lastSparkle < 45 || liveSparkles > 28) return;
     lastSparkle = now;
     sparkleAt(event.clientX, event.clientY);
+  }, { passive: true });
+
+  // Touch screens have no trail, so a tap sends out a ring of sparkles instead
+  // (not while typing, or while Star Catcher is being played)
+  window.addEventListener('pointerdown', function (event) {
+    if (event.pointerType === 'mouse' || !event.isPrimary) return;
+    var target = event.target;
+    if (target.closest && target.closest('input, textarea, #game.is-playing')) return;
+    var count = 7;
+    var start = Math.random() * Math.PI * 2;
+    for (var i = 0; i < count; i++) {
+      var angle = start + i * (Math.PI * 2 / count);
+      var reach = 24 + Math.random() * 18;
+      sparkleAt(event.clientX, event.clientY, [Math.cos(angle) * reach, Math.sin(angle) * reach]);
+    }
   }, { passive: true });
 
   /* ------------------------------------------------------------------------

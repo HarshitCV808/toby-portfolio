@@ -2047,12 +2047,13 @@
   var liveSparkles = 0;
 
   // One sparkle (a star, sometimes a tiny bone) at a screen position;
-  // `fling` ([dx, dy] in px) sends it flying outwards instead of falling
-  function sparkleAt(x, y, fling) {
-    if (reduceMotion.matches || liveSparkles > 40) return;
+  // `fling` ([dx, dy] in px) sends it flying outwards instead of falling,
+  // and `still` makes it fade in and out where it is (for reduced motion)
+  function sparkleAt(x, y, fling, still) {
+    if ((reduceMotion.matches && !still) || liveSparkles > 40) return;
     var bit = document.createElement('span');
     var isBone = Math.random() < 0.18;
-    bit.className = 'trail ' + (isBone ? 'trail-bone' : 'trail-star') + (fling ? ' is-flung' : '');
+    bit.className = 'trail ' + (isBone ? 'trail-bone' : 'trail-star') + (fling ? ' is-flung' : '') + (still ? ' is-still' : '');
     if (fling) {
       bit.style.setProperty('--dx', fling[0].toFixed(1) + 'px');
       bit.style.setProperty('--dy', fling[1].toFixed(1) + 'px');
@@ -2078,17 +2079,22 @@
   }, { passive: true });
 
   // Touch screens have no trail, so a tap sends out a ring of sparkles instead
-  // (not while typing, or while Star Catcher is being played)
+  // (not while typing, or while Star Catcher is being played). With reduced
+  // motion the ring simply glows in place around the finger and fades.
   window.addEventListener('pointerdown', function (event) {
     if (event.pointerType === 'mouse' || !event.isPrimary) return;
     var target = event.target;
     if (target.closest && target.closest('input, textarea, #game.is-playing')) return;
-    var count = 7;
+    var gentle = reduceMotion.matches;
+    var count = gentle ? 6 : 7;
     var start = Math.random() * Math.PI * 2;
     for (var i = 0; i < count; i++) {
       var angle = start + i * (Math.PI * 2 / count);
-      var reach = 24 + Math.random() * 18;
-      sparkleAt(event.clientX, event.clientY, [Math.cos(angle) * reach, Math.sin(angle) * reach]);
+      var reach = gentle ? 26 : 24 + Math.random() * 18;
+      var dx = Math.cos(angle) * reach;
+      var dy = Math.sin(angle) * reach;
+      if (gentle) sparkleAt(event.clientX + dx, event.clientY + dy, null, true);
+      else sparkleAt(event.clientX, event.clientY, [dx, dy]);
     }
   }, { passive: true });
 

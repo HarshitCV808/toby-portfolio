@@ -2333,6 +2333,13 @@ main { overflow-x: clip; }
   50% { opacity: 1; }
   100% { transform: translate(var(--dx), var(--dy)) scale(0.4) rotate(160deg); opacity: 0; }
 }
+/* Reduced motion: the ring just glows where it is and fades, nothing moves */
+.trail.is-still { animation: trail-glow 0.8s ease-out forwards; }
+@keyframes trail-glow {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
 
 /* --------------------------------------------------------------------------
    Responsive

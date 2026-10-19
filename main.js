@@ -1130,7 +1130,7 @@
       if (!possible.length) {
         blocksBusy = true;
         wordTray.classList.add('is-wrong');
-        blocksStatus.textContent = 'Hmm, Toby doesn\u2019t know a word that starts with \u201c' + spelled + '\u201d.';
+        blocksStatus.textContent = 'Hmm, I don\u2019t know a word that starts with \u201c' + spelled + '\u201d.';
         setTimeout(function () { tipOut(); }, 1100);
         return;
       }
